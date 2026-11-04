@@ -24,7 +24,12 @@ npm test         # unit tests
 npm run build    # production build
 ```
 
-## Deploying
-The app is a standard Next.js project. To deploy on [Vercel](https://vercel.com): import the GitHub
-repo, accept the defaults, and deploy. Add environment variables from `.env.example` as features
-need them.
+## Deploying (Vercel)
+1. Import the GitHub repo at vercel.com/new (framework is auto-detected; keep the defaults).
+2. In **Settings → Environment Variables**, set `SITE_PASSWORD` (and optionally `SITE_USERNAME`,
+   default `team`) to turn on the site-wide password gate. Redeploy after changing variables.
+3. Pushes to the production branch deploy to the main URL; other branches get preview URLs.
+
+## Access
+Until team sign-in lands (Phase 1), the whole site — pages and API — is behind HTTP Basic Auth
+when `SITE_PASSWORD` is set (`src/proxy.ts`). With it unset (local dev) the site is open.

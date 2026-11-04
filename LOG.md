@@ -48,3 +48,17 @@ no paid APIs.
 - Orange is reserved for brand/actions; status colors moved off amber (warn → yellow, fail → rose)
   so warnings can't be confused with buttons. Rules written into CLAUDE.md.
 - Dark-only for now; tokens are CSS variables so a light theme can be added later.
+
+## 2026-11-04 — Session 1c: access control for deployment
+
+**Changes**
+- Added a temporary site-wide password gate: `src/proxy.ts` (Next 16's renamed middleware) +
+  `src/lib/auth/basic-auth.ts` with constant-time comparison and tests. Active only when
+  `SITE_PASSWORD` is set, so local dev stays open. Covers pages and `/api/*`.
+- README: Vercel deployment + access instructions. `.env.example` documents the new variables.
+
+**Decisions**
+- Basic Auth as a stopgap (zero dependencies, no database) because the API fetches arbitrary URLs
+  and the tool is internal. Replaced in Phase 1 by real per-person sign-in with admin/member roles.
+- The repo's only branch (and GitHub default) is currently `claude/festive-allen-xz3809`;
+  a `main` branch should become the production branch before inviting the team.
