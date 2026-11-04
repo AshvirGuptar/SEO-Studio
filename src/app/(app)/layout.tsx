@@ -11,11 +11,11 @@ import { getCurrentUser, isAuthEnabled } from "@/lib/auth/server";
 export default function AppLayout({ children }: LayoutProps<"/">) {
   const authEnabled = isAuthEnabled();
   return (
-    <div className="flex min-h-screen flex-col md:flex-row">
+    <div className="flex min-h-screen flex-col lg:flex-row">
       <Suspense fallback={<Sidebar authEnabled={authEnabled} user={null} />}>
         <SidebarWithUser authEnabled={authEnabled} />
       </Suspense>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 md:px-8 md:py-10">
+      <main className="mx-auto w-full min-w-0 max-w-6xl flex-1 px-4 py-6 sm:px-6 md:py-8 lg:px-8 lg:py-10">
         <Suspense fallback={<div className="h-40 animate-pulse rounded-2xl bg-surface/60" />}>
           <Gate authEnabled={authEnabled}>{children}</Gate>
         </Suspense>

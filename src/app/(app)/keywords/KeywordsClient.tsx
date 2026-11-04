@@ -91,7 +91,7 @@ export function KeywordsClient() {
 
   return (
     <div className="mt-6 space-y-6">
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2">
         <div className="card">
           <label className="label" htmlFor="kws">Keywords: one per line, optional “,volume”</label>
           <textarea id="kws" className="input h-56 font-mono text-xs" value={kwText} onChange={(e) => setKwText(e.target.value)} />
@@ -111,7 +111,7 @@ export function KeywordsClient() {
           <label className="label" htmlFor="strict">Grouping: {strictness < 50 ? "Loose" : strictness > 80 ? "Strict" : "Balanced"}</label>
           <div className="flex items-center gap-3 text-xs text-subtle">
             Broad topics
-            <input id="strict" type="range" min={20} max={95} value={strictness} onChange={(e) => setStrictness(Number(e.target.value))} className="flex-1 accent-[var(--accent)]" />
+            <input id="strict" type="range" min={20} max={95} value={strictness} onChange={(e) => setStrictness(Number(e.target.value))} className="h-8 flex-1 accent-[var(--accent)]" />
             Tight topics
           </div>
         </div>

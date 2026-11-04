@@ -81,10 +81,10 @@ export function UrlsClient() {
                   <td className="max-w-xs break-all p-3 font-mono text-xs">{r.url}</td>
                   <td className="max-w-xs break-all p-3 font-mono text-xs text-accent">
                     {r.suggestion}
-                    <button className="ml-2 text-muted hover:text-foreground" onClick={() => navigator.clipboard.writeText(r.suggestion)} title="Copy">⧉</button>
+                    <button className="ml-1 inline-grid h-8 w-8 place-items-center rounded-lg text-muted hover:bg-surface-2 hover:text-foreground" onClick={() => navigator.clipboard.writeText(r.suggestion)} title="Copy suggested URL" aria-label="Copy suggested URL">⧉</button>
                   </td>
                   <td className="p-3">
-                    <button className="text-xs text-muted hover:text-foreground" onClick={() => setOpen(open === i ? null : i)}>
+                    <button className="min-h-8 text-xs text-muted hover:text-foreground" onClick={() => setOpen(open === i ? null : i)}>
                       {issues.length} issue{issues.length === 1 ? "" : "s"} {open === i ? "▴" : "▾"}
                     </button>
                     {open === i && (

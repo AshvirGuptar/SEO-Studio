@@ -17,3 +17,10 @@ mkdir -p scripts/e2e/screenshots && node scripts/e2e/run.cjs
 
 Requires Playwright with Chromium (`npm i -D playwright && npx playwright install chromium`).
 Screenshots land in `scripts/e2e/screenshots/` (git-ignored).
+
+## Phone & tablet sweep
+
+`node scripts/e2e/mobile.cjs scripts/e2e/screenshots/mobile http://localhost:3000` loads every tool
+on iPhone SE, iPhone 14, Pixel 7, iPad mini and iPad (landscape), fills in realistic results, and
+reports horizontal overflow (with the offending elements), tap targets under 32px and text under
+11px, plus a full-page screenshot per page/device.

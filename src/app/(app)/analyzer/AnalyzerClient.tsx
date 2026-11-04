@@ -112,7 +112,7 @@ export function ReportView({ report, saveable = true }: { report: Report; saveab
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_1fr_1.2fr]">
+      <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_1.2fr]">
         <div className="card flex flex-col justify-center">
           <ScoreRing summary={report.summary} label="SEO score · search engines" size={110} />
         </div>
@@ -123,13 +123,13 @@ export function ReportView({ report, saveable = true }: { report: Report; saveab
             <p className="text-sm text-muted">GEO analysis wasn&apos;t available when this report was saved. Re-run the analysis to get it.</p>
           )}
         </div>
-        <div className="card">
+        <div className="card sm:col-span-2 xl:col-span-1">
           <h2 className="label">Search result preview</h2>
           <SerpPreview title={f.title} description={f.metaDescription} url={report.url ?? ""} />
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
         <div className="card">
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <h2 className="mr-auto font-medium">Recommendations</h2>

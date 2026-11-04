@@ -128,8 +128,8 @@ export function AuditClient() {
             <button className="btn">{phase === "idle" ? "Start audit" : "Run again"}</button>
           )}
           {!running && (phase !== "idle" || url) && <StartOverButton onClick={startOver} />}
-          <label className="flex items-center gap-2 text-sm text-muted">
-            <input type="checkbox" checked={respectRobots} onChange={(e) => setRespectRobots(e.target.checked)} disabled={running} className="accent-[var(--accent)]" />
+          <label className="flex min-h-10 cursor-pointer items-center gap-2 text-sm text-muted">
+            <input type="checkbox" checked={respectRobots} onChange={(e) => setRespectRobots(e.target.checked)} disabled={running} className="h-4 w-4 accent-[var(--accent)]" />
             Respect robots.txt
           </label>
         </div>
@@ -212,7 +212,7 @@ export function Results({ data, finished = true, saveAction = null }: { data: Si
         </div>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[1.3fr_1fr_1fr_1fr]">
         <div className="card">
           <ScoreRing
             label="Site health"
@@ -274,7 +274,7 @@ function IssueRow({ issue }: { issue: SiteIssue }) {
   return (
     <div className="bg-surface-2/40">
       <button onClick={() => setOpen(!open)} className="flex w-full items-center gap-3 p-3 text-left text-sm">
-        <span className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase ${s.cls}`}>{s.label}</span>
+        <span className={`rounded-md px-1.5 py-0.5 text-[11px] font-semibold uppercase ${s.cls}`}>{s.label}</span>
         <span className="flex-1 font-medium">{issue.label}</span>
         <span className="tabular-nums text-muted">{(issue as SiteIssue & { total?: number }).total ?? issue.items.length}</span>
         <span className="text-subtle">{open ? "▴" : "▾"}</span>
