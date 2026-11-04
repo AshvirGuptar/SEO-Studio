@@ -1,0 +1,37 @@
+# SEO Studio — Log
+
+Dated entries, newest at the bottom. Each entry: what was planned, what changed, decisions, next steps.
+Agents: read the last few entries before starting work, and add one at the end of every session.
+
+---
+
+## 2026-11-04 — Session 1: scaffold + core engine
+
+**Plan:** set up the project so it can last five weeks, and ship a first usable slice that needs
+no paid APIs.
+
+**Changes**
+- Scaffolded Next.js 16 / React 19 / TypeScript / Tailwind v4 app (`create-next-app`).
+- Wrote `CLAUDE.md` (agent guide), `docs/PLAN.md` (phased roadmap through Dec 7), this log.
+- Built the pure-TS SEO engine in `src/lib/seo/` with a shared `Check` contract and weighted score.
+- Page Analyzer (`/analyzer`, `POST /api/analyze`): live URL or pasted HTML; 35+ checks plus
+  HTTP status, redirect chain, response time and X-Robots-Tag when fetched.
+- SSRF-protected fetcher (`src/lib/net/fetch-page.ts`) since the deployed app fetches arbitrary URLs.
+- Content Optimizer (`/content`): live client-side scoring of title, meta, URL and body with a SERP preview.
+- URL Optimizer (`/urls`): bulk checks, slug suggestions, CSV redirect-map export.
+- 33 Vitest unit tests; lint and production build pass.
+
+**Bugs found while testing**
+- `/api/analyze` zod union matched the URL-only shape first, so pasted HTML was silently ignored
+  when a URL was also provided. Fixed by ordering the HTML variant first (commented in code).
+- "Coming soon" sidebar links caused 404 prefetches; they're now non-link labels.
+- Slug suggestions kept opaque numeric IDs; keyword density of 27% only warned. Both fixed + tested.
+
+**Decisions**
+- Start rule-based (no API key yet); the AI rewrite button is visible but disabled until Phase 2.
+- Engine has no React/Next dependency so it can run client-side (instant scoring) and be tested alone.
+- Deploy target: Vercel.
+
+**Next**
+- Added GitHub Actions CI (test, lint, build). Next: deploy to Vercel and share with the team.
+- Phase 1: database + team auth + saved history.
