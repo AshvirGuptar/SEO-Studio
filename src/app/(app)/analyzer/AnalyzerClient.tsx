@@ -5,9 +5,10 @@ import type { PageReport } from "@/lib/seo/analyze-page";
 import { CheckList } from "@/components/CheckList";
 import { ScoreRing } from "@/components/ScoreRing";
 import { SerpPreview } from "@/components/SerpPreview";
+import { SaveToProject } from "@/components/SaveToProject";
 
 type Mode = "url" | "html";
-type Report = PageReport & { fetch?: { status: number; redirects: string[]; elapsedMs: number } };
+export type Report = PageReport & { fetch?: { status: number; redirects: string[]; elapsedMs: number } };
 
 export function AnalyzerClient() {
   const [mode, setMode] = useState<Mode>("url");
@@ -73,8 +74,9 @@ export function AnalyzerClient() {
   );
 }
 
-function ReportView({ report }: { report: Report }) {
+export function ReportView({ report, saveable = true }: { report: Report; saveable?: boolean }) {
   const f = report.facts;
+  const issueCount = report.checks.filter((c) => c.severity === "fail" || c.severity === "warn").length;
   const h = f.headings;
   return (
     <div className="space-y-6">
@@ -84,6 +86,11 @@ function ReportView({ report }: { report: Report }) {
           {report.url && <p className="mt-4 truncate text-xs text-muted">{report.url}</p>}
           {report.fetch && (
             <p className="text-xs text-muted">HTTP {report.fetch.status} · {report.fetch.elapsedMs} ms · {report.fetch.redirects.length} redirects</p>
+          )}
+          {saveable && (
+            <div className="mt-4">
+              <SaveToProject payload={{ kind: "page", url: report.url ?? "(pasted HTML)", keyword: report.keyword ?? null, score: report.summary.score, issueCount, data: { report } }} />
+            </div>
           )}
         </div>
         <div className="card">

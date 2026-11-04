@@ -118,3 +118,39 @@ tools that need no database now; Projects & History stays blocked on the Phase 1
 - Verify Site Audit against a real site on the deployed app.
 - Phase 1: database (Neon via Vercel Storage) + sign-in + Projects & History. Turn on the password
   gate before storing data.
+
+## 2026-11-04 — Session 3: database, sign-in, Projects & History, Team & access
+
+**Plan:** user created the Neon database; asked how to handle users outside the company domain.
+Decision: invite-only Google sign-in instead of domain-locked.
+
+**Changes**
+- Drizzle schema + first migration (`drizzle/0000_init.sql`): Better Auth tables + invite, project, audit.
+  `scripts/migrate.mjs` runs before `next build`, so Vercel deploys migrate automatically.
+- `getDb()`: Neon HTTP in production; `pglite://` embedded Postgres for local dev; PGlite in tests.
+  Instance stored on globalThis (Next loads modules separately for pages and route handlers).
+- Better Auth 1.7.12 (pinned ~2 weeks old) with Google. Access rules in `auth/access.ts` (pure):
+  ADMIN_EMAILS → admin; AUTO_APPROVE_DOMAINS → member; invites → invited role; else pending.
+  Re-evaluated on every sign-in. Disabled users stay disabled unless env admin.
+- Sign-in is optional: without the four env vars the app runs exactly as before (tools open,
+  Projects shows a setup notice, data APIs return 503).
+- Proxy redirects signed-out users to /sign-in; every API route has a guard.
+- Pages: /sign-in, access-requested/disabled screen, /projects, /projects/[id] (health chart with
+  hover tooltip, tracked pages with sparkline + change, all audits), saved audit view with
+  "what changed" (page: fixed/new/worse checks; site: resolved/new/increased issue types),
+  /admin (approve/deny, invite, roles, disable). Save-to-project in Page Analyzer + Site Audit
+  (site audits saved without link lists to stay small).
+- Moved pages into an `(app)` route group so /sign-in has no sidebar.
+- 79 unit tests (incl. DB repo tests on in-memory Postgres) + new signed-in E2E script
+  (`scripts/e2e`): 30 checks, all passing, no browser errors.
+
+**Bugs found while testing**
+- cacheComponents build failures: usePathname and cookie reads outside <Suspense>. Fixed with
+  Suspense boundaries in the (app) layout, sidebar and sign-in page.
+- Embedded DB had two instances (pages vs API routes) so saved data didn't show. Fixed via globalThis.
+- A non-admin opening /admin gets the 404 page with HTTP 200 (streamed response). Verified no admin
+  data reaches the page and the admin API returns 403.
+
+**Next**
+- Owner: Google OAuth client + Vercel env vars (README "Sign-in setup"), then redeploy.
+- Decide whether outside users are clients (per-project access) or contractors (current model is fine).

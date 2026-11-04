@@ -7,9 +7,10 @@ import { auditSite, type CrawledPage, type SiteIssue } from "@/lib/seo/site-audi
 import { gradeFor } from "@/lib/seo/score";
 import { ScoreRing, scoreColor } from "@/components/ScoreRing";
 import { downloadCsv } from "@/lib/csv";
+import { SaveToProject } from "@/components/SaveToProject";
 
 type Phase = "idle" | "discovering" | "crawling" | "done" | "stopped" | "error";
-interface Discovery {
+export interface Discovery {
   startUrl: string;
   origin: string;
   robotsFound: boolean;
@@ -131,14 +132,43 @@ export function AuditClient() {
         )}
       </form>
 
-      {audit && <Results audit={audit} pages={pages} discovery={discovery} />}
+      {audit && (
+        <>
+          {(phase === "done" || phase === "stopped") && discovery && (
+            <div className="flex justify-end">
+              <SaveToProject payload={siteAuditPayload(discovery, pages, audit)} />
+            </div>
+          )}
+          <Results audit={audit} pages={pages} sitemapUrlCount={discovery?.sitemapUrls.length ?? 0} sitemapFileCount={discovery?.sitemapFiles.length ?? 0} />
+        </>
+      )}
     </div>
   );
 }
 
-function Results({ audit, pages, discovery }: { audit: ReturnType<typeof auditSite>; pages: CrawledPage[]; discovery: Discovery | null }) {
+/** Compact, size-capped version of a finished crawl for saving to a project. */
+function siteAuditPayload(d: Discovery, pages: CrawledPage[], audit: ReturnType<typeof auditSite>) {
+  const issueCount = audit.issues.filter((i) => i.severity !== "info").reduce((n, i) => n + i.items.length, 0);
+  return {
+    kind: "site" as const,
+    url: d.startUrl,
+    score: audit.healthScore,
+    issueCount,
+    data: {
+      startUrl: d.startUrl,
+      robotsFound: d.robotsFound,
+      sitemapUrlCount: d.sitemapUrls.length,
+      sitemapFileCount: d.sitemapFiles.length,
+      // Link lists are what make crawls big; keep only counts.
+      pages: pages.map(({ internalLinks, ...p }) => ({ ...p, internalLinks: [], linkCount: internalLinks.length })),
+      audit: { ...audit, issues: audit.issues.map((i) => ({ ...i, items: i.items.slice(0, 300), total: i.items.length })) },
+    },
+  };
+}
+
+export function Results({ audit, pages, sitemapUrlCount, sitemapFileCount }: { audit: ReturnType<typeof auditSite>; pages: CrawledPage[]; sitemapUrlCount: number; sitemapFileCount: number }) {
   const counts = { fail: 0, warn: 0, info: 0 };
-  for (const i of audit.issues) counts[i.severity] += i.items.length;
+  for (const i of audit.issues) counts[i.severity] += (i as SiteIssue & { total?: number }).total ?? i.items.length;
 
   return (
     <div className="space-y-6">
@@ -152,7 +182,7 @@ function Results({ audit, pages, discovery }: { audit: ReturnType<typeof auditSi
         </div>
         <Tile label="Pages crawled" value={audit.pages} sub={`${audit.okPages} OK`} />
         <Tile label="Avg. page score" value={audit.avgPageScore} color={scoreColor(audit.avgPageScore)} />
-        <Tile label="Sitemap URLs" value={discovery?.sitemapUrls.length ?? 0} sub={discovery?.sitemapFiles.length ? `${discovery.sitemapFiles.length} file(s)` : "No sitemap found"} />
+        <Tile label="Sitemap URLs" value={sitemapUrlCount} sub={sitemapFileCount ? `${sitemapFileCount} file(s)` : "No sitemap found"} />
       </div>
 
       <div className="card">
@@ -187,7 +217,7 @@ function IssueRow({ issue }: { issue: SiteIssue }) {
       <button onClick={() => setOpen(!open)} className="flex w-full items-center gap-3 p-3 text-left text-sm">
         <span className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase ${s.cls}`}>{s.label}</span>
         <span className="flex-1 font-medium">{issue.label}</span>
-        <span className="tabular-nums text-muted">{issue.items.length}</span>
+        <span className="tabular-nums text-muted">{(issue as SiteIssue & { total?: number }).total ?? issue.items.length}</span>
         <span className="text-subtle">{open ? "▴" : "▾"}</span>
       </button>
       {open && (

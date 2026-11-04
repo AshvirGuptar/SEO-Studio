@@ -20,8 +20,9 @@ Also the TCSS 490 Artifact 5 moonshot — see `docs/PLAN.md` for the roadmap and
 - Before committing: `npm test && npm run lint && npm run build` must all pass.
 
 ## Stack
-Next.js 16 (App Router, `src/` dir) · React 19 · TypeScript (strict) · Tailwind v4 · cheerio (HTML parsing)
-· zod (request validation) · Vitest. Next 16 differs from older versions — check
+Next.js 16 (App Router, `src/` dir, `cacheComponents` on) · React 19 · TypeScript (strict) · Tailwind v4
+· cheerio (HTML parsing) · zod (request validation) · Drizzle ORM + Neon Postgres · Better Auth (Google)
+· Vitest (+ PGlite in-memory Postgres for DB tests). Next 16 differs from older versions — check
 `node_modules/next/dist/docs/` before using unfamiliar Next APIs.
 
 ## Architecture
@@ -43,6 +44,14 @@ src/lib/net/        Server-only networking. fetch-page.ts has SSRF protection �
 src/app/api/*       Route handlers (validate input with zod, return JSON)
                     audit/discover (robots + sitemap), audit/page (one page per request)
 src/lib/csv.ts      Browser CSV export helper
+src/lib/db/         schema.ts (Drizzle tables; Better Auth's user/session/account/verification + invite,
+                    project, audit), index.ts (getDb: Neon, or pglite:// for local), repo.ts (all queries)
+drizzle/            Generated SQL migrations. Applied by scripts/migrate.mjs before every build.
+src/lib/auth/       access.ts (who gets in: pure), server.ts (Better Auth config, getCurrentUser),
+                    guard.ts (route-handler guards), page-guard.ts, enabled.ts (env check for proxy)
+src/proxy.ts        Optional Basic Auth + redirect signed-out users to /sign-in (optimistic cookie check)
+src/app/(app)/      All pages with the sidebar. sign-in/ lives outside the group (no sidebar).
+src/lib/seo/compare.ts  "What changed" between two saved audits
 src/app/<tool>/     One folder per tool: page.tsx (server, metadata) + <Tool>Client.tsx (client UI)
 src/components/     Shared UI (CheckList, ScoreRing, SerpPreview, Sidebar). nav.ts lists tools.
 ```
@@ -68,6 +77,16 @@ src/components/     Shared UI (CheckList, ScoreRing, SerpPreview, Sidebar). nav.
   request runs long (serverless timeouts) and progress is live. Keep it that way.
 - Keyword rules: informational (how-to) keywords never cluster or map with product/category ones.
   Page mapping needs the cluster's most distinctive term, not just shared generic words.
+
+- Auth: sign-in is ON only when DATABASE_URL, BETTER_AUTH_SECRET, GOOGLE_CLIENT_ID and
+  GOOGLE_CLIENT_SECRET are all set; otherwise tools are open and saving is disabled (keep both modes
+  working). Every API route calls a guard (`requireToolAccess` for tools, `requireActiveUser` /
+  `requireAdmin` for data). The proxy check is optimistic, so never rely on it alone.
+- cacheComponents: anything reading cookies/headers/searchParams (incl. getCurrentUser) must render
+  inside <Suspense>. The (app) layout already wraps the sidebar and page content.
+- Schema changes: edit schema.ts → `npm run db:generate` → commit the migration. Never edit applied
+  migrations.
+- Signed-in E2E test: scripts/e2e (local PGlite DB + seeded sessions; see its README).
 
 ## Known limitations
 - The Claude Code cloud sandbox can't resolve DNS directly, so live-URL analysis returns

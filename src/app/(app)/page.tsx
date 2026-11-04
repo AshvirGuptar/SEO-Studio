@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { TOOLS } from "@/components/nav";
+import { TOOLS, toolStatus } from "@/components/nav";
+import { isAuthEnabled } from "@/lib/auth/server";
 
 export default function Home() {
+  const authEnabled = isAuthEnabled();
   return (
     <div>
       <section className="pt-2 pb-10 md:pt-6">
@@ -23,11 +25,12 @@ export default function Home() {
       <h2 className="label">Tools</h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {TOOLS.map((t) => {
+          const status = toolStatus(t, authEnabled);
           const body = (
             <>
               <div className="flex items-center justify-between">
                 <h3 className="font-medium">{t.name}</h3>
-                {t.status === "soon" ? (
+                {status === "soon" ? (
                   <span className="rounded-md border border-border px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-subtle">Soon</span>
                 ) : (
                   <span className="text-subtle transition group-hover:translate-x-0.5 group-hover:text-accent">→</span>
@@ -36,7 +39,7 @@ export default function Home() {
               <p className="mt-2 text-sm text-muted">{t.blurb}</p>
             </>
           );
-          return t.status === "live" ? (
+          return status === "live" ? (
             <Link key={t.href} href={t.href}
               className="card group transition hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-[0_10px_40px_-12px_rgb(241_90_41/0.35)]">
               {body}

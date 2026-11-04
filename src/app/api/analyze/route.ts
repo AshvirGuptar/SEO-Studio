@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { requireToolAccess } from "@/lib/auth/guard";
 import { analyzePage } from "@/lib/seo/analyze-page";
 import type { Check } from "@/lib/seo/types";
 import { summarize } from "@/lib/seo/score";
@@ -12,6 +13,8 @@ const Body = z.union([
 ]);
 
 export async function POST(request: Request) {
+  const access = await requireToolAccess();
+  if (access.error) return access.error;
   const parsed = Body.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return Response.json({ error: "Provide a URL or HTML to analyze." }, { status: 400 });
