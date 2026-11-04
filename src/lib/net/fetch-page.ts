@@ -79,7 +79,16 @@ async function assertPublicHost(url: URL): Promise<void> {
   }
 }
 
-export async function fetchPage(input: string): Promise<FetchedPage> {
+export interface FetchOptions {
+  /** Content types to accept (default: HTML/XML). */
+  accept?: RegExp;
+  /** Max body size in bytes (default 5 MB). */
+  maxBytes?: number;
+}
+
+export async function fetchPage(input: string, opts: FetchOptions = {}): Promise<FetchedPage> {
+  const accept = opts.accept ?? /html|xml/i;
+  const maxBytes = opts.maxBytes ?? MAX_BYTES;
   let url = normalizeInputUrl(input);
   const redirects: string[] = [];
   const started = Date.now();
@@ -106,10 +115,11 @@ export async function fetchPage(input: string): Promise<FetchedPage> {
     }
 
     const contentType = res.headers.get("content-type") ?? "";
-    if (contentType && !/html|xml/i.test(contentType)) {
+    if (contentType && !accept.test(contentType)) {
+      await res.body?.cancel();
       throw new FetchPageError(`Expected an HTML page but got "${contentType}".`, 415);
     }
-    const html = await readCapped(res);
+    const html = await readCapped(res, maxBytes);
     return {
       url: url.href,
       status: res.status,
@@ -123,7 +133,7 @@ export async function fetchPage(input: string): Promise<FetchedPage> {
   throw new FetchPageError("Too many redirects.", 508);
 }
 
-async function readCapped(res: Response): Promise<string> {
+async function readCapped(res: Response, maxBytes: number): Promise<string> {
   if (!res.body) return "";
   const reader = res.body.getReader();
   const chunks: Uint8Array[] = [];
@@ -132,9 +142,9 @@ async function readCapped(res: Response): Promise<string> {
     const { done, value } = await reader.read();
     if (done) break;
     total += value.byteLength;
-    if (total > MAX_BYTES) {
+    if (total > maxBytes) {
       await reader.cancel();
-      throw new FetchPageError("Page is larger than 5 MB.", 413);
+      throw new FetchPageError(`Response is larger than ${Math.round(maxBytes / 1024 / 1024)} MB.`, 413);
     }
     chunks.push(value);
   }

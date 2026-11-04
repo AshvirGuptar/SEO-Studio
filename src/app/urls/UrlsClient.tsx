@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { analyzeUrl, slugify, suggestUrl } from "@/lib/seo/slug";
 import { summarize } from "@/lib/seo/score";
 import { scoreColor } from "@/components/ScoreRing";
+import { downloadCsv } from "@/lib/csv";
 
 const SAMPLE = `https://shop.example.com/Products/Mens_Waterproof_Hiking_Boot_12345.html
 https://shop.example.com/c/footwear?cat=22&sort=price
@@ -25,13 +26,10 @@ export function UrlsClient() {
   }, [input, keyword, title]);
 
   function exportCsv() {
-    const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
-    const csv = ["old_url,new_url,score_before,score_after", ...rows.map((r) => [esc(r.url), esc(r.suggestion), r.summary.score, r.after].join(","))].join("\n");
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-    a.download = "url-redirect-map.csv";
-    a.click();
-    URL.revokeObjectURL(a.href);
+    downloadCsv("url-redirect-map.csv", [
+      ["old_url", "new_url", "score_before", "score_after"],
+      ...rows.map((r) => [r.url, r.suggestion, r.summary.score, r.after]),
+    ]);
   }
 
   return (

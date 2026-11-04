@@ -3,14 +3,17 @@
 An internal SEO toolkit for auditing pages, optimizing copy and building SEO-friendly URLs.
 Built as a TCSS 490 Artifact 5 moonshot.
 
+**Live:** https://seo-studio-weld.vercel.app/
+
 ## Tools
 | Tool | What it does | Status |
 | --- | --- | --- |
 | **Page Analyzer** | Audit a live URL or pasted HTML: 35+ on-page checks, score, SERP preview, prioritized fixes | Live |
 | **Content Optimizer** | Score titles, meta descriptions, URLs and product/blog copy against a keyword as you type | Live |
 | **URL Optimizer** | Bulk-check URLs, generate clean slugs, export a redirect map | Live |
-| Keyword Clusters | Group keywords by intent and map them to pages | Planned |
-| Site Audit | Crawl a site for broken links, duplicates and missing tags | Planned |
+| **Site Audit** | Crawl up to 500 pages: broken pages/links, redirects, duplicates, thin content, orphans, sitemap gaps | Live |
+| **Keyword Clusters** | Group keywords by topic and intent, map them to pages, find content gaps and cannibalization | Live |
+| **Guide** | Step-by-step playbook for site and store owners | Live |
 | Projects & History | Save audits and track scores over time | Planned |
 | AI Rewrite | Generate optimized titles, metas and descriptions | Planned (needs API key) |
 

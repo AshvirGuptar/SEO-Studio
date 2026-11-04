@@ -4,6 +4,7 @@
 
 Internal SEO toolkit (think "Semrush for our team"): page audits, content/copy optimization,
 URL/slug tools, and later site crawls, keyword clustering, history and AI rewriting.
+Live: https://seo-studio-weld.vercel.app/ (Vercel; deploys from `main`, PR branches get preview URLs).
 Also the TCSS 490 Artifact 5 moonshot — see `docs/PLAN.md` for the roadmap and `LOG.md` for history.
 
 ## Start of every session
@@ -33,9 +34,15 @@ src/lib/seo/        Pure SEO engine — NO React, NO Next, NO network. Runs in b
   slug.ts           URL analysis, slugify, URL suggestions
   extract.ts        HTML -> PageFacts (cheerio)
   analyze-page.ts   Full page audit = extract + all checks
+  keywords.ts       Intent classification, keyword clustering, cluster→page mapping
+  robots.ts         robots.txt + sitemap.xml parsing
+  site-audit.ts     Per-page crawl summaries + site-wide issue detection
+  crawler.ts        BFS crawl orchestrator (runs in the browser; fetch function injected)
 src/lib/net/        Server-only networking. fetch-page.ts has SSRF protection — ALWAYS use it
                     to fetch user-supplied URLs; never call fetch() on user input directly.
 src/app/api/*       Route handlers (validate input with zod, return JSON)
+                    audit/discover (robots + sitemap), audit/page (one page per request)
+src/lib/csv.ts      Browser CSV export helper
 src/app/<tool>/     One folder per tool: page.tsx (server, metadata) + <Tool>Client.tsx (client UI)
 src/components/     Shared UI (CheckList, ScoreRing, SerpPreview, Sidebar). nav.ts lists tools.
 ```
@@ -56,6 +63,11 @@ src/components/     Shared UI (CheckList, ScoreRing, SerpPreview, Sidebar). nav.
   - Text on orange is near-black (`text-accent-fg`); white on #F15A29 fails contrast (~3.4:1).
 - Secrets go in `.env.local` (git-ignored). Document new variables in `.env.example`.
 - AI features must degrade gracefully when no API key is configured (feature visible but disabled).
+
+- Site Audit design: the browser drives the crawl and calls /api/audit/page once per page, so no
+  request runs long (serverless timeouts) and progress is live. Keep it that way.
+- Keyword rules: informational (how-to) keywords never cluster or map with product/category ones.
+  Page mapping needs the cluster's most distinctive term, not just shared generic words.
 
 ## Known limitations
 - The Claude Code cloud sandbox can't resolve DNS directly, so live-URL analysis returns
