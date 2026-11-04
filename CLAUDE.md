@@ -4,6 +4,7 @@
 
 Internal SEO toolkit (think "Semrush for our team"): page audits, content/copy optimization,
 URL/slug tools, and later site crawls, keyword clustering, history and AI rewriting.
+Live: https://seo-studio-weld.vercel.app/ (Vercel; deploys from `main`, PR branches get preview URLs).
 Also the TCSS 490 Artifact 5 moonshot — see `docs/PLAN.md` for the roadmap and `LOG.md` for history.
 
 ## Start of every session

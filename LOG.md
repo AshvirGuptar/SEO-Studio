@@ -70,3 +70,12 @@ no paid APIs.
   noindex set. **Must turn the gate on before Phase 1 stores data or Phase 2 adds an AI key.**
 - Created `main` from the current work; it becomes the production branch. Future work goes on
   feature branches merged into `main` through PRs.
+
+## 2026-11-04 — Session 1e: deployed
+
+- Live at https://seo-studio-weld.vercel.app/ (Vercel Hobby, production branch `main`, public).
+- Needed the Vercel GitHub app installed on the repo before the import worked.
+- Skipped custom domain and Speed Insights for now (no domain yet; Speed Insights measures this
+  app's load speed, not analyzed pages). Revisit domain after Phase 1 sign-in; consider Vercel Web
+  Analytics later for usage numbers for the demo.
+- To verify on the live site: Page Analyzer "Live URL" mode (untested from the dev sandbox).

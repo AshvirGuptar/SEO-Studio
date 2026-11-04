@@ -3,6 +3,8 @@
 An internal SEO toolkit for auditing pages, optimizing copy and building SEO-friendly URLs.
 Built as a TCSS 490 Artifact 5 moonshot.
 
+**Live:** https://seo-studio-weld.vercel.app/
+
 ## Tools
 | Tool | What it does | Status |
 | --- | --- | --- |

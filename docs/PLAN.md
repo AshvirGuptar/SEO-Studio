@@ -20,7 +20,7 @@ Status keys: `[x]` done · `[~]` in progress · `[ ]` not started
 - [x] Unit tests for the engine (Vitest)
 - [x] Temporary site-wide password gate (Basic Auth via `src/proxy.ts`, `SITE_PASSWORD`)
 - [~] Create `main` branch (done) and make it the GitHub default / Vercel production branch (owner, in settings)
-- [ ] Deploy to Vercel (public for testing/grading; set `SITE_PASSWORD` before Phase 1 data or Phase 2 AI key)
+- [x] Deploy to Vercel → https://seo-studio-weld.vercel.app/ (public for testing/grading; set `SITE_PASSWORD` before Phase 1 data or Phase 2 AI key)
 - [ ] Share link with the team; collect first feedback
 - [x] GitHub Actions CI: test + lint + build on every push
 
