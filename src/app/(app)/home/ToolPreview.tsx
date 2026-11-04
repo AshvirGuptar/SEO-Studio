@@ -45,8 +45,8 @@ export function ToolPreview({ href }: { href: string }) {
     case "/content":
       return (
         <div className="space-y-1.5 px-4 py-3 font-[arial,sans-serif]">
-          <div className="text-[10px] text-subtle">trailco.com › hiking-boots</div>
-          <div className="truncate text-[13px] text-[#99c3ff]">Waterproof Hiking Boots for Every Trail</div>
+          <div className="text-[10px] text-subtle">example-pc.com › graphics-cards</div>
+          <div className="truncate text-[13px] text-[#99c3ff]">Aurora 12GB Graphics Card – 1440p Gaming</div>
           <div className="h-1.5 w-11/12 rounded bg-surface-2" />
           <div className="h-1.5 w-8/12 rounded bg-surface-2" />
           <div className="flex gap-1.5 pt-1">
@@ -57,9 +57,9 @@ export function ToolPreview({ href }: { href: string }) {
     case "/urls":
       return (
         <div className="flex h-full flex-col justify-center gap-2 px-4 font-mono text-[10.5px]">
-          <span className="truncate text-fail/80 line-through">/Products/Mens_Boot_12345.html</span>
+          <span className="truncate text-fail/80 line-through">/Products/GPU_Aurora_88231.html</span>
           <span className="text-subtle">↓ 301</span>
-          <span className="truncate text-pass">/hiking-boots/mens-waterproof</span>
+          <span className="truncate text-pass">/graphics-cards/aurora-12gb</span>
         </div>
       );
     case "/audit":
@@ -86,9 +86,9 @@ export function ToolPreview({ href }: { href: string }) {
     case "/ai-visibility":
       return (
         <div className="flex h-full flex-col justify-center gap-2 px-4">
-          <div className="max-w-[85%] self-end rounded-xl rounded-br-sm bg-surface-2 px-2.5 py-1.5 text-[10.5px]">best waterproof hiking boots?</div>
+          <div className="max-w-[85%] self-end rounded-xl rounded-br-sm bg-surface-2 px-2.5 py-1.5 text-[10.5px]">best graphics card for 1440p?</div>
           <div className="max-w-[90%] rounded-xl rounded-bl-sm border border-border px-2.5 py-1.5 text-[10.5px] text-muted">
-            Top picks include TrailCo Summit <span className="rounded bg-accent-soft px-1 text-accent">[1]</span>…
+            Top picks include the Example PC Aurora 12GB <span className="rounded bg-accent-soft px-1 text-accent">[1]</span>…
           </div>
         </div>
       );

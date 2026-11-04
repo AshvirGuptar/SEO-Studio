@@ -23,10 +23,18 @@ export function sentences(text: string): string[] {
     .filter((s) => words(s).length > 0);
 }
 
+/**
+ * Token form used for matching: ignores hyphens/apostrophes inside words, so "wi-fi" matches
+ * "wifi", "usb-c" matches "usbc" and "women's" matches "womens".
+ */
+export function matchToken(w: string): string {
+  return w.replace(/['’-]/g, "");
+}
+
 /** Counts non-overlapping occurrences of a (possibly multi-word) phrase. */
 export function countPhrase(text: string, phrase: string): number {
-  const hay = words(text);
-  const needle = words(phrase);
+  const hay = words(text).map(matchToken);
+  const needle = words(phrase).map(matchToken);
   if (needle.length === 0 || hay.length < needle.length) return 0;
   let count = 0;
   for (let i = 0; i <= hay.length - needle.length; i++) {

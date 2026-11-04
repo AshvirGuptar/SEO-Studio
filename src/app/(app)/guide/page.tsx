@@ -118,7 +118,7 @@ export default function GuidePage() {
             <Card title="3. Write answer-first">
               <ul>
                 <li>Open with a 1–3 sentence summary of the page.</li>
-                <li>Use headings phrased as real questions (“How should hiking boots fit?”).</li>
+                <li>Use headings phrased as real questions (“Will this graphics card fit my case?”).</li>
                 <li>Answer each in the first 25–90 words below it, then add detail.</li>
                 <li>Put specs, steps and comparisons in lists and tables.</li>
               </ul>
@@ -142,26 +142,27 @@ export default function GuidePage() {
           <div className="grid gap-4 md:grid-cols-2">
             <Card title="Product titles">
               <p>A reliable formula: <code>Brand + Product type + Key attribute + Variant</code></p>
-              <p className="text-subtle">e.g. “TrailCo Waterproof Hiking Boots – Men’s, Leather”</p>
+              <p className="text-subtle">e.g. “Example PC Aurora Graphics Card – 12GB GDDR6X, PCIe 4.0”</p>
               <p>Keep the page title under ~60 characters; put the product type (what people search) early.</p>
             </Card>
             <Card title="Product descriptions">
               <ul>
                 <li>Write <b>unique</b> copy. Manufacturer descriptions are duplicated across hundreds of stores.</li>
-                <li>Lead with who it’s for and the main benefit, then specs (materials, sizing, care).</li>
-                <li>Add a short FAQ (sizing, shipping, returns); it answers long-tail searches.</li>
+                <li>Lead with who it’s for and the main benefit, then specs (compatibility, performance, dimensions, power).</li>
+                <li>Add a short FAQ (compatibility, installation, shipping, returns); it answers long-tail searches.</li>
                 <li>150+ words is a good floor for products.</li>
+                <li>Paste your <b>Specs</b> tab into the Content Optimizer as “Label: Value” lines. Complete, unit-labeled specs help shoppers, search filters and AI shopping answers.</li>
               </ul>
             </Card>
             <Card title="Category pages">
               <p>
-                Often your highest-value pages: they target broad commercial keywords like “hiking boots”. Add 150–300 words of
+                Often your highest-value pages: they target broad commercial keywords like “graphics cards”. Add 150–300 words of
                 helpful intro or buying-guide copy, a keyword-focused H1, and link to related categories.
               </p>
             </Card>
             <Card title="Images">
               <ul>
-                <li>Descriptive alt text: “Brown leather men’s hiking boot, side view”, not “IMG_2041”.</li>
+                <li>Descriptive alt text: “Triple-fan 12GB graphics card, angled view”, not “IMG_2041”.</li>
                 <li>Descriptive file names and compressed sizes (WebP) for speed.</li>
               </ul>
             </Card>

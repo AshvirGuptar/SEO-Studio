@@ -9,6 +9,7 @@ import { CheckList } from "@/components/CheckList";
 import { ScoreRing, scoreColor } from "@/components/ScoreRing";
 import { SerpPreview } from "@/components/SerpPreview";
 import { StartOverButton } from "@/components/ResultActions";
+import { analyzeCopyGeo, analyzeSpecs, parseSpecs } from "@/lib/seo/specs";
 
 const PRESETS = {
   product: { label: "Product page", minWords: 150 },
@@ -24,22 +25,29 @@ export function ContentClient() {
   const [meta, setMeta] = useState("");
   const [url, setUrl] = useState("");
   const [body, setBody] = useState("");
+  const [specs, setSpecs] = useState("");
+  const [tab, setTab] = useState<"seo" | "geo">("seo");
 
   const kw = keyword.trim() || undefined;
-  const hasInput = Boolean(keyword || title || meta || url || body);
+  const hasInput = Boolean(keyword || title || meta || url || body || specs);
   function startOver() {
-    setKeyword(""); setTitle(""); setMeta(""); setUrl(""); setBody(""); setPreset("product");
+    setKeyword(""); setTitle(""); setMeta(""); setUrl(""); setBody(""); setSpecs(""); setPreset("product"); setTab("seo");
   }
   const sections = useMemo(() => {
     const t = analyzeTitle(title, kw);
     const m = analyzeMetaDescription(meta, kw);
     const b = analyzeBodyCopy(body, kw, { minWords: PRESETS[preset].minWords });
     const u = url.trim() ? analyzeUrl(url, kw) : [];
-    return { title: t, meta: m, body: b, url: u };
-  }, [title, meta, body, url, kw, preset]);
+    const sp = analyzeSpecs(specs, { keyword: kw, preset });
+    return { title: t, meta: m, body: b, url: u, specs: sp };
+  }, [title, meta, body, url, specs, kw, preset]);
 
-  const all = [...sections.title, ...sections.meta, ...sections.body, ...sections.url];
+  const all = [...sections.title, ...sections.meta, ...sections.body, ...sections.url, ...sections.specs];
   const overall = summarize(all);
+  const geoChecks = useMemo(() => analyzeCopyGeo(body, specs), [body, specs]);
+  const geo = summarize(geoChecks);
+  const parsedSpecs = useMemo(() => parseSpecs(specs), [specs]);
+  const issueCount = (c: { severity: string }[]) => c.filter((x) => x.severity === "fail" || x.severity === "warn").length;
   const terms = useMemo(() => topTerms(body, 8), [body]);
 
   return (
@@ -51,7 +59,7 @@ export function ContentClient() {
         <div className="card grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label" htmlFor="kw">Target keyword</label>
-            <input id="kw" className="input" placeholder="waterproof hiking boots" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+            <input id="kw" className="input" placeholder="1440p graphics card" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
           </div>
           <div>
             <label className="label" htmlFor="preset">Content type</label>
@@ -63,23 +71,49 @@ export function ContentClient() {
 
         <Field label="Page title" score={summarize(sections.title).score}
           hint={`${title.length}/${LIMITS.titleMaxChars} chars · ~${approxPixelWidth(title)}/${LIMITS.titleMaxPx}px`}>
-          <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Waterproof Hiking Boots for Men & Women | Brand" />
+          <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Aurora 12GB Graphics Card for 1440p Gaming | Brand" />
         </Field>
 
         <Field label="Meta description" score={summarize(sections.meta).score} hint={`${meta.length}/${LIMITS.metaMaxChars} chars`}>
           <textarea className="input h-20" value={meta} onChange={(e) => setMeta(e.target.value)}
-            placeholder="Shop waterproof hiking boots built for wet trails. Free shipping and 60-day returns." />
+            placeholder="Shop the Aurora 12GB graphics card for smooth 1440p gaming. PCIe 4.0, quiet triple-fan cooling, 3-year warranty and fast shipping." />
         </Field>
 
         <Field label="URL" score={url ? summarize(sections.url).score : undefined}
           hint={kw || title ? <button type="button" className="text-accent hover:underline" onClick={() => setUrl(`/${slugify(title || keyword)}`)}>Generate from {title ? "title" : "keyword"}</button> : undefined}>
-          <input className="input font-mono text-sm" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="/hiking-boots/waterproof" />
+          <input className="input font-mono text-sm" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="/graphics-cards/aurora-12gb" />
         </Field>
 
         <Field label="Body / product description" score={summarize(sections.body).score}
           hint={`${body.split(/\s+/).filter(Boolean).length} words`}>
           <textarea className="input h-64" value={body} onChange={(e) => setBody(e.target.value)}
-            placeholder="Describe the product: who it's for, key features, materials, sizing, care…" />
+            placeholder="Describe the card: who it's for, performance (resolution, settings), VRAM, cooling, size and power needs…" />
+        </Field>
+
+        <Field label="Specs (optional)" score={specs.trim() ? summarize(sections.specs).score : undefined}
+          hint={parsedSpecs.specs.length ? `${parsedSpecs.specs.length} attributes` : "e.g. the “Specs” or “Details” tab"}>
+          <textarea className="input h-40 font-mono text-xs" value={specs} onChange={(e) => setSpecs(e.target.value)}
+            placeholder={"One per line, “Label: Value”\nMemory: 12 GB GDDR6X\nBoost clock: 2,610 MHz\nInterface: PCIe 4.0 x16\nOutputs: 3× DisplayPort 1.4a, 1× HDMI 2.1\nLength: 285 mm (2.5 slots)\nRecommended PSU: 650 W\nWarranty: 3 years"} />
+          {parsedSpecs.specs.length > 0 && (
+            <details className="mt-3 text-sm" open>
+              <summary className="cursor-pointer text-xs text-subtle">Preview as a spec table</summary>
+              <table className="mt-2 w-full overflow-hidden rounded-xl border border-border text-sm">
+                <tbody className="divide-y divide-border">
+                  {parsedSpecs.specs.map((sp, i) => (
+                    <tr key={i}>
+                      <th scope="row" className="w-2/5 bg-surface-2/50 px-3 py-1.5 text-left font-medium">{sp.label}</th>
+                      <td className="px-3 py-1.5 text-muted">{sp.value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {parsedSpecs.unstructured.length > 0 && (
+                <p className="mt-2 text-xs text-warn">
+                  {parsedSpecs.unstructured.length} line(s) aren&apos;t “Label: Value”: {parsedSpecs.unstructured.slice(0, 3).map((l) => `“${l.slice(0, 40)}”`).join(", ")}
+                </p>
+              )}
+            </details>
+          )}
         </Field>
 
         <div className="card flex flex-wrap items-center justify-between gap-3 border-dashed">
@@ -92,7 +126,10 @@ export function ContentClient() {
       </div>
 
       <aside className="space-y-4 lg:sticky lg:top-6 lg:self-start">
-        <div className="card"><ScoreRing summary={overall} label="Overall content score" /></div>
+        <div className="card grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
+          <ScoreRing summary={overall} label="SEO score · search engines" size={96} />
+          <ScoreRing summary={geo} label="GEO score · AI answer engines" size={96} />
+        </div>
         <div className="card">
           <h2 className="label">Search result preview</h2>
           <SerpPreview title={title} description={meta} url={url.startsWith("http") ? url : `example.com${url.startsWith("/") ? "" : "/"}${url}`} />
@@ -105,7 +142,13 @@ export function ContentClient() {
             </div>
           </div>
         )}
-        <div className="card"><CheckList checks={all} groupByCategory={false} /></div>
+        <div className="card">
+          <div className="mb-3 flex flex-wrap gap-2">
+            <button className={`pill ${tab === "seo" ? "pill-on" : "pill-off"}`} onClick={() => setTab("seo")}>SEO · {issueCount(all)}</button>
+            <button className={`pill ${tab === "geo" ? "pill-on" : "pill-off"}`} onClick={() => setTab("geo")}>GEO / AI · {issueCount(geoChecks)}</button>
+          </div>
+          <CheckList key={tab} checks={tab === "seo" ? all : geoChecks} groupByCategory={false} />
+        </div>
       </aside>
     </div>
   );

@@ -5,31 +5,32 @@ import { clusterKeywords, mapClustersToPages, parseKeywords, type Intent } from 
 import { downloadCsv } from "@/lib/csv";
 import { StartOverButton } from "@/components/ResultActions";
 
+// Example data: a fictional PC parts store ("Example PC"). Volumes are illustrative.
 const SAMPLE_KEYWORDS = `keyword,volume
-hiking boots,22000
-best hiking boots,9900
-waterproof hiking boots,6600
-womens hiking boots,5400
-hiking boots for women,4400
-buy hiking boots online,700
-hiking boots sale,1900
-how to break in hiking boots,2400
-how to clean hiking boots,1300
-hiking boot cleaning tips,200
-trail running shoes,14800
-best trail running shoes,6600
-trail running shoes women,2900
-hiking socks,8100
-best hiking socks,2400
-merino wool hiking socks,1600
-what to wear hiking,3600
-hiking boots vs trail runners,1000`;
+graphics card,90500
+graphics cards,40500
+best graphics card,33100
+buy graphics card,1900
+graphics card sale,2400
+best graphics card for 1440p,6600
+1440p graphics card,1900
+best graphics card for 4k,4400
+low profile graphics card,8100
+best low profile graphics card,2900
+12gb graphics card,1600
+graphics card for video editing,1300
+graphics card vs integrated graphics,880
+how to install a graphics card,6600
+how to choose a graphics card,1600
+how much power does a graphics card need,2400
+what graphics card do i have,27100
+gaming pc power supply,5400`;
 
-const SAMPLE_PAGES = `https://shop.example.com/hiking-boots | Hiking Boots
-https://shop.example.com/collections/boots | Hiking Boots & Outdoor Footwear
-https://shop.example.com/hiking-boots/womens | Women's Hiking Boots
-https://shop.example.com/shoes/trail-running | Trail Running Shoes
-https://shop.example.com/blog/break-in-hiking-boots | How to Break In Hiking Boots`;
+const SAMPLE_PAGES = `https://shop.example-pc.com/graphics-cards | Graphics Cards
+https://shop.example-pc.com/collections/gpus | Graphics Cards & GPUs
+https://shop.example-pc.com/graphics-cards/low-profile | Low Profile Graphics Cards
+https://shop.example-pc.com/graphics-cards/1440p | Best Graphics Cards for 1440p Gaming
+https://shop.example-pc.com/blog/how-to-install-a-graphics-card | How to Install a Graphics Card`;
 
 export const INTENT_STYLE: Record<Intent, { label: string; cls: string; bar: string }> = {
   transactional: { label: "Transactional", cls: "text-intent-transactional border-intent-transactional/30 bg-intent-transactional/10", bar: "bg-intent-transactional" },

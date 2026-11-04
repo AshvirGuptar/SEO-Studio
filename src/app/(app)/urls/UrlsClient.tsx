@@ -7,9 +7,9 @@ import { scoreColor } from "@/components/ScoreRing";
 import { downloadCsv } from "@/lib/csv";
 import { StartOverButton } from "@/components/ResultActions";
 
-const SAMPLE = `https://shop.example.com/Products/Mens_Waterproof_Hiking_Boot_12345.html
-https://shop.example.com/c/footwear?cat=22&sort=price
-/blog/the-10-best-ways-to-clean-and-care-for-your-leather-hiking-boots-this-winter`;
+const SAMPLE = `https://shop.example-pc.com/Products/GPU_Aurora_12GB_GDDR6X_88231.html
+https://shop.example-pc.com/c/components?cat=12&sort=price
+/blog/the-ultimate-guide-to-choosing-the-best-graphics-card-for-1440p-gaming-this-year`;
 
 export function UrlsClient() {
   const [input, setInput] = useState(SAMPLE);
@@ -39,11 +39,11 @@ export function UrlsClient() {
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label className="label" htmlFor="kw">Target keyword (optional)</label>
-            <input id="kw" className="input" placeholder="hiking boots" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+            <input id="kw" className="input" placeholder="1440p graphics card" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
           </div>
           <div>
             <label className="label" htmlFor="title">Page title → slug (optional)</label>
-            <input id="title" className="input" placeholder="Men's Waterproof Hiking Boots" value={title} onChange={(e) => setTitle(e.target.value)} />
+            <input id="title" className="input" placeholder="Aurora 12GB Graphics Card for 1440p Gaming" value={title} onChange={(e) => setTitle(e.target.value)} />
             {title && <p className="mt-1 font-mono text-xs text-muted">/{slugify(title)}</p>}
           </div>
         </div>

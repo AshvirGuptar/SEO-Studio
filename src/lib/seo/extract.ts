@@ -190,7 +190,10 @@ function extractGeo($: cheerio.CheerioAPI, ld: LdSignals, meta: (n: string) => s
     sections.push({ level: Number(el.tagName[1]), heading, firstParagraphWords: first, words });
   });
 
-  const lists = body.find("ul,ol").filter((_, el) => $(el).children("li").length >= 3).length;
+  // Bulleted/numbered lists and definition lists (common for product spec tabs).
+  const lists =
+    body.find("ul,ol").filter((_, el) => $(el).children("li").length >= 3).length +
+    body.find("dl").filter((_, el) => $(el).children("dt").length >= 3).length;
   const root = $("#__next, #root, #app, [data-reactroot]").first();
   const bodyWords = wc(body.clone().find("script,style,noscript,template").remove().end().text());
   const appShellOnly = bodyWords < 50 && (root.length > 0 || $("script[src]").length >= 3);

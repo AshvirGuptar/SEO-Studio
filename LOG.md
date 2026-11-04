@@ -189,3 +189,53 @@ and whether sign-in can be turned off for a live demo.
 - GEO is rule-based (no AI key needed). Real AI-answer tracking is the coming-soon AI Visibility tool.
 - llms.txt reported as optional/info only: major engines don't rely on it yet.
 - Demo: prefer staying signed in on the demo laptop; PUBLIC_TOOLS only if the audience needs hands-on.
+
+## 2026-11-04 — Sign-in setup deferred
+
+- Owner chose to skip the Google OAuth + Vercel env var setup for now. The app runs in open mode:
+  tools public, Projects & History / Team & access show setup notices. Steps are in README
+  "Sign-in setup" (plus ADMIN_EMAILS=ashvirguptar@gmail.com,ashvirguptar04@gmail.com).
+- Merging PR #2 is still safe; migrations run on Neon at deploy so the DB is ready when sign-in is enabled.
+
+## 2026-11-04 — Session 5: product specs in the Content Optimizer
+
+**Plan:** product pages often have a separate "Specs" tab (weight, color, sizing…); user asked for an
+optional field that feeds into the SEO and GEO scores.
+
+**Changes**
+- `src/lib/seo/specs.ts`: `parseSpecs` (colon, tab, pipe, " - " separators), `analyzeSpecs` SEO checks
+  (attribute count, Label: Value consistency, units incl. prefix sizes like "US 7–13", key shopping
+  attributes, keyword terms) and `analyzeCopyGeo` (answer-first opening, concrete facts across body +
+  specs, specs as structured facts, reminder that click-to-open tabs must be in the HTML).
+- Content Optimizer: Specs field with live spec-table preview + warning for unstructured lines;
+  now shows SEO and GEO scores with SEO / GEO tabs (previously SEO only). Start over clears specs.
+- Page Analyzer GEO: definition lists (<dl>, common for spec tabs) now count as structured lists.
+- Guide: ecommerce tip for specs. 92 unit tests.
+
+**Decisions**
+- Specs are scored as their own section (not added to body word count) so thin descriptions are
+  still flagged; specs facts do count toward GEO "concrete facts".
+
+## 2026-11-04 — Session 6: niche example content (AR-15 charging handles)
+
+- Replaced all hiking-boot example content (homepage hero + card previews, Content/URL Optimizer
+  placeholders and samples, Keyword Clusters sample keywords/pages, Guide examples) with AR-15
+  charging-handle examples for a fictional store, "Example Arms" (shop.example-arms.com). Real
+  brands the user referenced were deliberately not used to avoid implying affiliation.
+- Matching now ignores hyphens/apostrophes inside words (`matchToken`): "ar-15" = "ar15",
+  "m-lok" = "mlok", for keyword checks and clustering. Tests added.
+- Specs: "compatibility" (fits/platform/caliber) added as a key shopping attribute.
+- Content Optimizer card tagged SEO + GEO. 94 unit tests.
+
+## 2026-11-04 — Session 7: example content switched to PC graphics cards
+
+- User preferred a PC example over AR-15 charging handles. All example content (homepage hero +
+  card previews, Content/URL Optimizer placeholders and samples, Keyword Clusters sample, Guide)
+  now uses a fictional store, "Example PC" (shop.example-pc.com), with generic product names
+  ("Aurora 12GB") rather than real GPU brands.
+- Specs checks now understand electronics: MHz/GHz, GB, slots, pins, fans, ports, "3×"
+  multipliers and versioned standards ("PCIe 4.0", "HDMI 2.1"); "capacity / performance"
+  (memory, clock, power, PSU…) added as a key attribute; interface/socket/slot count as compatibility.
+- Keyword Clusters: "competing pages" now ignores more specific pages that are the best match for
+  a different cluster (e.g. /graphics-cards/low-profile no longer competes with /graphics-cards).
+- 96 unit tests.
