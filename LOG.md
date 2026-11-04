@@ -62,3 +62,11 @@ no paid APIs.
   and the tool is internal. Replaced in Phase 1 by real per-person sign-in with admin/member roles.
 - The repo's only branch (and GitHub default) is currently `claude/festive-allen-xz3809`;
   a `main` branch should become the production branch before inviting the team.
+
+## 2026-11-04 — Session 1d: hosting decision + main branch
+
+**Decisions**
+- Deploy publicly (no `SITE_PASSWORD`) for testing and grading: no stored data, SSRF guard in place,
+  noindex set. **Must turn the gate on before Phase 1 stores data or Phase 2 adds an AI key.**
+- Created `main` from the current work; it becomes the production branch. Future work goes on
+  feature branches merged into `main` through PRs.

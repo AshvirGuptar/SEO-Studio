@@ -19,8 +19,9 @@ Status keys: `[x]` done · `[~]` in progress · `[ ]` not started
 - [x] URL Optimizer: bulk URL checks, slug suggestions, CSV redirect-map export
 - [x] Unit tests for the engine (Vitest)
 - [x] Temporary site-wide password gate (Basic Auth via `src/proxy.ts`, `SITE_PASSWORD`)
-- [ ] Create `main` branch and make it the default / Vercel production branch
-- [ ] Deploy to Vercel; share link with the team; collect first feedback
+- [~] Create `main` branch (done) and make it the GitHub default / Vercel production branch (owner, in settings)
+- [ ] Deploy to Vercel (public for testing/grading; set `SITE_PASSWORD` before Phase 1 data or Phase 2 AI key)
+- [ ] Share link with the team; collect first feedback
 - [x] GitHub Actions CI: test + lint + build on every push
 
 ## Phase 1 — Accounts, projects & history (Week 6: Nov 9–15)
