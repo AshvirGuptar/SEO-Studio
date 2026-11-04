@@ -21,6 +21,7 @@ export interface CrawledPage {
   canonical?: string;
   noindex?: boolean;
   score?: number;
+  geoScore?: number;
   imagesMissingAlt?: number;
   internalLinks: string[];
   externalLinks?: number;
@@ -40,6 +41,7 @@ export interface SiteAuditResult {
   okPages: number;
   healthScore: number; // 0-100
   avgPageScore: number;
+  avgGeoScore: number | null;
   issues: SiteIssue[];
 }
 
@@ -99,6 +101,7 @@ export function summarizeReport(
     canonical: f.canonical,
     noindex: /noindex/i.test(f.robots ?? ""),
     score: report.summary.score,
+    geoScore: report.geo?.summary.score,
     imagesMissingAlt: f.images.filter((i) => i.alt === null).length,
     internalLinks: [...internal],
     externalLinks: external,
@@ -215,5 +218,7 @@ export function auditSite(pages: CrawledPage[], opts: { sitemapUrls?: string[] }
   const clean = pages.length ? (pages.length - [...flagged].filter((u) => byUrl.has(u)).length) / pages.length : 0;
   const healthScore = pages.length ? Math.round(clean * 50 + avgPageScore * 0.5) : 0;
 
-  return { pages: pages.length, okPages: ok.length, healthScore, avgPageScore, issues };
+  const geo = ok.map((p) => p.geoScore).filter((n): n is number => typeof n === "number");
+  const avgGeoScore = geo.length ? Math.round(geo.reduce((a, b) => a + b, 0) / geo.length) : null;
+  return { pages: pages.length, okPages: ok.length, healthScore, avgPageScore, avgGeoScore, issues };
 }

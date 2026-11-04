@@ -6,6 +6,8 @@ import { CheckList } from "@/components/CheckList";
 import { ScoreRing } from "@/components/ScoreRing";
 import { SerpPreview } from "@/components/SerpPreview";
 import { SaveToProject } from "@/components/SaveToProject";
+import { CrawlerTable } from "@/components/CrawlerTable";
+import { DownloadReportButton, StartOverButton, fileSlug } from "@/components/ResultActions";
 
 type Mode = "url" | "html";
 export type Report = PageReport & { fetch?: { status: number; redirects: string[]; elapsedMs: number } };
@@ -18,6 +20,14 @@ export function AnalyzerClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<Report | null>(null);
+
+  function startOver() {
+    setUrl("");
+    setHtml("");
+    setKeyword("");
+    setError(null);
+    setReport(null);
+  }
 
   async function run(e: React.FormEvent) {
     e.preventDefault();
@@ -65,7 +75,10 @@ export function AnalyzerClient() {
               onChange={(e) => setHtml(e.target.value)} required />
           </div>
         )}
-        <button className="btn" disabled={loading}>{loading ? "Analyzing…" : "Analyze page"}</button>
+        <div className="flex flex-wrap items-center gap-3">
+          <button className="btn" disabled={loading}>{loading ? "Analyzing…" : "Analyze page"}</button>
+          {(report || url || html || keyword) && <StartOverButton onClick={startOver} />}
+        </div>
         {error && <p className="text-sm text-fail">{error}</p>}
       </form>
 
@@ -75,22 +88,39 @@ export function AnalyzerClient() {
 }
 
 export function ReportView({ report, saveable = true }: { report: Report; saveable?: boolean }) {
+  const [tab, setTab] = useState<"seo" | "geo">("seo");
   const f = report.facts;
-  const issueCount = report.checks.filter((c) => c.severity === "fail" || c.severity === "warn").length;
+  const issues = (checks: { severity: string }[]) => checks.filter((c) => c.severity === "fail" || c.severity === "warn").length;
+  const issueCount = issues(report.checks);
+  const geo = report.geo;
   const h = f.headings;
   return (
     <div className="space-y-6">
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="card flex flex-col justify-center">
-          <ScoreRing summary={report.summary} />
-          {report.url && <p className="mt-4 truncate text-xs text-muted">{report.url}</p>}
-          {report.fetch && (
-            <p className="text-xs text-muted">HTTP {report.fetch.status} · {report.fetch.elapsedMs} ms · {report.fetch.redirects.length} redirects</p>
-          )}
+      <div className="card flex flex-wrap items-center justify-between gap-3 py-3">
+        <p className="min-w-0 truncate text-xs text-muted">
+          {report.url ?? "Pasted HTML"}
+          {report.fetch && <> · HTTP {report.fetch.status} · {report.fetch.elapsedMs} ms · {report.fetch.redirects.length} redirects</>}
+        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <DownloadReportButton
+            filename={`seo-geo-report-${fileSlug(report.url ?? "page")}.pdf`}
+            build={async () => (await import("@/lib/report/pdf")).pageReportPdf(report)}
+          />
           {saveable && (
-            <div className="mt-4">
-              <SaveToProject payload={{ kind: "page", url: report.url ?? "(pasted HTML)", keyword: report.keyword ?? null, score: report.summary.score, issueCount, data: { report } }} />
-            </div>
+            <SaveToProject payload={{ kind: "page", url: report.url ?? "(pasted HTML)", keyword: report.keyword ?? null, score: report.summary.score, issueCount, data: { report } }} />
+          )}
+        </div>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[1fr_1fr_1.2fr]">
+        <div className="card flex flex-col justify-center">
+          <ScoreRing summary={report.summary} label="SEO score · search engines" size={110} />
+        </div>
+        <div className="card flex flex-col justify-center">
+          {geo ? (
+            <ScoreRing summary={geo.summary} label="GEO score · AI answer engines" size={110} />
+          ) : (
+            <p className="text-sm text-muted">GEO analysis wasn&apos;t available when this report was saved. Re-run the analysis to get it.</p>
           )}
         </div>
         <div className="card">
@@ -101,10 +131,26 @@ export function ReportView({ report, saveable = true }: { report: Report; saveab
 
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="card">
-          <h2 className="mb-3 font-medium">Recommendations</h2>
-          <CheckList checks={report.checks} />
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            <h2 className="mr-auto font-medium">Recommendations</h2>
+            <button className={`pill ${tab === "seo" ? "pill-on" : "pill-off"}`} onClick={() => setTab("seo")}>SEO · {issueCount} issues</button>
+            {geo && <button className={`pill ${tab === "geo" ? "pill-on" : "pill-off"}`} onClick={() => setTab("geo")}>GEO / AI · {issues(geo.checks)} issues</button>}
+          </div>
+          {tab === "geo" && geo && (
+            <p className="mb-4 rounded-xl border border-border bg-surface-2/50 p-3 text-xs text-muted">
+              <b className="text-foreground">GEO (generative engine optimization)</b> measures how easily AI answer engines (ChatGPT search, Perplexity,
+              Google AI Overviews, Claude) can access, understand and <i>cite</i> this page.
+            </p>
+          )}
+          <CheckList key={tab} checks={tab === "geo" && geo ? geo.checks : report.checks} />
         </div>
         <div className="space-y-6">
+          {geo?.crawlers && (
+            <div className="card text-sm">
+              <h2 className="mb-3 font-medium">AI crawler access</h2>
+              <CrawlerTable crawlers={geo.crawlers} />
+            </div>
+          )}
           <div className="card text-sm">
             <h2 className="mb-3 font-medium">Page stats</h2>
             <dl className="grid grid-cols-2 gap-y-2">

@@ -8,6 +8,7 @@ import { approxPixelWidth, topTerms } from "@/lib/seo/text";
 import { CheckList } from "@/components/CheckList";
 import { ScoreRing, scoreColor } from "@/components/ScoreRing";
 import { SerpPreview } from "@/components/SerpPreview";
+import { StartOverButton } from "@/components/ResultActions";
 
 const PRESETS = {
   product: { label: "Product page", minWords: 150 },
@@ -25,6 +26,10 @@ export function ContentClient() {
   const [body, setBody] = useState("");
 
   const kw = keyword.trim() || undefined;
+  const hasInput = Boolean(keyword || title || meta || url || body);
+  function startOver() {
+    setKeyword(""); setTitle(""); setMeta(""); setUrl(""); setBody(""); setPreset("product");
+  }
   const sections = useMemo(() => {
     const t = analyzeTitle(title, kw);
     const m = analyzeMetaDescription(meta, kw);
@@ -40,6 +45,9 @@ export function ContentClient() {
   return (
     <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_380px]">
       <div className="space-y-4">
+        {hasInput && (
+          <div className="flex justify-end"><StartOverButton onClick={startOver} /></div>
+        )}
         <div className="card grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label" htmlFor="kw">Target keyword</label>

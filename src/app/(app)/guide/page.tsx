@@ -6,6 +6,7 @@ export const metadata: Metadata = { title: "Guide" };
 const TOC = [
   { id: "tools", label: "The tools at a glance" },
   { id: "workflow", label: "Recommended workflow" },
+  { id: "geo", label: "Getting cited by AI (GEO)" },
   { id: "ecommerce", label: "Ecommerce playbook" },
   { id: "scores", label: "Understanding scores" },
   { id: "reference", label: "Quick reference" },
@@ -18,7 +19,7 @@ export default function GuidePage() {
       <article className="min-w-0 space-y-12">
         <header>
           <span className="chip">Guide</span>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight">How to use SEO Studio</h1>
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight">How to use SEO &amp; GEO Studio</h1>
           <p className="mt-2 max-w-2xl text-muted">
             A practical playbook for website and online-store owners: what each tool is for, the order to use them in,
             and what “good” looks like. Work through it top to bottom the first time, then repeat the cycle monthly.
@@ -36,7 +37,7 @@ export default function GuidePage() {
                 <ToolRow href="/keywords" name="Keyword Clusters" q="What should each page target, and what pages am I missing?" when="Planning content or a new section" />
                 <ToolRow href="/content" name="Content Optimizer" q="Is this title, meta description and copy well optimized?" when="Writing or rewriting a page" />
                 <ToolRow href="/urls" name="URL Optimizer" q="Are my URLs clean? What should they be?" when="Creating pages or restructuring" />
-                <ToolRow href="/analyzer" name="Page Analyzer" q="How does this live page score, and what should I fix?" when="After publishing, or checking a competitor" />
+                <ToolRow href="/analyzer" name="Page Analyzer" q="How does this page score for search (SEO) and AI answers (GEO)?" when="After publishing, or checking a competitor" />
               </tbody>
             </table>
           </div>
@@ -93,10 +94,48 @@ export default function GuidePage() {
             <Step n={6} title="Monitor and repeat">
               <p>
                 Re-run the Site Audit monthly and after big site changes. Watch clicks and impressions in Search Console; SEO
-                changes typically take 2–8 weeks to show up. Saved history and score tracking are coming to SEO Studio.
+                changes typically take 2–8 weeks to show up. Save each audit to a project to track scores over time and see what changed.
               </p>
             </Step>
           </ol>
+        </Section>
+
+        <Section id="geo" title="Getting cited by AI (GEO)">
+          <p className="mb-4 max-w-3xl text-sm text-muted">
+            <b className="text-foreground">Generative engine optimization</b> is about being found, understood and <i>cited</i> by AI
+            answer engines: ChatGPT search, Perplexity, Google AI Overviews / Gemini, Claude and Copilot. Good SEO is the foundation;
+            GEO adds a few things on top. The Page Analyzer&apos;s <b className="text-foreground">GEO / AI</b> tab and the Site Audit&apos;s
+            <b className="text-foreground"> AI visibility</b> card check all of these.
+          </p>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card title="1. Let AI search crawlers in">
+              <p>Check robots.txt doesn&apos;t block <code>OAI-SearchBot</code>, <code>ChatGPT-User</code>, <code>PerplexityBot</code>, <code>Claude-SearchBot</code>. Blocking training-only bots (<code>GPTBot</code>, <code>CCBot</code>, <code>Google-Extended</code>) is a business choice and doesn&apos;t stop citations.</p>
+              <p>Avoid <code>nosnippet</code> / <code>max-snippet:0</code>; they also remove you from Google&apos;s AI Overviews.</p>
+            </Card>
+            <Card title="2. Make content readable without JavaScript">
+              <p>Most AI crawlers don&apos;t run JavaScript. If your product details or descriptions load client-side, AI engines may see an empty page. Server-render key content.</p>
+            </Card>
+            <Card title="3. Write answer-first">
+              <ul>
+                <li>Open with a 1–3 sentence summary of the page.</li>
+                <li>Use headings phrased as real questions (“How should hiking boots fit?”).</li>
+                <li>Answer each in the first 25–90 words below it, then add detail.</li>
+                <li>Put specs, steps and comparisons in lists and tables.</li>
+              </ul>
+            </Card>
+            <Card title="4. Show you're a credible source">
+              <ul>
+                <li>Name an author or source, and show “Updated &lt;date&gt;”.</li>
+                <li>Use concrete numbers: sizes, prices, test results, percentages.</li>
+                <li>Link to authoritative sources for claims.</li>
+                <li>Add Organization schema with <code>sameAs</code> links to your official profiles, plus Product / Article / FAQPage schema.</li>
+              </ul>
+            </Card>
+          </div>
+          <p className="mt-4 text-sm text-muted">
+            Coming soon: <b className="text-foreground">AI Visibility</b> will track whether AI assistants actually mention and cite your brand for the
+            questions your customers ask.
+          </p>
         </Section>
 
         <Section id="ecommerce" title="Ecommerce playbook">
@@ -157,7 +196,7 @@ export default function GuidePage() {
             <div className="rounded-xl border border-border bg-surface-2/50 p-4 text-sm">
               <p className="font-medium">A high score isn’t a ranking guarantee</p>
               <p className="mt-1 text-muted">
-                SEO Studio measures on-page quality: the part you control directly. Rankings also depend on backlinks,
+                SEO &amp; GEO Studio measures on-page quality: the part you control directly. Rankings also depend on backlinks,
                 competition, how well the page matches search intent, site reputation and page experience. Think of the score
                 as “nothing on this page is holding it back”.
               </p>
@@ -199,11 +238,12 @@ export default function GuidePage() {
               can audit sections separately by starting from a category URL.
             </Faq>
             <Faq q="Where do search volumes come from?">
-              SEO Studio doesn’t buy search data. Bring your own volumes from Google Search Console or Keyword Planner and
+              SEO &amp; GEO Studio doesn’t buy search data. Bring your own volumes from Google Search Console or Keyword Planner and
               paste them with your keywords. Clustering works without volumes too.
             </Faq>
-            <Faq q="Is my work saved?">
-              Not yet: results live in your browser tab until you export them. Projects with saved history are next on the roadmap.
+            <Faq q="Is my work saved? How do I share results?">
+              Results stay in your tab while you switch between tools; use <b>Start over</b> to clear them. Click <b>Download PDF report</b> on the
+              Page Analyzer or Site Audit to get a shareable report, or <b>Save to project</b> (when signed in) to keep it and track changes over time.
             </Faq>
             <Faq q="Can it write copy for me?">
               AI rewriting of titles, meta descriptions and product descriptions is planned. Every AI suggestion will be scored

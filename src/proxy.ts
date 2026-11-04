@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 import { checkBasicAuth } from "@/lib/auth/basic-auth";
-import { authEnvConfigured } from "@/lib/auth/enabled";
+import { authEnvConfigured, isPublicToolPath, publicToolsEnabled } from "@/lib/auth/enabled";
 
 /** Paths reachable without signing in. */
 const PUBLIC_PATHS = ["/sign-in", "/api/auth"];
@@ -18,14 +18,16 @@ export function proxy(request: NextRequest) {
     if (!checkBasicAuth(request.headers.get("authorization"), user, password)) {
       return new NextResponse("Authentication required.", {
         status: 401,
-        headers: { "WWW-Authenticate": 'Basic realm="SEO Studio", charset="UTF-8"' },
+        headers: { "WWW-Authenticate": 'Basic realm="SEO and GEO Studio", charset="UTF-8"' },
       });
     }
   }
 
   if (authEnvConfigured()) {
     const { pathname, search } = request.nextUrl;
-    const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+    const isPublic =
+      PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`)) ||
+      (publicToolsEnabled() && isPublicToolPath(pathname)); // demo mode: tools open, saved data still private
     if (!isPublic && !getSessionCookie(request)) {
       if (pathname.startsWith("/api/")) return Response.json({ error: "Please sign in." }, { status: 401 });
       const url = new URL("/sign-in", request.url);

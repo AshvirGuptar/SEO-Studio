@@ -1,4 +1,5 @@
 import { Logo } from "./Logo";
+import { BRAND } from "@/lib/brand";
 import { SignOutButton } from "./SignOutButton";
 
 export function AccessGate({ status, email }: { status: "pending" | "disabled"; email: string }) {
@@ -18,7 +19,7 @@ export function AccessGate({ status, email }: { status: "pending" | "disabled"; 
           <>
             <h1 className="mt-4 text-xl font-semibold">Account disabled</h1>
             <p className="mt-2 text-sm text-muted">
-              <b className="text-foreground">{email}</b> no longer has access to SEO Studio. Contact an admin if this is a mistake.
+              <b className="text-foreground">{email}</b> no longer has access to {BRAND.name}. Contact an admin if this is a mistake.
             </p>
           </>
         )}

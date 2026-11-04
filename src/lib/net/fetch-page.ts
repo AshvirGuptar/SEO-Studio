@@ -25,7 +25,7 @@ export interface FetchedPage {
 const MAX_BYTES = 5 * 1024 * 1024;
 const MAX_REDIRECTS = 5;
 const TIMEOUT_MS = 15_000;
-const USER_AGENT = "SEOStudioBot/0.1 (+internal SEO audit tool)";
+const USER_AGENT = "SEOGEOStudioBot/0.2 (+internal SEO/GEO audit tool)";
 
 export function isPrivateAddress(ip: string): boolean {
   const v = isIP(ip);

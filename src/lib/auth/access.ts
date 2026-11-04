@@ -1,5 +1,5 @@
 /**
- * Who gets into SEO Studio. Pure logic so it's easy to test.
+ * Who gets into SEO & GEO Studio. Pure logic so it's easy to test.
  *
  * Configure with environment variables (comma-separated, case-insensitive):
  *   ADMIN_EMAILS          always admin + active (bootstrap; can't be locked out)

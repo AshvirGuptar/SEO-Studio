@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { clusterKeywords, mapClustersToPages, parseKeywords, type Intent } from "@/lib/seo/keywords";
 import { downloadCsv } from "@/lib/csv";
+import { StartOverButton } from "@/components/ResultActions";
 
 const SAMPLE_KEYWORDS = `keyword,volume
 hiking boots,22000
@@ -118,6 +119,11 @@ export function KeywordsClient() {
         {hasPages && <Stat label="Content gaps" value={fmt(gaps.length)} tone={gaps.length ? "warn" : undefined} />}
         {hasPages && <Stat label="Cannibalization" value={fmt(conflicts)} tone={conflicts ? "fail" : undefined} />}
         <button className="btn-ghost" onClick={exportCsv} disabled={!clusters.length}>Export CSV</button>
+        {kwText || pagesText ? (
+          <StartOverButton label="Clear" onClick={() => { setKwText(""); setPagesText(""); setStrictness(70); setOpen(new Set([0])); }} />
+        ) : (
+          <button className="btn-ghost" onClick={() => { setKwText(SAMPLE_KEYWORDS); setPagesText(SAMPLE_PAGES); }}>Load example</button>
+        )}
       </div>
 
       {clusters.length > 0 && (

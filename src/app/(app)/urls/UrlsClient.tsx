@@ -5,6 +5,7 @@ import { analyzeUrl, slugify, suggestUrl } from "@/lib/seo/slug";
 import { summarize } from "@/lib/seo/score";
 import { scoreColor } from "@/components/ScoreRing";
 import { downloadCsv } from "@/lib/csv";
+import { StartOverButton } from "@/components/ResultActions";
 
 const SAMPLE = `https://shop.example.com/Products/Mens_Waterproof_Hiking_Boot_12345.html
 https://shop.example.com/c/footwear?cat=22&sort=price
@@ -55,7 +56,14 @@ export function UrlsClient() {
       <div className="card overflow-x-auto p-0">
         <div className="flex items-center justify-between p-4">
           <h2 className="font-medium">{rows.length} URL{rows.length === 1 ? "" : "s"}</h2>
-          <button className="btn-ghost" onClick={exportCsv} disabled={rows.length === 0}>Export redirect map (CSV)</button>
+          <div className="flex flex-wrap gap-2">
+            <button className="btn-ghost" onClick={exportCsv} disabled={rows.length === 0}>Export redirect map (CSV)</button>
+            {input || keyword || title ? (
+              <StartOverButton label="Clear" onClick={() => { setInput(""); setKeyword(""); setTitle(""); setOpen(null); }} />
+            ) : (
+              <button className="btn-ghost" onClick={() => setInput(SAMPLE)}>Load example</button>
+            )}
+          </div>
         </div>
         <table className="w-full min-w-[640px] text-sm">
           <thead className="border-y border-border text-left text-xs uppercase text-muted">

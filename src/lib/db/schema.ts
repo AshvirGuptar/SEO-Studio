@@ -14,7 +14,7 @@ export const user = pgTable("user", {
   image: text("image"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  // SEO Studio access control
+  // SEO & GEO Studio access control
   role: text("role", { enum: ["admin", "member"] }).notNull().default("member"),
   status: text("status", { enum: ["pending", "active", "disabled"] }).notNull().default("pending"),
 });
@@ -55,7 +55,7 @@ export const verification = pgTable("verification", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-// ---------- SEO Studio ----------
+// ---------- SEO & GEO Studio ----------
 /** Emails an admin has invited. Signing in with an invited email activates the account. */
 export const invite = pgTable("invite", {
   email: text("email").primaryKey(), // stored lowercase

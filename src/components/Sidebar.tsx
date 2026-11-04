@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense } from "react";
-import { Logo } from "./Logo";
+import { Wordmark } from "./Wordmark";
 import { HELP_LINKS, TOOLS, toolStatus } from "./nav";
 import type { SessionUser } from "./session";
 import { SignOutButton } from "./SignOutButton";
@@ -39,9 +39,8 @@ function SidebarWithPath(props: { authEnabled: boolean; user: SessionUser | null
 function SidebarView({ authEnabled, user, path }: { authEnabled: boolean; user: SessionUser | null; path: string }) {
   return (
     <nav className="sticky top-0 z-10 flex gap-1 overflow-x-auto border-b border-border bg-background/80 px-4 py-3 backdrop-blur md:h-screen md:w-64 md:shrink-0 md:flex-col md:overflow-y-auto md:border-b-0 md:border-r md:bg-surface/60 md:px-3 md:py-6">
-      <Link href="/" className="mr-4 flex items-center gap-2.5 whitespace-nowrap px-2 font-semibold tracking-tight md:mb-8 md:mr-0">
-        <Logo />
-        <span>SEO <span className="text-accent">Studio</span></span>
+      <Link href="/" className="mr-4 px-2 md:mb-8 md:mr-0">
+        <Wordmark />
       </Link>
       <span className="label hidden px-3 md:block">Tools</span>
       {TOOLS.map((t) =>
@@ -59,6 +58,12 @@ function SidebarView({ authEnabled, user, path }: { authEnabled: boolean; user: 
       {HELP_LINKS.map((l) => <NavLink key={l.href} href={l.href} name={l.name} active={path.startsWith(l.href)} />)}
       {user?.role === "admin" && <NavLink href="/admin" name="Team & access" active={path.startsWith("/admin")} />}
 
+      {!user && authEnabled && (
+        <Link href={`/sign-in${path && path !== "/" ? `?next=${encodeURIComponent(path)}` : ""}`}
+          className="ml-auto whitespace-nowrap rounded-xl px-3 py-2 text-sm text-accent hover:bg-surface-2 md:mt-auto md:ml-0">
+          Sign in →
+        </Link>
+      )}
       {user && (
         <div className="ml-auto flex items-center gap-3 whitespace-nowrap md:mt-auto md:ml-0 md:border-t md:border-border md:px-2 md:pt-4">
           {user.image ? (

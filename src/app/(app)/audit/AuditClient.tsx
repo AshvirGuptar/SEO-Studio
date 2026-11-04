@@ -8,6 +8,10 @@ import { gradeFor } from "@/lib/seo/score";
 import { ScoreRing, scoreColor } from "@/components/ScoreRing";
 import { downloadCsv } from "@/lib/csv";
 import { SaveToProject } from "@/components/SaveToProject";
+import { CrawlerTable } from "@/components/CrawlerTable";
+import { DownloadReportButton, StartOverButton, fileSlug } from "@/components/ResultActions";
+import type { CrawlerAccess } from "@/lib/seo/geo";
+import type { SiteReportData } from "@/lib/report/pdf";
 
 type Phase = "idle" | "discovering" | "crawling" | "done" | "stopped" | "error";
 export interface Discovery {
@@ -17,7 +21,12 @@ export interface Discovery {
   robots: RobotsRules;
   sitemapFiles: string[];
   sitemapUrls: string[];
+  aiCrawlers?: CrawlerAccess[];
+  llmsTxt?: boolean | null;
 }
+
+/** Everything the results view (and PDF) needs, live or loaded from a saved audit. */
+export type SiteResultsData = SiteReportData & { sitemapFileCount: number };
 
 const LIMITS = [25, 50, 100, 250, 500];
 const SEV_STYLE: Record<SiteIssue["severity"], { cls: string; label: string }> = {
@@ -38,6 +47,16 @@ export function AuditClient() {
   const abortRef = useRef<AbortController | null>(null);
 
   const running = phase === "discovering" || phase === "crawling";
+
+  function startOver() {
+    abortRef.current?.abort();
+    setUrl("");
+    setError(null);
+    setPages([]);
+    setStats(null);
+    setDiscovery(null);
+    setPhase("idle");
+  }
 
   async function start(e: React.FormEvent) {
     e.preventDefault();
@@ -108,6 +127,7 @@ export function AuditClient() {
           ) : (
             <button className="btn">{phase === "idle" ? "Start audit" : "Run again"}</button>
           )}
+          {!running && (phase !== "idle" || url) && <StartOverButton onClick={startOver} />}
           <label className="flex items-center gap-2 text-sm text-muted">
             <input type="checkbox" checked={respectRobots} onChange={(e) => setRespectRobots(e.target.checked)} disabled={running} className="accent-[var(--accent)]" />
             Respect robots.txt
@@ -132,15 +152,16 @@ export function AuditClient() {
         )}
       </form>
 
-      {audit && (
-        <>
-          {(phase === "done" || phase === "stopped") && discovery && (
-            <div className="flex justify-end">
-              <SaveToProject payload={siteAuditPayload(discovery, pages, audit)} />
-            </div>
-          )}
-          <Results audit={audit} pages={pages} sitemapUrlCount={discovery?.sitemapUrls.length ?? 0} sitemapFileCount={discovery?.sitemapFiles.length ?? 0} />
-        </>
+      {audit && discovery && (
+        <Results
+          data={{
+            startUrl: discovery.startUrl, audit, pages, robotsFound: discovery.robotsFound,
+            sitemapUrlCount: discovery.sitemapUrls.length, sitemapFileCount: discovery.sitemapFiles.length,
+            aiCrawlers: discovery.aiCrawlers, llmsTxt: discovery.llmsTxt,
+          }}
+          finished={phase === "done" || phase === "stopped"}
+          saveAction={(phase === "done" || phase === "stopped") ? <SaveToProject payload={siteAuditPayload(discovery, pages, audit)} /> : null}
+        />
       )}
     </div>
   );
@@ -157,6 +178,8 @@ function siteAuditPayload(d: Discovery, pages: CrawledPage[], audit: ReturnType<
     data: {
       startUrl: d.startUrl,
       robotsFound: d.robotsFound,
+      aiCrawlers: d.aiCrawlers,
+      llmsTxt: d.llmsTxt,
       sitemapUrlCount: d.sitemapUrls.length,
       sitemapFileCount: d.sitemapFiles.length,
       // Link lists are what make crawls big; keep only counts.
@@ -166,13 +189,30 @@ function siteAuditPayload(d: Discovery, pages: CrawledPage[], audit: ReturnType<
   };
 }
 
-export function Results({ audit, pages, sitemapUrlCount, sitemapFileCount }: { audit: ReturnType<typeof auditSite>; pages: CrawledPage[]; sitemapUrlCount: number; sitemapFileCount: number }) {
+export function Results({ data, finished = true, saveAction = null }: { data: SiteResultsData; finished?: boolean; saveAction?: React.ReactNode }) {
+  const { audit, pages } = data;
   const counts = { fail: 0, warn: 0, info: 0 };
   for (const i of audit.issues) counts[i.severity] += (i as SiteIssue & { total?: number }).total ?? i.items.length;
+  const blockedSearch = data.aiCrawlers?.filter((c) => c.kind === "search" && !c.allowed) ?? [];
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr_1fr_1fr]">
+      {finished && (
+        <div className="card flex flex-wrap items-center justify-between gap-3 py-3">
+          <p className="min-w-0 truncate text-xs text-muted">
+            {data.startUrl} · sitemap: {data.sitemapUrlCount ? `${data.sitemapUrlCount} URLs in ${data.sitemapFileCount} file(s)` : "not found"}
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <DownloadReportButton
+              filename={`site-audit-${fileSlug(data.startUrl)}.pdf`}
+              build={async () => (await import("@/lib/report/pdf")).siteReportPdf(data)}
+            />
+            {saveAction}
+          </div>
+        </div>
+      )}
+
+      <div className="grid gap-4 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
         <div className="card">
           <ScoreRing
             label="Site health"
@@ -181,9 +221,28 @@ export function Results({ audit, pages, sitemapUrlCount, sitemapFileCount }: { a
           />
         </div>
         <Tile label="Pages crawled" value={audit.pages} sub={`${audit.okPages} OK`} />
-        <Tile label="Avg. page score" value={audit.avgPageScore} color={scoreColor(audit.avgPageScore)} />
-        <Tile label="Sitemap URLs" value={sitemapUrlCount} sub={sitemapFileCount ? `${sitemapFileCount} file(s)` : "No sitemap found"} />
+        <Tile label="Avg. SEO score" value={audit.avgPageScore} color={scoreColor(audit.avgPageScore)} sub="Search engines" />
+        {audit.avgGeoScore !== null && audit.avgGeoScore !== undefined
+          ? <Tile label="Avg. GEO score" value={audit.avgGeoScore} color={scoreColor(audit.avgGeoScore)} sub="AI answer engines" />
+          : <Tile label="Sitemap URLs" value={data.sitemapUrlCount} sub={data.sitemapFileCount ? `${data.sitemapFileCount} file(s)` : "No sitemap found"} />}
       </div>
+
+      {data.aiCrawlers && (
+        <div className="card">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="font-medium">AI visibility</h2>
+            <span className="text-xs text-subtle">llms.txt: {data.llmsTxt ? "present" : data.llmsTxt === false ? "not found (optional)" : "not checked"}</span>
+          </div>
+          {blockedSearch.length > 0 ? (
+            <p className="mb-3 rounded-xl bg-fail/10 p-3 text-sm text-fail">
+              robots.txt blocks {blockedSearch.map((c) => c.token).join(", ")}. Those AI engines can&apos;t read or cite this site.
+            </p>
+          ) : (
+            <p className="mb-3 text-sm text-muted">AI search crawlers can access the site. Per-page answer-readiness is in each page&apos;s GEO score below.</p>
+          )}
+          <CrawlerTable crawlers={data.aiCrawlers} />
+        </div>
+      )}
 
       <div className="card">
         <h2 className="mb-3 font-medium">Issues</h2>
@@ -244,8 +303,8 @@ function PagesTable({ pages }: { pages: CrawledPage[] }) {
 
   function exportCsv() {
     downloadCsv("site-audit-pages.csv", [
-      ["url", "status", "score", "title", "meta_description", "words", "h1_count", "depth", "response_ms", "redirects", "noindex", "canonical", "error"],
-      ...pages.map((p) => [p.url, p.status, p.score ?? "", p.title ?? "", p.metaDescription ?? "", p.wordCount ?? "", p.h1Count ?? "", p.depth, p.elapsedMs ?? "", p.redirects, p.noindex ? "yes" : "", p.canonical ?? "", p.error ?? ""]),
+      ["url", "status", "seo_score", "geo_score", "title", "meta_description", "words", "h1_count", "depth", "response_ms", "redirects", "noindex", "canonical", "error"],
+      ...pages.map((p) => [p.url, p.status, p.score ?? "", p.geoScore ?? "", p.title ?? "", p.metaDescription ?? "", p.wordCount ?? "", p.h1Count ?? "", p.depth, p.elapsedMs ?? "", p.redirects, p.noindex ? "yes" : "", p.canonical ?? "", p.error ?? ""]),
     ]);
   }
 
@@ -261,13 +320,14 @@ function PagesTable({ pages }: { pages: CrawledPage[] }) {
       </div>
       <table className="w-full min-w-[760px] text-sm">
         <thead className="border-y border-border text-left text-[11px] uppercase tracking-wide text-subtle">
-          <tr><th className="p-3">Status</th><th className="p-3">Score</th><th className="p-3">URL / title</th><th className="p-3 text-right">Words</th><th className="p-3 text-right">Depth</th><th className="p-3 text-right">Time</th></tr>
+          <tr><th className="p-3">Status</th><th className="p-3">SEO</th><th className="p-3">GEO</th><th className="p-3">URL / title</th><th className="p-3 text-right">Words</th><th className="p-3 text-right">Depth</th><th className="p-3 text-right">Time</th></tr>
         </thead>
         <tbody className="divide-y divide-border">
           {rows.slice(0, 1000).map((p) => (
             <tr key={p.url} className="align-top">
               <td className="p-3"><StatusBadge p={p} /></td>
               <td className="p-3">{p.score !== undefined ? <span className="score-badge" style={{ background: scoreColor(p.score) }}>{p.score}</span> : <span className="text-subtle">—</span>}</td>
+              <td className="p-3">{p.geoScore !== undefined ? <span className="score-badge" style={{ background: scoreColor(p.geoScore) }}>{p.geoScore}</span> : <span className="text-subtle">—</span>}</td>
               <td className="max-w-md p-3">
                 <a href={p.url} target="_blank" rel="noreferrer" className="block break-all font-mono text-xs hover:text-accent">{p.url}</a>
                 <span className="text-xs text-muted">{p.error ?? p.title ?? ""}</span>
@@ -277,7 +337,7 @@ function PagesTable({ pages }: { pages: CrawledPage[] }) {
               <td className="p-3 text-right tabular-nums text-muted">{p.elapsedMs ? `${p.elapsedMs} ms` : "—"}</td>
             </tr>
           ))}
-          {rows.length === 0 && <tr><td colSpan={6} className="p-6 text-center text-muted">No pages match.</td></tr>}
+          {rows.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-muted">No pages match.</td></tr>}
         </tbody>
       </table>
     </div>

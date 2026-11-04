@@ -4,21 +4,14 @@ import { notFound } from "next/navigation";
 import { requirePageUser } from "@/lib/auth/page-guard";
 import { getAudit, getPreviousAudit, getProject } from "@/lib/db/repo";
 import { comparePageChecks, compareSiteIssues } from "@/lib/seo/compare";
-import type { auditSite, CrawledPage } from "@/lib/seo/site-audit";
 import { ReportView, type Report } from "../../../../analyzer/AnalyzerClient";
-import { Results } from "../../../../audit/AuditClient";
+import { Results, type SiteResultsData } from "../../../../audit/AuditClient";
 import { SetupNotice } from "@/components/SetupNotice";
 import { Time } from "@/components/Time";
 
 export const metadata: Metadata = { title: "Saved audit" };
 
-type SiteData = {
-  startUrl: string;
-  sitemapUrlCount: number;
-  sitemapFileCount: number;
-  pages: CrawledPage[];
-  audit: ReturnType<typeof auditSite>;
-};
+type SiteData = SiteResultsData;
 
 export default async function SavedAuditPage({ params }: PageProps<"/projects/[id]/audits/[auditId]">) {
   const user = await requirePageUser();
@@ -52,12 +45,7 @@ export default async function SavedAuditPage({ params }: PageProps<"/projects/[i
       {audit.kind === "page" ? (
         <ReportView report={(audit.data as { report: Report }).report} saveable={false} />
       ) : (
-        <Results
-          audit={(audit.data as SiteData).audit}
-          pages={(audit.data as SiteData).pages}
-          sitemapUrlCount={(audit.data as SiteData).sitemapUrlCount}
-          sitemapFileCount={(audit.data as SiteData).sitemapFileCount}
-        />
+        <Results data={withGeoDefault(audit.data as SiteData)} />
       )}
     </div>
   );
@@ -122,4 +110,9 @@ function SiteChanges({ prev, curr, prevDate }: { prev: SiteData; curr: SiteData;
       <Column title="! Increased" tone="warn" items={worse.map((c) => ({ key: c.id, text: c.label, detail: `${c.before} → ${c.after}` }))} />
     </ChangeCard>
   );
+}
+
+/** Site audits saved before GEO existed have no avgGeoScore. */
+function withGeoDefault(d: SiteData): SiteData {
+  return { ...d, audit: { ...d.audit, avgGeoScore: d.audit.avgGeoScore ?? null } };
 }

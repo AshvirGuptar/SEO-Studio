@@ -23,10 +23,13 @@ export async function POST(request: Request) {
 
   try {
     if ("html" in input) {
-      return Response.json(analyzePage(input.html, { url: input.url || undefined, keyword: input.keyword }));
+      // If a URL was given with pasted HTML, still check that site's robots.txt / llms.txt for GEO.
+      const site = input.url ? await fetchSiteFiles(input.url).catch(() => ({})) : {};
+      return Response.json(analyzePage(input.html, { url: input.url || undefined, keyword: input.keyword, ...site }));
     }
     const page = await fetchPage(input.url);
-    const report = analyzePage(page.html, { url: page.url, keyword: input.keyword });
+    const site = await fetchSiteFiles(page.url);
+    const report = analyzePage(page.html, { url: page.url, keyword: input.keyword, ...site });
 
     // HTTP-level checks only available when we fetched the page ourselves.
     const extra: Check[] = [
@@ -62,4 +65,25 @@ export async function POST(request: Request) {
     console.error(e);
     return Response.json({ error: "Something went wrong analyzing that page." }, { status: 500 });
   }
+}
+
+/** robots.txt (for AI crawler access) and llms.txt for the page's site. Never throws. */
+async function fetchSiteFiles(pageUrl: string): Promise<{ robotsTxt?: string; llmsTxt?: boolean | null }> {
+  let origin: string;
+  try { origin = new URL(/^https?:\/\//i.test(pageUrl) ? pageUrl : `https://${pageUrl}`).origin; } catch { return {}; }
+  const text = /text|plain|markdown/i;
+  const [robots, llms] = await Promise.allSettled([
+    fetchPage(`${origin}/robots.txt`, { accept: text, maxBytes: 512 * 1024 }),
+    fetchPage(`${origin}/llms.txt`, { accept: text, maxBytes: 512 * 1024 }),
+  ]);
+  // An HTML "not found" page comes back as a 415 (wrong content type): treat it as missing.
+  const missing = (r: PromiseSettledResult<unknown>) => r.status === "rejected" && r.reason instanceof FetchPageError && r.reason.status === 415;
+  return {
+    // Missing robots.txt (4xx) means everything is allowed; a network failure means "unknown".
+    robotsTxt:
+      robots.status === "fulfilled"
+        ? robots.value.status === 200 ? robots.value.html : robots.value.status >= 400 && robots.value.status < 500 ? "" : undefined
+        : missing(robots) ? "" : undefined,
+    llmsTxt: llms.status === "fulfilled" ? llms.value.status === 200 && llms.value.html.trim().length > 0 : missing(llms) ? false : null,
+  };
 }

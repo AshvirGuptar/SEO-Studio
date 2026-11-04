@@ -1,9 +1,10 @@
-# SEO Studio — agent guide
+# SEO & GEO Studio — agent guide
 
 @AGENTS.md
 
-Internal SEO toolkit (think "Semrush for our team"): page audits, content/copy optimization,
-URL/slug tools, and later site crawls, keyword clustering, history and AI rewriting.
+Internal SEO + GEO toolkit (think "Semrush for our team"): page audits with SEO and GEO (AI answer
+engine) scores, site crawls, content/copy and URL tools, keyword clustering, projects/history, PDF reports.
+Product name lives in `src/lib/brand.ts` (UI) — repo/domain still say seo-studio.
 Live: https://seo-studio-weld.vercel.app/ (Vercel; deploys from `main`, PR branches get preview URLs).
 Also the TCSS 490 Artifact 5 moonshot — see `docs/PLAN.md` for the roadmap and `LOG.md` for history.
 
@@ -39,6 +40,9 @@ src/lib/seo/        Pure SEO engine — NO React, NO Next, NO network. Runs in b
   robots.ts         robots.txt + sitemap.xml parsing
   site-audit.ts     Per-page crawl summaries + site-wide issue detection
   crawler.ts        BFS crawl orchestrator (runs in the browser; fetch function injected)
+  geo.ts            GEO analyzer: AI crawler access (per-bot robots.txt), snippet controls, JS-only
+                    shells, answer-first structure, trust signals, entity schema. AI_CRAWLERS list.
+src/lib/report/pdf.tsx  PDF reports (@react-pdf/renderer), dynamically imported on click only
 src/lib/net/        Server-only networking. fetch-page.ts has SSRF protection — ALWAYS use it
                     to fetch user-supplied URLs; never call fetch() on user input directly.
 src/app/api/*       Route handlers (validate input with zod, return JSON)
@@ -87,6 +91,13 @@ src/components/     Shared UI (CheckList, ScoreRing, SerpPreview, Sidebar). nav.
 - Schema changes: edit schema.ts → `npm run db:generate` → commit the migration. Never edit applied
   migrations.
 - Signed-in E2E test: scripts/e2e (local PGlite DB + seeded sessions; see its README).
+
+- GEO checks use categories ai-access / answer-ready / trust / entity and are scored separately
+  (report.geo). Saved reports from before GEO lack it, so keep `geo` optional in the UI.
+- Every tool needs a Start over control (`StartOverButton`); Next keeps hidden routes' state alive
+  (cacheComponents + Activity), so results persist across tabs until cleared.
+- PDF text: built-in Helvetica can't render symbols like → ✓; pass strings through `t()` in pdf.tsx.
+- Demo mode: PUBLIC_TOOLS=true opens only PUBLIC_TOOL_PATHS (enabled.ts). Never add data/admin routes.
 
 ## Known limitations
 - The Claude Code cloud sandbox can't resolve DNS directly, so live-URL analysis returns

@@ -154,3 +154,38 @@ Decision: invite-only Google sign-in instead of domain-locked.
 **Next**
 - Owner: Google OAuth client + Vercel env vars (README "Sign-in setup"), then redeploy.
 - Decide whether outside users are clients (per-project access) or contractors (current model is fine).
+
+## 2026-11-04 — Session 4: GEO, PDF reports, Start over, homepage, rebrand, demo mode
+
+**Plan:** user asked for a fancier homepage with hover previews, a reset button, downloadable
+reports, a rebrand to "SEO & GEO Studio" with real GEO analysis, access for two Gmail accounts,
+and whether sign-in can be turned off for a live demo.
+
+**Changes**
+- Rebrand: `src/lib/brand.ts` + `Wordmark`; titles, sidebar, sign-in, guide, PDF, user agent.
+- GEO engine (`src/lib/seo/geo.ts`): 14 AI crawlers (search vs training) evaluated per-bot against
+  robots.txt (`rulesForAgent`, RFC 9309 group selection); snippet controls; empty-SPA detection;
+  question headings + direct answers + answer-first lead; lists/tables; section/paragraph length;
+  author, dates/freshness, citations, concrete numbers; content schema, FAQ, Organization sameAs.
+  Extractor collects the needed signals. `/api/analyze` also fetches robots.txt + llms.txt.
+- Page Analyzer: SEO + GEO score rings, SEO / GEO tabs, AI crawler table, action bar.
+- Site Audit: discovery returns AI crawler access + llms.txt; AI visibility card; avg GEO score;
+  GEO column + CSV column.
+- PDF reports (@react-pdf/renderer 4.9.0, loaded on click): page and site reports, light print layout.
+- Start over / Clear on all five tools (Next 16 keeps visited routes' state alive by design).
+- Homepage: hero with animated SEO/GEO/AI-answer preview, stat strip, 7 feature cards with mini
+  illustrations and hover "Use it to" panels (always visible on touch), SEO vs GEO, monthly loop.
+  Respects prefers-reduced-motion.
+- AI Visibility added as a coming-soon tool.
+- Demo mode: PUBLIC_TOOLS=true opens tool pages/APIs only; projects/admin stay behind sign-in.
+- 86 unit tests; signed-in E2E re-run.
+
+**Bugs found while testing**
+- PDF: big score overlapped its subtitle; title overlapped URL (react-pdf line heights). Fixed.
+- PDF: Helvetica can't render → / ✓; added a text sanitizer.
+- 7 cards left an orphan in a 3-column grid; flagship cards now span two columns.
+
+**Decisions**
+- GEO is rule-based (no AI key needed). Real AI-answer tracking is the coming-soon AI Visibility tool.
+- llms.txt reported as optional/info only: major engines don't rely on it yet.
+- Demo: prefer staying signed in on the demo laptop; PUBLIC_TOOLS only if the audience needs hands-on.

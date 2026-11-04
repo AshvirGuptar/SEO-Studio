@@ -1,6 +1,7 @@
 /** Authorization helpers for route handlers. */
 import "server-only";
 import { getCurrentUser, isAuthEnabled, type CurrentUser } from "./server";
+import { publicToolsEnabled } from "./enabled";
 
 type Result = { user: CurrentUser | null; error?: undefined } | { user?: undefined; error: Response };
 
@@ -11,7 +12,7 @@ const deny = (status: number, error: string) => ({ error: Response.json({ error 
  * configured, the tools stay open (user = null).
  */
 export async function requireToolAccess(): Promise<Result> {
-  if (!isAuthEnabled()) return { user: null };
+  if (!isAuthEnabled() || publicToolsEnabled()) return { user: null };
   return requireActiveUser();
 }
 

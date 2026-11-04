@@ -5,18 +5,24 @@ import { analyzeBodyCopy, analyzeMetaDescription, analyzeTitle } from "./copy";
 import { analyzeUrl } from "./slug";
 import { containsPhrase, topTerms } from "./text";
 import { summarize } from "./score";
+import { analyzeGeo, type CrawlerAccess } from "./geo";
 
 export interface PageReport {
   url?: string;
   keyword?: string;
   summary: ScoreSummary;
   checks: Check[];
-  facts: Omit<PageFacts, "bodyText"> & { wordCount: number; bodyPreview: string };
+  facts: Omit<PageFacts, "bodyText" | "geo"> & { wordCount: number; bodyPreview: string };
   topTerms: { term: string; count: number }[];
+  /** GEO (AI search) analysis. Optional because reports saved before GEO existed lack it. */
+  geo?: { summary: ScoreSummary; checks: Check[]; crawlers?: CrawlerAccess[] };
   analyzedAt: string;
 }
 
-export function analyzePage(html: string, opts: { url?: string; keyword?: string } = {}): PageReport {
+export function analyzePage(
+  html: string,
+  opts: { url?: string; keyword?: string; robotsTxt?: string; llmsTxt?: boolean | null } = {},
+): PageReport {
   const keyword = opts.keyword?.trim() || undefined;
   const f = extractFacts(html, opts.url);
   const checks: Check[] = [
@@ -40,7 +46,12 @@ export function analyzePage(html: string, opts: { url?: string; keyword?: string
       message: `Found ${f.metaDescriptionCount} meta descriptions.`, fix: "Keep exactly one." });
   }
 
-  const { bodyText, ...rest } = f;
+  let path = "/";
+  try { if (f.url) path = new URL(f.url).pathname + new URL(f.url).search; } catch { /* keep "/" */ }
+  const geo = analyzeGeo(f, { robotsTxt: opts.robotsTxt, llmsTxt: opts.llmsTxt, path, keyword });
+
+  const { bodyText, geo: _geoFacts, ...rest } = f;
+  void _geoFacts;
   return {
     url: f.url,
     keyword,
@@ -48,6 +59,7 @@ export function analyzePage(html: string, opts: { url?: string; keyword?: string
     checks,
     facts: { ...rest, wordCount: bodyText.split(/\s+/).filter(Boolean).length, bodyPreview: bodyText.slice(0, 600) },
     topTerms: topTerms(bodyText, 15),
+    geo: { summary: summarize(geo.checks), checks: geo.checks, crawlers: geo.crawlers },
     analyzedAt: new Date().toISOString(),
   };
 }

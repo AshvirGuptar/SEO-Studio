@@ -1,4 +1,4 @@
-/** All database reads/writes for SEO Studio's own tables. Route handlers stay thin. */
+/** All database reads/writes for SEO & GEO Studio's own tables. Route handlers stay thin. */
 import { and, desc, eq, lt, sql } from "drizzle-orm";
 import { getDb } from "./index";
 import { audit, invite, project, user, type Audit, type Invite, type Project, type User } from "./schema";
