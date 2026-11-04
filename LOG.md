@@ -35,3 +35,16 @@ no paid APIs.
 **Next**
 - Added GitHub Actions CI (test, lint, build). Next: deploy to Vercel and share with the team.
 - Phase 1: database + team auth + saved history.
+
+## 2026-11-04 — Session 1b: brand theme
+
+**Changes**
+- New dark theme built around brand orange `#F15A29`: near-black surfaces, subtle orange glow,
+  orange gradient logo mark, orange primary buttons with dark text, orange active-nav indicator.
+- Home page hero ("Ship pages that rank.") and hover-lift tool cards.
+- SERP preview now uses Google's dark-mode colors.
+
+**Decisions**
+- Orange is reserved for brand/actions; status colors moved off amber (warn → yellow, fail → rose)
+  so warnings can't be confused with buttons. Rules written into CLAUDE.md.
+- Dark-only for now; tokens are CSS variables so a light theme can be added later.

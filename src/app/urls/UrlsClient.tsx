@@ -69,7 +69,7 @@ export function UrlsClient() {
               return (
                 <tr key={i} className="align-top">
                   <td className="p-3">
-                    <span className="rounded-full px-2 py-0.5 text-xs font-semibold text-white" style={{ background: scoreColor(r.summary.score) }}>{r.summary.score}</span>
+                    <span className="score-badge" style={{ background: scoreColor(r.summary.score) }}>{r.summary.score}</span>
                     {r.after > r.summary.score && <div className="mt-1 text-xs text-pass">→ {r.after}</div>}
                   </td>
                   <td className="max-w-xs break-all p-3 font-mono text-xs">{r.url}</td>

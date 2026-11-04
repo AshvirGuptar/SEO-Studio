@@ -93,7 +93,7 @@ export function ContentClient() {
           <div className="card text-sm">
             <h2 className="label">Most-used terms in body</h2>
             <div className="flex flex-wrap gap-1.5">
-              {terms.map((t) => <span key={t.term} className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent">{t.term} · {t.count}</span>)}
+              {terms.map((t) => <span key={t.term} className="chip">{t.term} · {t.count}</span>)}
             </div>
           </div>
         )}
@@ -111,7 +111,7 @@ function Field({ label, score, hint, children }: { label: string; score?: number
         <div className="flex items-center gap-3 text-xs text-muted">
           {hint}
           {score !== undefined && (
-            <span className="rounded-full px-2 py-0.5 font-semibold text-white" style={{ background: scoreColor(score) }}>{score}</span>
+            <span className="score-badge" style={{ background: scoreColor(score) }}>{score}</span>
           )}
         </div>
       </div>

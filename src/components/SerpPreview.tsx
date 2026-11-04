@@ -8,7 +8,7 @@ function truncateToPx(text: string, maxPx: number) {
   return out.trimEnd() + "…";
 }
 
-/** Approximate Google desktop result snippet. */
+/** Approximate Google desktop result snippet (Google's dark-mode colors to match the app). */
 export function SerpPreview({ title, description, url }: { title: string; description: string; url: string }) {
   let host = "example.com";
   let crumbs = "";
@@ -20,20 +20,18 @@ export function SerpPreview({ title, description, url }: { title: string; descri
   const desc = description.length > LIMITS.metaMaxChars ? description.slice(0, LIMITS.metaMaxChars - 3).trimEnd() + "…" : description;
 
   return (
-    <div className="rounded-lg border border-border bg-white p-4 font-[arial,sans-serif] text-left dark:bg-[#202124]">
+    <div className="rounded-xl border border-border bg-[#1f1f1f] p-4 text-left font-[arial,sans-serif]">
       <div className="flex items-center gap-2">
-        <span className="grid h-7 w-7 place-items-center rounded-full bg-gray-100 text-xs text-gray-500 dark:bg-gray-700">
+        <span className="grid h-7 w-7 place-items-center rounded-full bg-[#303134] text-xs text-[#bdc1c6]">
           {host[0]?.toUpperCase()}
         </span>
-        <div className="leading-tight">
-          <div className="text-sm text-[#202124] dark:text-[#dadce0]">{host}</div>
-          <div className="text-xs text-[#4d5156] dark:text-[#bdc1c6]">https://{host}{crumbs && ` › ${crumbs}`}</div>
+        <div className="min-w-0 leading-tight">
+          <div className="text-sm text-[#dadce0]">{host}</div>
+          <div className="truncate text-xs text-[#bdc1c6]">https://{host}{crumbs && ` › ${crumbs}`}</div>
         </div>
       </div>
-      <div className="mt-1 text-xl leading-snug text-[#1a0dab] dark:text-[#8ab4f8]">
-        {truncateToPx(title || "Untitled page", LIMITS.titleMaxPx) }
-      </div>
-      <div className="mt-1 text-sm leading-snug text-[#4d5156] dark:text-[#bdc1c6]">
+      <div className="mt-1.5 text-xl leading-snug text-[#99c3ff]">{truncateToPx(title || "Untitled page", LIMITS.titleMaxPx)}</div>
+      <div className="mt-1 text-sm leading-snug text-[#bdc1c6]">
         {desc || "No meta description — Google will pull text from the page."}
       </div>
     </div>

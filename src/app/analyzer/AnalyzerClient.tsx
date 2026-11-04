@@ -41,7 +41,7 @@ export function AnalyzerClient() {
         <div className="flex gap-2">
           {(["url", "html"] as const).map((m) => (
             <button type="button" key={m} onClick={() => setMode(m)}
-              className={`rounded-lg px-3 py-1.5 text-sm ${mode === m ? "bg-accent-soft font-medium text-accent" : "text-muted"}`}>
+              className={`pill ${mode === m ? "pill-on" : "pill-off"}`}>
               {m === "url" ? "Live URL" : "Paste HTML"}
             </button>
           ))}
@@ -113,7 +113,7 @@ function ReportView({ report }: { report: Report }) {
             <h2 className="mb-3 font-medium">Top terms</h2>
             <div className="flex flex-wrap gap-1.5">
               {report.topTerms.map((t) => (
-                <span key={t.term} className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent">{t.term} · {t.count}</span>
+                <span key={t.term} className="chip">{t.term} · {t.count}</span>
               ))}
               {report.topTerms.length === 0 && <span className="text-muted">No body text found.</span>}
             </div>

@@ -1,39 +1,51 @@
 @import "tailwindcss";
 
+/*
+ * SEO Studio theme: dark, built around brand orange #F15A29.
+ * Rules:
+ *  - Orange (accent) is for brand + primary actions + focus/selection ONLY.
+ *  - Status colors (pass/warn/fail/info) are deliberately NOT orange so a warning
+ *    never looks like a button and vice versa.
+ *  - Text on orange is near-black (--accent-fg): white on #F15A29 is only ~3.4:1.
+ */
 :root {
-  --background: #f7f8fa;
-  --surface: #ffffff;
-  --border: #e4e7ec;
-  --foreground: #101828;
-  --muted: #667085;
-  --accent: #4f46e5;
-  --accent-soft: #eef2ff;
-  --pass: #12b76a;
-  --warn: #f79009;
-  --fail: #f04438;
-  --info: #2e90fa;
-}
+  color-scheme: dark;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0b0d12;
-    --surface: #141821;
-    --border: #262c38;
-    --foreground: #e6e8ec;
-    --muted: #98a2b3;
-    --accent: #818cf8;
-    --accent-soft: #1e1b4b;
-  }
+  --background: #09090b;
+  --surface: #111113;      /* cards */
+  --surface-2: #18181b;    /* inputs, hover, nested */
+  --border: #232327;
+  --border-strong: #34343a;
+  --foreground: #f4f4f5;
+  --muted: #a1a1aa;
+  --subtle: #71717a;
+
+  --accent: #f15a29;
+  --accent-hover: #ff6d3f;
+  --accent-deep: #c9441a;
+  --accent-soft: rgb(241 90 41 / 0.12);
+  --accent-fg: #0b0b0c;
+
+  --pass: #34d399;
+  --warn: #facc15;
+  --fail: #fb7185;
+  --info: #60a5fa;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
   --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-deep: var(--accent-deep);
   --color-accent-soft: var(--accent-soft);
+  --color-accent-fg: var(--accent-fg);
   --color-pass: var(--pass);
   --color-warn: var(--warn);
   --color-fail: var(--fail);
@@ -43,14 +55,35 @@
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(900px 420px at 70% -120px, rgb(241 90 41 / 0.13), transparent 70%),
+    var(--background);
+  background-attachment: fixed;
   color: var(--foreground);
 }
 
+::selection { background: rgb(241 90 41 / 0.35); }
+
 @layer components {
-  .card { @apply rounded-xl border border-border bg-surface p-5; }
-  .input { @apply w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20; }
-  .btn { @apply inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50; }
-  .btn-ghost { @apply inline-flex items-center justify-center gap-2 rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-accent-soft; }
-  .label { @apply mb-1 block text-xs font-medium uppercase tracking-wide text-muted; }
+  .card {
+    @apply rounded-2xl border border-border bg-surface p-5;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.03), 0 1px 2px rgb(0 0 0 / 0.4);
+  }
+  .input {
+    @apply w-full rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-subtle hover:border-border-strong focus:border-accent focus:ring-4 focus:ring-accent/15;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-accent-fg transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40;
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08) inset, 0 6px 20px -6px rgb(241 90 41 / 0.55);
+  }
+  .btn:disabled { box-shadow: none; }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-2 px-3 py-1.5 text-sm text-foreground transition hover:border-accent/60 hover:text-accent;
+  }
+  .label { @apply mb-1.5 block text-[11px] font-medium uppercase tracking-[0.08em] text-subtle; }
+  .pill { @apply rounded-full px-3 py-1 text-xs transition; }
+  .pill-on { @apply bg-accent font-medium text-accent-fg; }
+  .pill-off { @apply bg-surface-2 text-muted hover:text-foreground; }
+  .chip { @apply rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-xs text-accent; }
+  .score-badge { @apply rounded-full px-2 py-0.5 text-xs font-semibold text-accent-fg tabular-nums; }
 }

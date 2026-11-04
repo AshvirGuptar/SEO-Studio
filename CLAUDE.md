@@ -48,8 +48,12 @@ src/components/     Shared UI (CheckList, ScoreRing, SerpPreview, Sidebar). nav.
 - Adding a tool: create `src/app/<tool>/`, add it to `src/components/nav.ts` (status "live").
 - Keep `src/lib/seo` free of Node-only APIs except `extract.ts` (Buffer) so the Content and URL
   tools can run fully client-side with live scoring.
-- Theme colors are CSS variables in `globals.css` (`bg-surface`, `text-muted`, `text-pass`…); use them,
-  not raw Tailwind colors, so dark mode keeps working.
+- Theme: dark-only, built around brand orange `#F15A29`. Tokens live in `globals.css`
+  (`bg-surface`, `bg-surface-2`, `text-muted`, `text-subtle`, `text-accent`, `text-pass`…) — use them,
+  never raw Tailwind colors. Reusable classes: `.card .input .btn .btn-ghost .label .pill .chip .score-badge`.
+  - Orange = brand, primary actions, focus and selection ONLY. Never use it for status.
+  - Status: pass = emerald, warn = yellow, fail = rose, info = blue (kept distinct from orange).
+  - Text on orange is near-black (`text-accent-fg`); white on #F15A29 fails contrast (~3.4:1).
 - Secrets go in `.env.local` (git-ignored). Document new variables in `.env.example`.
 - AI features must degrade gracefully when no API key is configured (feature visible but disabled).
 

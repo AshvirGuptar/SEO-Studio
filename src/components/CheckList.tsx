@@ -32,7 +32,7 @@ export function CheckList({ checks, groupByCategory = true }: { checks: Check[];
       <div className="mb-3 flex gap-2">
         {(["issues", "all"] as const).map((f) => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`rounded-full px-3 py-1 text-xs ${filter === f ? "bg-accent text-white" : "bg-border/60 text-muted"}`}>
+            className={`pill ${filter === f ? "pill-on" : "pill-off"}`}>
             {f === "issues" ? `Issues (${checks.filter((c) => c.severity === "fail" || c.severity === "warn").length})` : `All checks (${checks.length})`}
           </button>
         ))}
@@ -42,7 +42,7 @@ export function CheckList({ checks, groupByCategory = true }: { checks: Check[];
         {groups.map(([cat, items]) => (
           <div key={cat}>
             {cat && <h3 className="label">{cat}</h3>}
-            <ul className="divide-y divide-border rounded-lg border border-border">
+            <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface-2/40">
               {items.map((c) => (
                 <li key={c.id} className="flex gap-3 p-3">
                   <span aria-label={ICON[c.severity].label}
