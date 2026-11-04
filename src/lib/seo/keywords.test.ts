@@ -26,10 +26,23 @@ describe("terms", () => {
 });
 
 describe("hyphenated spellings", () => {
-  it("clusters ar15 and ar-15 together", () => {
-    const clusters = clusterKeywords(parseKeywords("ar15 charging handle,500\nar-15 charging handle,300\nar10 charging handle,200"), 0.7);
-    expect(clusters.find((c) => c.name === "ar15 charging handle")?.keywords.map((k) => k.keyword)).toContain("ar-15 charging handle");
-    expect(clusters.find((c) => c.name === "ar10 charging handle")).toBeDefined();
+  it("clusters wifi and wi-fi together", () => {
+    const clusters = clusterKeywords(parseKeywords("wifi motherboard,500\nwi-fi motherboard,300\nmatx motherboard,200"), 0.7);
+    expect(clusters.find((c) => c.name === "wifi motherboard")?.keywords.map((k) => k.keyword)).toContain("wi-fi motherboard");
+    expect(clusters.find((c) => c.name === "matx motherboard")).toBeDefined();
+  });
+});
+
+describe("competing pages", () => {
+  it("ignores more specific pages that own a different cluster", () => {
+    const clusters = clusterKeywords(parseKeywords("graphics card,900\nlow profile graphics card,300"), 0.7);
+    const r = mapClustersToPages(clusters, [
+      "https://s.com/graphics-cards | Graphics Cards",
+      "https://s.com/collections/gpus | Graphics Cards & GPUs",
+      "https://s.com/graphics-cards/low-profile | Low Profile Graphics Cards",
+    ].join("\n"));
+    expect(r.competing).toEqual([{ cluster: "graphics card", pages: ["https://s.com/graphics-cards", "https://s.com/collections/gpus"] }]);
+    expect(r.clusters.find((c) => c.name === "low profile graphics card")?.page).toBe("https://s.com/graphics-cards/low-profile");
   });
 });
 

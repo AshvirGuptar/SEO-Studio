@@ -226,3 +226,16 @@ optional field that feeds into the SEO and GEO scores.
   "m-lok" = "mlok", for keyword checks and clustering. Tests added.
 - Specs: "compatibility" (fits/platform/caliber) added as a key shopping attribute.
 - Content Optimizer card tagged SEO + GEO. 94 unit tests.
+
+## 2026-11-04 — Session 7: example content switched to PC graphics cards
+
+- User preferred a PC example over AR-15 charging handles. All example content (homepage hero +
+  card previews, Content/URL Optimizer placeholders and samples, Keyword Clusters sample, Guide)
+  now uses a fictional store, "Example PC" (shop.example-pc.com), with generic product names
+  ("Aurora 12GB") rather than real GPU brands.
+- Specs checks now understand electronics: MHz/GHz, GB, slots, pins, fans, ports, "3×"
+  multipliers and versioned standards ("PCIe 4.0", "HDMI 2.1"); "capacity / performance"
+  (memory, clock, power, PSU…) added as a key attribute; interface/socket/slot count as compatibility.
+- Keyword Clusters: "competing pages" now ignores more specific pages that are the best match for
+  a different cluster (e.g. /graphics-cards/low-profile no longer competes with /graphics-cards).
+- 96 unit tests.

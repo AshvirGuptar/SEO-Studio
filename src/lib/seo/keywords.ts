@@ -68,7 +68,7 @@ const MODIFIERS = new Set(
 
 /** Meaningful stemmed terms of a keyword (no stop words or intent modifiers). */
 export function coreTerms(keyword: string): Set<string> {
-  const all = words(keyword).map(matchToken); // "ar-15" and "ar15" are the same term
+  const all = words(keyword).map(matchToken); // "wi-fi" and "wifi" are the same term
   const ws = all.filter((w) => !STOP_WORDS.has(w) && !MODIFIERS.has(w));
   const terms = ws.length > 0 ? ws : all;
   return new Set(terms.map(stem));
@@ -199,10 +199,16 @@ export function mapClustersToPages(clusters: Cluster[], pagesText: string): Mapp
     return { ...c, page: undefined, pageScore: undefined };
   });
 
+  // A page that is the best match for a *different* cluster (e.g. /graphics-cards/low-profile for
+  // "low profile graphics card") isn't competing for the broad cluster; it's a more specific page.
+  const realCompeting = competing
+    .map((x) => ({ ...x, pages: x.pages.filter((p) => !byPage.has(p) || (byPage.get(p) ?? []).includes(x.cluster)) }))
+    .filter((x) => x.pages.length > 1);
+
   return {
     clusters: mapped,
+    competing: realCompeting,
     cannibalized: [...byPage.entries()].filter(([, cs]) => cs.length > 1).map(([page, cs]) => ({ page, clusters: cs })),
-    competing,
     gaps: pages.length ? mapped.filter((c) => !c.page).map((c) => c.name) : [],
   };
 }

@@ -35,7 +35,8 @@ export const SPEC_LIMITS = { minAttributes: 5, goodAttributes: 8, minStructuredS
 
 /** Attributes shoppers (and AI shopping answers) compare on. Matched against spec labels. */
 const KEY_ATTRIBUTES: { name: string; re: RegExp }[] = [
-  { name: "compatibility", re: /compatib|fits|fitment|platform|caliber|calibre|model/i },
+  { name: "compatibility", re: /compatib|fits|fitment|platform|interface|socket|slot|connector|caliber|calibre|model/i },
+  { name: "capacity / performance", re: /memory|vram|ram\b|storage|capacity|clock|speed|power|wattage|psu|battery|output/i },
   { name: "weight", re: /weight|weighs|mass/i },
   { name: "size / dimensions", re: /size|sizing|dimension|length|width|height|depth|fit/i },
   { name: "material", re: /material|fabric|upper|lining|made of|construction|composition/i },
@@ -43,10 +44,13 @@ const KEY_ATTRIBUTES: { name: string; re: RegExp }[] = [
   { name: "care / warranty", re: /care|wash|warranty|guarantee/i },
 ];
 
-const UNIT = /(\d)\s*(%|mm|cm|m\b|km|in\b|inch|inches|"|ft|feet|oz|lb|lbs|g\b|kg|ml|l\b|liters?|litres?|gal|mah|w\b|v\b|hz|gb|tb|°|deg|hours?|hrs?|h\b|mins?|years?|yrs?|days?|us\b|uk\b|eu\b)/i;
+const UNIT = /(\d)\s*(%|mm|cm|m\b|km|in\b|inch|inches|"|ft|feet|oz|lb|lbs|g\b|kg|ml|l\b|liters?|litres?|gal|mah|w\b|v\b|hz|khz|mhz|ghz|mb\b|gb|tb|gbps|mbps|bit|fps|k\b|p\b|slots?|pins?|fans?|ports?|°|deg|hours?|hrs?|h\b|mins?|years?|yrs?|days?|months?|us\b|uk\b|eu\b|×|x\b)/i;
 /** Sizing systems written before the number ("US 7–13", "EU 40", "Size 10"). */
 const UNIT_PREFIX = /\b(us|uk|eu|au|jp|size|sz|ages?)\s*\d/i;
-const hasUnit = (v: string) => UNIT.test(v) || UNIT_PREFIX.test(v);
+/** Versioned standards ("PCIe 4.0", "HDMI 2.1", "DisplayPort 1.4a") and counts like "3×" need no unit. */
+const VERSION = /\b[a-z][a-z-]*\s?\d+(\.\d+)+[a-z]?\b/i;
+const MULTIPLIER = /\d\s*[×x]\s/i;
+const hasUnit = (v: string) => UNIT.test(v) || UNIT_PREFIX.test(v) || VERSION.test(v) || MULTIPLIER.test(v);
 const NUMBER = /\d/;
 
 export function analyzeSpecs(text: string, opts: { keyword?: string; preset?: string } = {}): Check[] {
@@ -59,7 +63,7 @@ export function analyzeSpecs(text: string, opts: { keyword?: string; preset?: st
     id: "specs-count", category: "content", label: "Spec attributes", weight: 4, value: `${specs.length} attributes`,
     ...(specs.length >= SPEC_LIMITS.minAttributes
       ? { severity: "pass", message: "Enough attributes for shoppers and search engines to compare the product." }
-      : { severity: "warn", message: "Only a few specs listed.", fix: `List at least ${SPEC_LIMITS.minAttributes} attributes (compatibility, materials, finish/color, dimensions, weight, warranty…).` }),
+      : { severity: "warn", message: "Only a few specs listed.", fix: `List at least ${SPEC_LIMITS.minAttributes} attributes (compatibility, capacity/performance, dimensions, materials, weight, warranty…).` }),
   });
 
   const share = specs.length / total;
@@ -133,7 +137,7 @@ export function analyzeCopyGeo(body: string, specsText: string): Check[] {
     ...(facts >= 5
       ? { severity: "pass", message: "Plenty of specific, verifiable details (sizes, weights, prices, durations)." }
       : { severity: facts >= 2 ? "warn" : "fail", message: "Few concrete facts; AI engines prefer quotable specifics.",
-          fix: "Add measurable details in the copy or specs: weight, dimensions, materials, compatibility, warranty length." }),
+          fix: "Add measurable details in the copy or specs: capacity, speed, dimensions, power, compatibility, warranty length." }),
   });
 
   if (specs.length > 0) {

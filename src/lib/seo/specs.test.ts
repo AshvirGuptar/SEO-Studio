@@ -39,6 +39,14 @@ describe("analyzeSpecs", () => {
   });
 });
 
+describe("electronics specs", () => {
+  it("accepts MHz, slots, versioned standards and multipliers as unit-bearing", () => {
+    const gpu = `Memory: 12 GB GDDR6X\nBoost clock: 2,610 MHz\nInterface: PCIe 4.0 x16\nOutputs: 3× DisplayPort 1.4a, 1× HDMI 2.1\nLength: 285 mm\nSlot width: 2.5 slots\nRecommended PSU: 650 W\nWarranty: 3 years`;
+    const ids = Object.fromEntries(analyzeSpecs(gpu, { preset: "product" }).map((c) => [c.id, c.severity]));
+    expect(ids).toMatchObject({ "specs-units": "pass", "specs-key-attributes": "pass", "specs-count": "pass" });
+  });
+});
+
 describe("analyzeCopyGeo", () => {
   it("rewards an answer-first body plus structured specs", () => {
     const body = "The TrailCo Summit is a waterproof hiking boot for wet, rocky day hikes, weighing 1.1 kg per pair with a 2 year warranty.\n\nMore detail follows here.";

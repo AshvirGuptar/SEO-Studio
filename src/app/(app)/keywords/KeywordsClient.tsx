@@ -5,32 +5,32 @@ import { clusterKeywords, mapClustersToPages, parseKeywords, type Intent } from 
 import { downloadCsv } from "@/lib/csv";
 import { StartOverButton } from "@/components/ResultActions";
 
-// Example data: a fictional AR-15 parts store ("Example Arms"). Volumes are illustrative.
+// Example data: a fictional PC parts store ("Example PC"). Volumes are illustrative.
 const SAMPLE_KEYWORDS = `keyword,volume
-ar15 charging handle,18100
-ar-15 charging handle,6600
-best ar15 charging handle,4400
-buy ar15 charging handle,480
-ar15 charging handle sale,880
-ambidextrous charging handle,5400
-ambidextrous ar15 charging handle,2400
-gas buster charging handle,2900
-ar10 charging handle,3600
-best ar10 charging handle,1000
-extended charging handle latch,1600
-charging handle latch,1300
-mil spec charging handle,2400
-mil spec vs ambidextrous charging handle,590
-how to install charging handle,1900
-how to remove ar15 charging handle,1000
-how does a charging handle work,720
-ar15 bolt carrier group,14800`;
+graphics card,90500
+graphics cards,40500
+best graphics card,33100
+buy graphics card,1900
+graphics card sale,2400
+best graphics card for 1440p,6600
+1440p graphics card,1900
+best graphics card for 4k,4400
+low profile graphics card,8100
+best low profile graphics card,2900
+12gb graphics card,1600
+graphics card for video editing,1300
+graphics card vs integrated graphics,880
+how to install a graphics card,6600
+how to choose a graphics card,1600
+how much power does a graphics card need,2400
+what graphics card do i have,27100
+gaming pc power supply,5400`;
 
-const SAMPLE_PAGES = `https://shop.example-arms.com/ar15-charging-handle | AR-15 Charging Handle
-https://shop.example-arms.com/collections/charging-handles | AR-15 Charging Handles
-https://shop.example-arms.com/ambidextrous-charging-handle | Ambidextrous AR-15 Charging Handle
-https://shop.example-arms.com/ar10-charging-handle | AR-10 Charging Handle
-https://shop.example-arms.com/blog/how-to-install-charging-handle | How to Install an AR-15 Charging Handle`;
+const SAMPLE_PAGES = `https://shop.example-pc.com/graphics-cards | Graphics Cards
+https://shop.example-pc.com/collections/gpus | Graphics Cards & GPUs
+https://shop.example-pc.com/graphics-cards/low-profile | Low Profile Graphics Cards
+https://shop.example-pc.com/graphics-cards/1440p | Best Graphics Cards for 1440p Gaming
+https://shop.example-pc.com/blog/how-to-install-a-graphics-card | How to Install a Graphics Card`;
 
 export const INTENT_STYLE: Record<Intent, { label: string; cls: string; bar: string }> = {
   transactional: { label: "Transactional", cls: "text-intent-transactional border-intent-transactional/30 bg-intent-transactional/10", bar: "bg-intent-transactional" },

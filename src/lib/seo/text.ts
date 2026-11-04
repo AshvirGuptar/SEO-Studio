@@ -24,8 +24,8 @@ export function sentences(text: string): string[] {
 }
 
 /**
- * Token form used for matching: ignores hyphens/apostrophes inside words, so "ar-15" matches
- * "ar15", "m-lok" matches "mlok" and "women's" matches "womens".
+ * Token form used for matching: ignores hyphens/apostrophes inside words, so "wi-fi" matches
+ * "wifi", "usb-c" matches "usbc" and "women's" matches "womens".
  */
 export function matchToken(w: string): string {
   return w.replace(/['’-]/g, "");

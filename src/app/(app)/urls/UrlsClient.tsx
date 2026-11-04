@@ -7,9 +7,9 @@ import { scoreColor } from "@/components/ScoreRing";
 import { downloadCsv } from "@/lib/csv";
 import { StartOverButton } from "@/components/ResultActions";
 
-const SAMPLE = `https://shop.example-arms.com/Products/AR15_Charging_Handle_MilSpec_10045.html
-https://shop.example-arms.com/c/parts?cat=31&sort=price
-/blog/the-complete-guide-to-choosing-and-installing-the-best-ar-15-charging-handle-for-your-build`;
+const SAMPLE = `https://shop.example-pc.com/Products/GPU_Aurora_12GB_GDDR6X_88231.html
+https://shop.example-pc.com/c/components?cat=12&sort=price
+/blog/the-ultimate-guide-to-choosing-the-best-graphics-card-for-1440p-gaming-this-year`;
 
 export function UrlsClient() {
   const [input, setInput] = useState(SAMPLE);
@@ -39,11 +39,11 @@ export function UrlsClient() {
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label className="label" htmlFor="kw">Target keyword (optional)</label>
-            <input id="kw" className="input" placeholder="ar15 charging handle" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+            <input id="kw" className="input" placeholder="1440p graphics card" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
           </div>
           <div>
             <label className="label" htmlFor="title">Page title → slug (optional)</label>
-            <input id="title" className="input" placeholder="Ambidextrous AR-15 Charging Handle" value={title} onChange={(e) => setTitle(e.target.value)} />
+            <input id="title" className="input" placeholder="Aurora 12GB Graphics Card for 1440p Gaming" value={title} onChange={(e) => setTitle(e.target.value)} />
             {title && <p className="mt-1 font-mono text-xs text-muted">/{slugify(title)}</p>}
           </div>
         </div>
