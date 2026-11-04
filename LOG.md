@@ -189,3 +189,10 @@ and whether sign-in can be turned off for a live demo.
 - GEO is rule-based (no AI key needed). Real AI-answer tracking is the coming-soon AI Visibility tool.
 - llms.txt reported as optional/info only: major engines don't rely on it yet.
 - Demo: prefer staying signed in on the demo laptop; PUBLIC_TOOLS only if the audience needs hands-on.
+
+## 2026-11-04 — Sign-in setup deferred
+
+- Owner chose to skip the Google OAuth + Vercel env var setup for now. The app runs in open mode:
+  tools public, Projects & History / Team & access show setup notices. Steps are in README
+  "Sign-in setup" (plus ADMIN_EMAILS=ashvirguptar@gmail.com,ashvirguptar04@gmail.com).
+- Merging PR #2 is still safe; migrations run on Neon at deploy so the DB is ready when sign-in is enabled.
