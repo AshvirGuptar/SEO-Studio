@@ -40,6 +40,8 @@ src/lib/seo/        Pure SEO engine — NO React, NO Next, NO network. Runs in b
   robots.ts         robots.txt + sitemap.xml parsing
   site-audit.ts     Per-page crawl summaries + site-wide issue detection
   crawler.ts        BFS crawl orchestrator (runs in the browser; fetch function injected)
+  specs.ts          Product specs ("Label: Value" lines): parse + SEO checks; analyzeCopyGeo() = GEO
+                    checks for raw copy (Content Optimizer's GEO score)
   geo.ts            GEO analyzer: AI crawler access (per-bot robots.txt), snippet controls, JS-only
                     shells, answer-first structure, trust signals, entity schema. AI_CRAWLERS list.
 src/lib/report/pdf.tsx  PDF reports (@react-pdf/renderer), dynamically imported on click only

@@ -51,6 +51,7 @@ Status keys: `[x]` done · `[~]` in progress · `[ ]` not started
 - [x] Start over / Clear on every tool
 - [x] Homepage redesign with hover previews; SEO vs GEO explainer; workflow
 - [x] Demo mode (PUBLIC_TOOLS) keeping saved data private
+- [x] Content Optimizer: optional Specs field (parsed preview table, SEO checks) + GEO score
 - [ ] AI Visibility tracker: prompt sets per project, query ChatGPT/Perplexity/Gemini/Claude APIs,
       record brand mentions + citations over time (needs API keys + budget)
 

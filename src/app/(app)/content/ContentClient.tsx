@@ -9,6 +9,7 @@ import { CheckList } from "@/components/CheckList";
 import { ScoreRing, scoreColor } from "@/components/ScoreRing";
 import { SerpPreview } from "@/components/SerpPreview";
 import { StartOverButton } from "@/components/ResultActions";
+import { analyzeCopyGeo, analyzeSpecs, parseSpecs } from "@/lib/seo/specs";
 
 const PRESETS = {
   product: { label: "Product page", minWords: 150 },
@@ -24,22 +25,29 @@ export function ContentClient() {
   const [meta, setMeta] = useState("");
   const [url, setUrl] = useState("");
   const [body, setBody] = useState("");
+  const [specs, setSpecs] = useState("");
+  const [tab, setTab] = useState<"seo" | "geo">("seo");
 
   const kw = keyword.trim() || undefined;
-  const hasInput = Boolean(keyword || title || meta || url || body);
+  const hasInput = Boolean(keyword || title || meta || url || body || specs);
   function startOver() {
-    setKeyword(""); setTitle(""); setMeta(""); setUrl(""); setBody(""); setPreset("product");
+    setKeyword(""); setTitle(""); setMeta(""); setUrl(""); setBody(""); setSpecs(""); setPreset("product"); setTab("seo");
   }
   const sections = useMemo(() => {
     const t = analyzeTitle(title, kw);
     const m = analyzeMetaDescription(meta, kw);
     const b = analyzeBodyCopy(body, kw, { minWords: PRESETS[preset].minWords });
     const u = url.trim() ? analyzeUrl(url, kw) : [];
-    return { title: t, meta: m, body: b, url: u };
-  }, [title, meta, body, url, kw, preset]);
+    const sp = analyzeSpecs(specs, { keyword: kw, preset });
+    return { title: t, meta: m, body: b, url: u, specs: sp };
+  }, [title, meta, body, url, specs, kw, preset]);
 
-  const all = [...sections.title, ...sections.meta, ...sections.body, ...sections.url];
+  const all = [...sections.title, ...sections.meta, ...sections.body, ...sections.url, ...sections.specs];
   const overall = summarize(all);
+  const geoChecks = useMemo(() => analyzeCopyGeo(body, specs), [body, specs]);
+  const geo = summarize(geoChecks);
+  const parsedSpecs = useMemo(() => parseSpecs(specs), [specs]);
+  const issueCount = (c: { severity: string }[]) => c.filter((x) => x.severity === "fail" || x.severity === "warn").length;
   const terms = useMemo(() => topTerms(body, 8), [body]);
 
   return (
@@ -82,6 +90,32 @@ export function ContentClient() {
             placeholder="Describe the product: who it's for, key features, materials, sizing, care…" />
         </Field>
 
+        <Field label="Specs (optional)" score={specs.trim() ? summarize(sections.specs).score : undefined}
+          hint={parsedSpecs.specs.length ? `${parsedSpecs.specs.length} attributes` : "e.g. the “Specs” or “Details” tab"}>
+          <textarea className="input h-40 font-mono text-xs" value={specs} onChange={(e) => setSpecs(e.target.value)}
+            placeholder={"One per line, “Label: Value”\nWeight: 1.1 kg (pair)\nColor: Brown, Black\nSizes: US 7–13\nMaterial: Full-grain leather\nWaterproofing: Gore-Tex membrane\nWarranty: 2 years"} />
+          {parsedSpecs.specs.length > 0 && (
+            <details className="mt-3 text-sm" open>
+              <summary className="cursor-pointer text-xs text-subtle">Preview as a spec table</summary>
+              <table className="mt-2 w-full overflow-hidden rounded-xl border border-border text-sm">
+                <tbody className="divide-y divide-border">
+                  {parsedSpecs.specs.map((sp, i) => (
+                    <tr key={i}>
+                      <th scope="row" className="w-2/5 bg-surface-2/50 px-3 py-1.5 text-left font-medium">{sp.label}</th>
+                      <td className="px-3 py-1.5 text-muted">{sp.value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {parsedSpecs.unstructured.length > 0 && (
+                <p className="mt-2 text-xs text-warn">
+                  {parsedSpecs.unstructured.length} line(s) aren&apos;t “Label: Value”: {parsedSpecs.unstructured.slice(0, 3).map((l) => `“${l.slice(0, 40)}”`).join(", ")}
+                </p>
+              )}
+            </details>
+          )}
+        </Field>
+
         <div className="card flex flex-wrap items-center justify-between gap-3 border-dashed">
           <div className="text-sm">
             <div className="font-medium">AI rewrite</div>
@@ -92,7 +126,10 @@ export function ContentClient() {
       </div>
 
       <aside className="space-y-4 lg:sticky lg:top-6 lg:self-start">
-        <div className="card"><ScoreRing summary={overall} label="Overall content score" /></div>
+        <div className="card grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
+          <ScoreRing summary={overall} label="SEO score · search engines" size={96} />
+          <ScoreRing summary={geo} label="GEO score · AI answer engines" size={96} />
+        </div>
         <div className="card">
           <h2 className="label">Search result preview</h2>
           <SerpPreview title={title} description={meta} url={url.startsWith("http") ? url : `example.com${url.startsWith("/") ? "" : "/"}${url}`} />
@@ -105,7 +142,13 @@ export function ContentClient() {
             </div>
           </div>
         )}
-        <div className="card"><CheckList checks={all} groupByCategory={false} /></div>
+        <div className="card">
+          <div className="mb-3 flex flex-wrap gap-2">
+            <button className={`pill ${tab === "seo" ? "pill-on" : "pill-off"}`} onClick={() => setTab("seo")}>SEO · {issueCount(all)}</button>
+            <button className={`pill ${tab === "geo" ? "pill-on" : "pill-off"}`} onClick={() => setTab("geo")}>GEO / AI · {issueCount(geoChecks)}</button>
+          </div>
+          <CheckList key={tab} checks={tab === "seo" ? all : geoChecks} groupByCategory={false} />
+        </div>
       </aside>
     </div>
   );

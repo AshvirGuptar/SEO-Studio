@@ -196,3 +196,22 @@ and whether sign-in can be turned off for a live demo.
   tools public, Projects & History / Team & access show setup notices. Steps are in README
   "Sign-in setup" (plus ADMIN_EMAILS=ashvirguptar@gmail.com,ashvirguptar04@gmail.com).
 - Merging PR #2 is still safe; migrations run on Neon at deploy so the DB is ready when sign-in is enabled.
+
+## 2026-11-04 — Session 5: product specs in the Content Optimizer
+
+**Plan:** product pages often have a separate "Specs" tab (weight, color, sizing…); user asked for an
+optional field that feeds into the SEO and GEO scores.
+
+**Changes**
+- `src/lib/seo/specs.ts`: `parseSpecs` (colon, tab, pipe, " - " separators), `analyzeSpecs` SEO checks
+  (attribute count, Label: Value consistency, units incl. prefix sizes like "US 7–13", key shopping
+  attributes, keyword terms) and `analyzeCopyGeo` (answer-first opening, concrete facts across body +
+  specs, specs as structured facts, reminder that click-to-open tabs must be in the HTML).
+- Content Optimizer: Specs field with live spec-table preview + warning for unstructured lines;
+  now shows SEO and GEO scores with SEO / GEO tabs (previously SEO only). Start over clears specs.
+- Page Analyzer GEO: definition lists (<dl>, common for spec tabs) now count as structured lists.
+- Guide: ecommerce tip for specs. 92 unit tests.
+
+**Decisions**
+- Specs are scored as their own section (not added to body word count) so thin descriptions are
+  still flagged; specs facts do count toward GEO "concrete facts".

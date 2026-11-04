@@ -151,6 +151,7 @@ export default function GuidePage() {
                 <li>Lead with who it’s for and the main benefit, then specs (materials, sizing, care).</li>
                 <li>Add a short FAQ (sizing, shipping, returns); it answers long-tail searches.</li>
                 <li>150+ words is a good floor for products.</li>
+                <li>Paste your <b>Specs</b> tab into the Content Optimizer as “Label: Value” lines. Complete, unit-labeled specs help shoppers, search filters and AI shopping answers.</li>
               </ul>
             </Card>
             <Card title="Category pages">
