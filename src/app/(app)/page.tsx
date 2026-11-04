@@ -17,14 +17,14 @@ export default function Home() {
             <h2 className="text-xl font-semibold tracking-tight">Everything in one studio</h2>
             <p className="text-sm text-muted">Hover a tool to see what it&apos;s for.</p>
           </div>
-          <Link href="/guide" className="text-sm text-accent hover:underline">Read the playbook →</Link>
+          <Link href="/guide" className="inline-flex min-h-10 items-center text-sm text-accent hover:underline">Read the playbook →</Link>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {TOOLS.map((t, i) => {
             const live = toolStatus(t, authEnabled) === "live";
             // Flagship tools (SEO + GEO) span two columns so 7 cards fill a 3-column grid evenly.
             const wide = t.href === "/analyzer" || t.href === "/audit";
-            const className = `card group relative flex flex-col overflow-hidden p-0 transition duration-300 rise ${wide ? "lg:col-span-2" : ""} ${live ? "hover:-translate-y-1 hover:border-accent/50 hover:shadow-[0_18px_50px_-18px_rgb(241_90_41/0.45)] focus-visible:border-accent" : ""}`;
+            const className = `card group relative flex flex-col overflow-hidden p-0 transition duration-300 rise ${wide ? "xl:col-span-2" : ""} ${live ? "hover:-translate-y-1 hover:border-accent/50 hover:shadow-[0_18px_50px_-18px_rgb(241_90_41/0.45)] focus-visible:border-accent" : ""}`;
             const style = { animationDelay: `${i * 60}ms` };
             const body = (
               <>
@@ -37,12 +37,12 @@ export default function Home() {
                     <h3 className="font-medium">{t.name}</h3>
                     <span className="ml-auto flex gap-1">
                       {!live ? (
-                        <span className="rounded-md border border-border px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-subtle">
+                        <span className="rounded-md border border-border px-1.5 py-0.5 text-[11px] uppercase tracking-wide text-subtle">
                           {t.needsAuth ? "Sign-in" : "Soon"}
                         </span>
                       ) : (
                         t.tags?.map((tag) => (
-                          <span key={tag} className="rounded-md border border-border px-1.5 py-0.5 text-[10px] font-medium text-muted">{tag}</span>
+                          <span key={tag} className="rounded-md border border-border px-1.5 py-0.5 text-[11px] font-medium text-muted">{tag}</span>
                         ))
                       )}
                     </span>
@@ -85,9 +85,9 @@ export default function Home() {
 
 function Hero() {
   return (
-    <section className="relative -mx-4 overflow-hidden px-4 pt-2 md:-mx-8 md:px-8 md:pt-6">
+    <section className="relative -mx-4 overflow-hidden px-4 pt-2 sm:-mx-6 sm:px-6 md:pt-6 lg:-mx-8 lg:px-8">
       <div className="grid-bg pointer-events-none absolute inset-0" aria-hidden="true" />
-      <div className="relative grid items-center gap-10 lg:grid-cols-[1.1fr_1fr]">
+      <div className="relative grid items-center gap-10 xl:grid-cols-[1.1fr_1fr]">
         <div className="rise">
           <span className="chip">SEO + GEO toolkit for our team</span>
           <h1 className="mt-5 text-4xl font-semibold leading-[1.08] tracking-tight md:text-6xl">
@@ -126,7 +126,7 @@ function Hero() {
 /** Decorative product preview: scores, a Google result and an AI answer citing the page. */
 function HeroVisual() {
   return (
-    <div className="relative mx-auto w-full max-w-md lg:max-w-none" aria-hidden="true">
+    <div className="relative mx-auto w-full max-w-md md:max-w-lg xl:max-w-none" aria-hidden="true">
       <div className="absolute -inset-6 rounded-[2rem] bg-[radial-gradient(closest-side,rgb(241_90_41/0.25),transparent)]" />
       <div className="card float relative">
         <div className="flex items-center justify-between">

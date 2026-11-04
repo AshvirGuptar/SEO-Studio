@@ -239,3 +239,28 @@ optional field that feeds into the SEO and GEO scores.
 - Keyword Clusters: "competing pages" now ignores more specific pages that are the best match for
   a different cluster (e.g. /graphics-cards/low-profile no longer competes with /graphics-cards).
 - 96 unit tests.
+
+## 2026-11-04 — Session 8: phone & tablet pass
+
+**Plan:** user asked for a mobile check across phones and tablets.
+
+**Method:** Playwright device sweep (iPhone SE 320px, iPhone 14, Pixel 7, iPad mini portrait,
+iPad landscape) over every tool with results filled in, plus signed-in pages (projects, saved
+audits, Team & access, sign-in). Automated checks for overflow, tap targets <32px, text <11px;
+screenshots reviewed by eye. Script saved as scripts/e2e/mobile.cjs.
+
+**Found and fixed**
+- Sideways scrolling on iPad mini portrait (URL Optimizer, Site Audit, Keyword Clusters, up to
+  256px): `main` lacked `min-w-0`, so wide tables stretched the page instead of scrolling in-card.
+- Sideways scrolling on iPhone SE Page Analyzer (38px): single-column CSS grids sized to the
+  widest child; base rule `.grid { grid-template-columns: minmax(0,1fr) }`. Score rings now scale.
+- Phone nav was a sideways-scrolling strip cut off mid-word; replaced with a top bar + Menu panel
+  (closes on navigation/Escape, aria-expanded). Sidebar now only from 1024px; tablets in portrait
+  get the full width. Multi-column layouts moved to xl so 1024px screens aren't cramped.
+- Tap targets: pills 24px → 32px; buttons ≥40px; copy button, "Generate from title", FAQ and spec
+  preview toggles, range slider and robots checkbox label enlarged. 10px labels → 11px.
+- A suspected homepage card overlap on phones turned out to be the fade-in animation captured
+  mid-way in a full-page screenshot; a close-up confirmed the layout is correct.
+
+**Result:** 0px overflow on all 40 page/device combinations + signed-in pages; no browser errors;
+signed-in E2E still passes.

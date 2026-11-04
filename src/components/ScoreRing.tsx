@@ -9,8 +9,8 @@ export function ScoreRing({ summary, size = 120, label = "SEO score", legend }: 
   const c = 2 * Math.PI * r;
   const color = scoreColor(summary.score);
   return (
-    <div className="flex items-center gap-5">
-      <svg width={size} height={size} role="img" aria-label={`${label}: ${summary.score} out of 100`}>
+    <div className="flex min-w-0 items-center gap-4 sm:gap-5">
+      <svg viewBox={`0 0 ${size} ${size}`} className="h-auto shrink-0" style={{ width: `min(${size}px, 26vw)` }} role="img" aria-label={`${label}: ${summary.score} out of 100`}>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--surface-2)" strokeWidth={10} />
         <circle
           cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={10} strokeLinecap="round"
@@ -21,7 +21,7 @@ export function ScoreRing({ summary, size = 120, label = "SEO score", legend }: 
           {summary.score}
         </text>
       </svg>
-      <div className="text-sm">
+      <div className="min-w-0 text-sm">
         <div className="text-muted">{label}</div>
         <div className="text-2xl font-semibold" style={{ color }}>Grade {summary.grade}</div>
         <div className="mt-1 flex flex-wrap gap-x-3 text-xs text-muted">

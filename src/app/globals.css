@@ -83,15 +83,15 @@ body {
     @apply w-full rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-subtle hover:border-border-strong focus:border-accent focus:ring-4 focus:ring-accent/15;
   }
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-accent-fg transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40;
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-accent-fg transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40;
     box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08) inset, 0 6px 20px -6px rgb(241 90 41 / 0.55);
   }
   .btn:disabled { box-shadow: none; }
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-2 px-3 py-1.5 text-sm text-foreground transition hover:border-accent/60 hover:text-accent;
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-border bg-surface-2 px-3 py-1.5 text-sm text-foreground transition hover:border-accent/60 hover:text-accent;
   }
   .label { @apply mb-1.5 block text-[11px] font-medium uppercase tracking-[0.08em] text-subtle; }
-  .pill { @apply rounded-full px-3 py-1 text-xs transition; }
+  .pill { @apply inline-flex min-h-8 items-center rounded-full px-3 py-1 text-xs transition; }
   .pill-on { @apply bg-accent font-medium text-accent-fg; }
   .pill-off { @apply bg-surface-2 text-muted hover:text-foreground; }
   .chip { @apply rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-xs text-accent; }
@@ -133,4 +133,13 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .float, .float-delay, .rise, .draw, .typing span { animation: none !important; }
   .reveal { transition: none; }
+}
+
+/*
+ * Single-column grids must be allowed to shrink to the screen: the default "auto" column grows to
+ * the widest child (e.g. a score card), which caused sideways scrolling on 320px phones.
+ * Lives in the base layer so responsive grid-cols-* utilities still override it.
+ */
+@layer base {
+  .grid { grid-template-columns: minmax(0, 1fr); }
 }

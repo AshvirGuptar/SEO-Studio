@@ -31,7 +31,7 @@ async function ProjectList() {
           <Link href="/audit" className="text-accent hover:underline">Site Audit</Link> and click <b className="text-foreground">Save to project</b>.
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {projects.map((p) => (
             <Link key={p.id} href={`/projects/${p.id}`} className="card group transition hover:-translate-y-0.5 hover:border-accent/50">
               <div className="flex items-start justify-between gap-3">

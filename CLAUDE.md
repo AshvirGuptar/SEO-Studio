@@ -101,6 +101,13 @@ src/components/     Shared UI (CheckList, ScoreRing, SerpPreview, Sidebar). nav.
 - PDF text: built-in Helvetica can't render symbols like → ✓; pass strings through `t()` in pdf.tsx.
 - Demo mode: PUBLIC_TOOLS=true opens only PUBLIC_TOOL_PATHS (enabled.ts). Never add data/admin routes.
 
+- Responsive: sidebar only from `lg` (1024px); below that a top bar + Menu panel (Sidebar.tsx).
+  Multi-column tool layouts switch at `xl` because lg leaves ~700px beside the sidebar.
+  `main` has `min-w-0` and single-column `.grid`s default to `minmax(0,1fr)` (globals.css) so wide
+  content scrolls inside its card instead of the page. Interactive controls ≥32px tall (`.btn`,
+  `.btn-ghost` min-h-10, `.pill` min-h-8); no text under 11px except decorative mockups.
+  Device sweep: `node scripts/e2e/mobile.cjs <outDir> <baseUrl>` (iPhone SE/14, Pixel 7, iPad).
+
 ## Known limitations
 - The Claude Code cloud sandbox can't resolve DNS directly, so live-URL analysis returns
   "Could not resolve" there. Test with "Paste HTML" mode or run locally/deployed.

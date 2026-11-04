@@ -310,7 +310,7 @@ function ToolRow({ href, name, q, when }: { href: string; name: string; q: strin
 function Faq({ q, children }: { q: string; children: React.ReactNode }) {
   return (
     <details className="card group p-4 [&_b]:text-foreground">
-      <summary className="cursor-pointer list-none font-medium marker:hidden">
+      <summary className="flex min-h-8 cursor-pointer list-none items-center font-medium marker:hidden">
         <span className="mr-2 inline-block text-accent transition group-open:rotate-90">›</span>{q}
       </summary>
       <p className="mt-2 pl-5 text-muted">{children}</p>

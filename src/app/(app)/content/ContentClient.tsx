@@ -51,7 +51,7 @@ export function ContentClient() {
   const terms = useMemo(() => topTerms(body, 8), [body]);
 
   return (
-    <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_380px]">
+    <div className="mt-6 grid gap-6 xl:grid-cols-[1fr_380px]">
       <div className="space-y-4">
         {hasInput && (
           <div className="flex justify-end"><StartOverButton onClick={startOver} /></div>
@@ -80,7 +80,7 @@ export function ContentClient() {
         </Field>
 
         <Field label="URL" score={url ? summarize(sections.url).score : undefined}
-          hint={kw || title ? <button type="button" className="text-accent hover:underline" onClick={() => setUrl(`/${slugify(title || keyword)}`)}>Generate from {title ? "title" : "keyword"}</button> : undefined}>
+          hint={kw || title ? <button type="button" className="min-h-8 rounded-lg px-2 text-accent hover:bg-surface-2" onClick={() => setUrl(`/${slugify(title || keyword)}`)}>Generate from {title ? "title" : "keyword"}</button> : undefined}>
           <input className="input font-mono text-sm" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="/graphics-cards/aurora-12gb" />
         </Field>
 
@@ -96,7 +96,7 @@ export function ContentClient() {
             placeholder={"One per line, “Label: Value”\nMemory: 12 GB GDDR6X\nBoost clock: 2,610 MHz\nInterface: PCIe 4.0 x16\nOutputs: 3× DisplayPort 1.4a, 1× HDMI 2.1\nLength: 285 mm (2.5 slots)\nRecommended PSU: 650 W\nWarranty: 3 years"} />
           {parsedSpecs.specs.length > 0 && (
             <details className="mt-3 text-sm" open>
-              <summary className="cursor-pointer text-xs text-subtle">Preview as a spec table</summary>
+              <summary className="flex min-h-8 cursor-pointer items-center text-xs text-subtle">Preview as a spec table</summary>
               <table className="mt-2 w-full overflow-hidden rounded-xl border border-border text-sm">
                 <tbody className="divide-y divide-border">
                   {parsedSpecs.specs.map((sp, i) => (
@@ -125,8 +125,8 @@ export function ContentClient() {
         </div>
       </div>
 
-      <aside className="space-y-4 lg:sticky lg:top-6 lg:self-start">
-        <div className="card grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
+      <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
+        <div className="card grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1">
           <ScoreRing summary={overall} label="SEO score · search engines" size={96} />
           <ScoreRing summary={geo} label="GEO score · AI answer engines" size={96} />
         </div>
