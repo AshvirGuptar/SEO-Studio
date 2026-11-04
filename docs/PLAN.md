@@ -1,4 +1,4 @@
-# SEO Studio — Plan
+# SEO & GEO Studio — Plan
 
 **Goal:** an internal, deployed SEO platform our team actually uses for page audits, copy
 optimization, URL hygiene, site crawls and keyword planning.
@@ -34,11 +34,25 @@ Status keys: `[x]` done · `[~]` in progress · `[ ]` not started
 - [x] Guide tab: workflow + ecommerce playbook + score explanations + quick reference + FAQ
 
 ## Phase 1 — Accounts, projects & history (Week 6: Nov 9–15)
-- [ ] Database: Postgres (Neon / Vercel Postgres) + Drizzle ORM; migrations in repo
-- [ ] Auth: restrict to our team (Auth.js with Google sign-in limited to company domain)
-- [ ] Projects: group URLs per site/client
-- [ ] Save every analysis; history view with score-over-time chart and diff of checks
-- [ ] Shareable report links + export report as PDF/CSV
+- [x] Database: Neon Postgres + Drizzle ORM; migrations in repo, applied before every build
+- [x] Auth: Better Auth + Google; invite-only (ADMIN_EMAILS, AUTO_APPROVE_DOMAINS, invites, approval queue)
+- [x] Roles: admin (people, invites, roles, delete anything) / member
+- [x] Projects: group saved audits per site/client; "Save to project" in Page Analyzer and Site Audit
+- [x] History: site-health chart, tracked pages with trend + change, saved-audit view with "what changed"
+- [ ] Owner: create Google OAuth client + set env vars in Vercel (README "Sign-in setup")
+- [ ] Per-project access / read-only client role (if outside users are clients)
+- [ ] Shareable report links + export report as PDF
+
+## Session 4 additions (Nov 4)
+- [x] Rebrand UI to SEO & GEO Studio (repo/domain later)
+- [x] GEO analysis: AI crawler access per bot, snippet controls, JS-only detection, answer-first
+      structure, trust signals, entity schema; GEO score in Page Analyzer, Site Audit, PDFs
+- [x] Downloadable PDF reports (Page Analyzer, Site Audit, saved audits)
+- [x] Start over / Clear on every tool
+- [x] Homepage redesign with hover previews; SEO vs GEO explainer; workflow
+- [x] Demo mode (PUBLIC_TOOLS) keeping saved data private
+- [ ] AI Visibility tracker: prompt sets per project, query ChatGPT/Perplexity/Gemini/Claude APIs,
+      record brand mentions + citations over time (needs API keys + budget)
 
 ## Phase 2 — AI copywriting (Week 7: Nov 16–22) — needs an API key
 - [ ] `src/lib/ai/` provider interface (Claude by default), server-only, key from env

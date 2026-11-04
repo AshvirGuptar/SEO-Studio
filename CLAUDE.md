@@ -1,9 +1,10 @@
-# SEO Studio — agent guide
+# SEO & GEO Studio — agent guide
 
 @AGENTS.md
 
-Internal SEO toolkit (think "Semrush for our team"): page audits, content/copy optimization,
-URL/slug tools, and later site crawls, keyword clustering, history and AI rewriting.
+Internal SEO + GEO toolkit (think "Semrush for our team"): page audits with SEO and GEO (AI answer
+engine) scores, site crawls, content/copy and URL tools, keyword clustering, projects/history, PDF reports.
+Product name lives in `src/lib/brand.ts` (UI) — repo/domain still say seo-studio.
 Live: https://seo-studio-weld.vercel.app/ (Vercel; deploys from `main`, PR branches get preview URLs).
 Also the TCSS 490 Artifact 5 moonshot — see `docs/PLAN.md` for the roadmap and `LOG.md` for history.
 
@@ -20,8 +21,9 @@ Also the TCSS 490 Artifact 5 moonshot — see `docs/PLAN.md` for the roadmap and
 - Before committing: `npm test && npm run lint && npm run build` must all pass.
 
 ## Stack
-Next.js 16 (App Router, `src/` dir) · React 19 · TypeScript (strict) · Tailwind v4 · cheerio (HTML parsing)
-· zod (request validation) · Vitest. Next 16 differs from older versions — check
+Next.js 16 (App Router, `src/` dir, `cacheComponents` on) · React 19 · TypeScript (strict) · Tailwind v4
+· cheerio (HTML parsing) · zod (request validation) · Drizzle ORM + Neon Postgres · Better Auth (Google)
+· Vitest (+ PGlite in-memory Postgres for DB tests). Next 16 differs from older versions — check
 `node_modules/next/dist/docs/` before using unfamiliar Next APIs.
 
 ## Architecture
@@ -38,11 +40,22 @@ src/lib/seo/        Pure SEO engine — NO React, NO Next, NO network. Runs in b
   robots.ts         robots.txt + sitemap.xml parsing
   site-audit.ts     Per-page crawl summaries + site-wide issue detection
   crawler.ts        BFS crawl orchestrator (runs in the browser; fetch function injected)
+  geo.ts            GEO analyzer: AI crawler access (per-bot robots.txt), snippet controls, JS-only
+                    shells, answer-first structure, trust signals, entity schema. AI_CRAWLERS list.
+src/lib/report/pdf.tsx  PDF reports (@react-pdf/renderer), dynamically imported on click only
 src/lib/net/        Server-only networking. fetch-page.ts has SSRF protection — ALWAYS use it
                     to fetch user-supplied URLs; never call fetch() on user input directly.
 src/app/api/*       Route handlers (validate input with zod, return JSON)
                     audit/discover (robots + sitemap), audit/page (one page per request)
 src/lib/csv.ts      Browser CSV export helper
+src/lib/db/         schema.ts (Drizzle tables; Better Auth's user/session/account/verification + invite,
+                    project, audit), index.ts (getDb: Neon, or pglite:// for local), repo.ts (all queries)
+drizzle/            Generated SQL migrations. Applied by scripts/migrate.mjs before every build.
+src/lib/auth/       access.ts (who gets in: pure), server.ts (Better Auth config, getCurrentUser),
+                    guard.ts (route-handler guards), page-guard.ts, enabled.ts (env check for proxy)
+src/proxy.ts        Optional Basic Auth + redirect signed-out users to /sign-in (optimistic cookie check)
+src/app/(app)/      All pages with the sidebar. sign-in/ lives outside the group (no sidebar).
+src/lib/seo/compare.ts  "What changed" between two saved audits
 src/app/<tool>/     One folder per tool: page.tsx (server, metadata) + <Tool>Client.tsx (client UI)
 src/components/     Shared UI (CheckList, ScoreRing, SerpPreview, Sidebar). nav.ts lists tools.
 ```
@@ -68,6 +81,23 @@ src/components/     Shared UI (CheckList, ScoreRing, SerpPreview, Sidebar). nav.
   request runs long (serverless timeouts) and progress is live. Keep it that way.
 - Keyword rules: informational (how-to) keywords never cluster or map with product/category ones.
   Page mapping needs the cluster's most distinctive term, not just shared generic words.
+
+- Auth: sign-in is ON only when DATABASE_URL, BETTER_AUTH_SECRET, GOOGLE_CLIENT_ID and
+  GOOGLE_CLIENT_SECRET are all set; otherwise tools are open and saving is disabled (keep both modes
+  working). Every API route calls a guard (`requireToolAccess` for tools, `requireActiveUser` /
+  `requireAdmin` for data). The proxy check is optimistic, so never rely on it alone.
+- cacheComponents: anything reading cookies/headers/searchParams (incl. getCurrentUser) must render
+  inside <Suspense>. The (app) layout already wraps the sidebar and page content.
+- Schema changes: edit schema.ts → `npm run db:generate` → commit the migration. Never edit applied
+  migrations.
+- Signed-in E2E test: scripts/e2e (local PGlite DB + seeded sessions; see its README).
+
+- GEO checks use categories ai-access / answer-ready / trust / entity and are scored separately
+  (report.geo). Saved reports from before GEO lack it, so keep `geo` optional in the UI.
+- Every tool needs a Start over control (`StartOverButton`); Next keeps hidden routes' state alive
+  (cacheComponents + Activity), so results persist across tabs until cleared.
+- PDF text: built-in Helvetica can't render symbols like → ✓; pass strings through `t()` in pdf.tsx.
+- Demo mode: PUBLIC_TOOLS=true opens only PUBLIC_TOOL_PATHS (enabled.ts). Never add data/admin routes.
 
 ## Known limitations
 - The Claude Code cloud sandbox can't resolve DNS directly, so live-URL analysis returns

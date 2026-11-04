@@ -1,7 +1,9 @@
 import { z } from "zod";
+import { requireToolAccess } from "@/lib/auth/guard";
 import { FetchPageError, fetchPage, normalizeInputUrl } from "@/lib/net/fetch-page";
 import { parseRobots, parseSitemap, type RobotsRules } from "@/lib/seo/robots";
 import { normalizeCrawlUrl, sameSite } from "@/lib/seo/site-audit";
+import { crawlerAccess } from "@/lib/seo/geo";
 
 const Body = z.object({ url: z.string().min(1).max(2048) });
 const MAX_SITEMAP_URLS = 2000;
@@ -9,6 +11,8 @@ const MAX_SITEMAP_FILES = 6;
 
 /** Discover crawl inputs for a site: robots.txt rules and sitemap URLs. */
 export async function POST(request: Request) {
+  const access = await requireToolAccess();
+  if (access.error) return access.error;
   const parsed = Body.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "Provide a site URL." }, { status: 400 });
 
@@ -33,13 +37,23 @@ export async function POST(request: Request) {
 
   let robots: RobotsRules = { allow: [], disallow: [], sitemaps: [] };
   let robotsFound = false;
+  let robotsTxt = "";
   try {
     const r = await fetchPage(`${origin}/robots.txt`, { accept: /text|plain/i, maxBytes: 512 * 1024 });
     if (r.status === 200) {
+      robotsTxt = r.html;
       robots = parseRobots(r.html);
       robotsFound = true;
     }
   } catch { /* no robots.txt is fine */ }
+
+  let llmsTxt: boolean | null = null;
+  try {
+    const l = await fetchPage(`${origin}/llms.txt`, { accept: /text|plain|markdown/i, maxBytes: 512 * 1024 });
+    llmsTxt = l.status === 200 && l.html.trim().length > 0;
+  } catch (e) {
+    llmsTxt = e instanceof FetchPageError && e.status === 415 ? false : null; // HTML 404 page = missing
+  }
 
   const queue = robots.sitemaps.length ? [...robots.sitemaps] : [`${origin}/sitemap.xml`];
   const seen = new Set<string>();
@@ -70,5 +84,7 @@ export async function POST(request: Request) {
     robots,
     sitemapFiles,
     sitemapUrls: [...urls],
+    aiCrawlers: crawlerAccess(robotsTxt),
+    llmsTxt,
   });
 }

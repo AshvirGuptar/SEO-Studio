@@ -42,3 +42,17 @@ describe("sitemap", () => {
     expect(parseSitemap(`<sitemapindex><sitemap><loc>https://s.com/s1.xml</loc></sitemap></sitemapindex>`).isIndex).toBe(true);
   });
 });
+
+describe("per-agent rules", () => {
+  const txt = `User-agent: *\nDisallow: /cart\n\nUser-agent: GPTBot\nDisallow: /\n\nUser-agent: Google-Extended\nUser-agent: CCBot\nDisallow: /\n\nUser-agent: PerplexityBot\nAllow: /\n`;
+  it("picks the most specific group, else *", async () => {
+    const { agentAllowed } = await import("./robots");
+    expect(agentAllowed(txt, "GPTBot")).toBe(false);
+    expect(agentAllowed(txt, "CCBot")).toBe(false);
+    expect(agentAllowed(txt, "Google-Extended")).toBe(false);
+    expect(agentAllowed(txt, "PerplexityBot")).toBe(true);
+    expect(agentAllowed(txt, "ClaudeBot")).toBe(true); // falls back to *, root allowed
+    expect(agentAllowed(txt, "ClaudeBot", "/cart/x")).toBe(false);
+    expect(agentAllowed("", "GPTBot")).toBe(true);
+  });
+});

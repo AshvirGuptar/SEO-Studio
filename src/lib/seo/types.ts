@@ -1,5 +1,5 @@
 /**
- * Shared types for every SEO analyzer in SEO Studio.
+ * Shared types for every SEO analyzer in SEO & GEO Studio.
  * Every analyzer returns Check[] so the UI can render any of them the same way.
  */
 
@@ -15,7 +15,12 @@ export type CheckCategory =
   | "technical"
   | "social"
   | "url"
-  | "readability";
+  | "readability"
+  // GEO (generative engine optimization) categories
+  | "ai-access"
+  | "answer-ready"
+  | "trust"
+  | "entity";
 
 export interface Check {
   /** Stable machine id, e.g. "title-length". Used for tests and history diffs. */
