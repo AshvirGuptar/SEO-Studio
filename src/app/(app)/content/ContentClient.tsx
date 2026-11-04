@@ -59,7 +59,7 @@ export function ContentClient() {
         <div className="card grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label" htmlFor="kw">Target keyword</label>
-            <input id="kw" className="input" placeholder="waterproof hiking boots" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+            <input id="kw" className="input" placeholder="ar15 charging handle" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
           </div>
           <div>
             <label className="label" htmlFor="preset">Content type</label>
@@ -71,29 +71,29 @@ export function ContentClient() {
 
         <Field label="Page title" score={summarize(sections.title).score}
           hint={`${title.length}/${LIMITS.titleMaxChars} chars · ~${approxPixelWidth(title)}/${LIMITS.titleMaxPx}px`}>
-          <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Waterproof Hiking Boots for Men & Women | Brand" />
+          <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="AR-15 Charging Handle – Mil-Spec 7075 Aluminum | Brand" />
         </Field>
 
         <Field label="Meta description" score={summarize(sections.meta).score} hint={`${meta.length}/${LIMITS.metaMaxChars} chars`}>
           <textarea className="input h-20" value={meta} onChange={(e) => setMeta(e.target.value)}
-            placeholder="Shop waterproof hiking boots built for wet trails. Free shipping and 60-day returns." />
+            placeholder="Shop a mil-spec AR-15 charging handle machined from 7075-T6 aluminum. Drop-in fit, lifetime warranty and fast shipping." />
         </Field>
 
         <Field label="URL" score={url ? summarize(sections.url).score : undefined}
           hint={kw || title ? <button type="button" className="text-accent hover:underline" onClick={() => setUrl(`/${slugify(title || keyword)}`)}>Generate from {title ? "title" : "keyword"}</button> : undefined}>
-          <input className="input font-mono text-sm" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="/hiking-boots/waterproof" />
+          <input className="input font-mono text-sm" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="/ar15-charging-handle" />
         </Field>
 
         <Field label="Body / product description" score={summarize(sections.body).score}
           hint={`${body.split(/\s+/).filter(Boolean).length} words`}>
           <textarea className="input h-64" value={body} onChange={(e) => setBody(e.target.value)}
-            placeholder="Describe the product: who it's for, key features, materials, sizing, care…" />
+            placeholder="Describe the part: what it is, compatibility, materials and finish, latch style, who it's for…" />
         </Field>
 
         <Field label="Specs (optional)" score={specs.trim() ? summarize(sections.specs).score : undefined}
           hint={parsedSpecs.specs.length ? `${parsedSpecs.specs.length} attributes` : "e.g. the “Specs” or “Details” tab"}>
           <textarea className="input h-40 font-mono text-xs" value={specs} onChange={(e) => setSpecs(e.target.value)}
-            placeholder={"One per line, “Label: Value”\nWeight: 1.1 kg (pair)\nColor: Brown, Black\nSizes: US 7–13\nMaterial: Full-grain leather\nWaterproofing: Gore-Tex membrane\nWarranty: 2 years"} />
+            placeholder={"One per line, “Label: Value”\nMaterial: 7075-T6 aluminum\nFinish: Type III hard-coat anodized, black\nCompatibility: Mil-spec AR-15 / M4 upper receivers\nLatch: Ambidextrous, extended\nWeight: 1.4 oz\nWarranty: Lifetime"} />
           {parsedSpecs.specs.length > 0 && (
             <details className="mt-3 text-sm" open>
               <summary className="cursor-pointer text-xs text-subtle">Preview as a spec table</summary>

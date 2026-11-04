@@ -5,31 +5,32 @@ import { clusterKeywords, mapClustersToPages, parseKeywords, type Intent } from 
 import { downloadCsv } from "@/lib/csv";
 import { StartOverButton } from "@/components/ResultActions";
 
+// Example data: a fictional AR-15 parts store ("Example Arms"). Volumes are illustrative.
 const SAMPLE_KEYWORDS = `keyword,volume
-hiking boots,22000
-best hiking boots,9900
-waterproof hiking boots,6600
-womens hiking boots,5400
-hiking boots for women,4400
-buy hiking boots online,700
-hiking boots sale,1900
-how to break in hiking boots,2400
-how to clean hiking boots,1300
-hiking boot cleaning tips,200
-trail running shoes,14800
-best trail running shoes,6600
-trail running shoes women,2900
-hiking socks,8100
-best hiking socks,2400
-merino wool hiking socks,1600
-what to wear hiking,3600
-hiking boots vs trail runners,1000`;
+ar15 charging handle,18100
+ar-15 charging handle,6600
+best ar15 charging handle,4400
+buy ar15 charging handle,480
+ar15 charging handle sale,880
+ambidextrous charging handle,5400
+ambidextrous ar15 charging handle,2400
+gas buster charging handle,2900
+ar10 charging handle,3600
+best ar10 charging handle,1000
+extended charging handle latch,1600
+charging handle latch,1300
+mil spec charging handle,2400
+mil spec vs ambidextrous charging handle,590
+how to install charging handle,1900
+how to remove ar15 charging handle,1000
+how does a charging handle work,720
+ar15 bolt carrier group,14800`;
 
-const SAMPLE_PAGES = `https://shop.example.com/hiking-boots | Hiking Boots
-https://shop.example.com/collections/boots | Hiking Boots & Outdoor Footwear
-https://shop.example.com/hiking-boots/womens | Women's Hiking Boots
-https://shop.example.com/shoes/trail-running | Trail Running Shoes
-https://shop.example.com/blog/break-in-hiking-boots | How to Break In Hiking Boots`;
+const SAMPLE_PAGES = `https://shop.example-arms.com/ar15-charging-handle | AR-15 Charging Handle
+https://shop.example-arms.com/collections/charging-handles | AR-15 Charging Handles
+https://shop.example-arms.com/ambidextrous-charging-handle | Ambidextrous AR-15 Charging Handle
+https://shop.example-arms.com/ar10-charging-handle | AR-10 Charging Handle
+https://shop.example-arms.com/blog/how-to-install-charging-handle | How to Install an AR-15 Charging Handle`;
 
 export const INTENT_STYLE: Record<Intent, { label: string; cls: string; bar: string }> = {
   transactional: { label: "Transactional", cls: "text-intent-transactional border-intent-transactional/30 bg-intent-transactional/10", bar: "bg-intent-transactional" },

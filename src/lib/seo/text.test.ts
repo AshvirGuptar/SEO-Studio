@@ -9,6 +9,10 @@ describe("text utils", () => {
     expect(countPhrase("Running shoes are great. RUNNING SHOES for all.", "running shoes")).toBe(2);
     expect(countPhrase("shoes running", "running shoes")).toBe(0);
   });
+  it("matches across hyphenated spellings", () => {
+    expect(countPhrase("AR-15 Charging Handle for M-LOK rails", "ar15 charging handle")).toBe(1);
+    expect(countPhrase("mlok handguard", "m-lok handguard")).toBe(1);
+  });
   it("computes keyword density", () => {
     expect(keywordDensity("red shoe blue shoe", "shoe")).toBe(50);
   });

@@ -215,3 +215,14 @@ optional field that feeds into the SEO and GEO scores.
 **Decisions**
 - Specs are scored as their own section (not added to body word count) so thin descriptions are
   still flagged; specs facts do count toward GEO "concrete facts".
+
+## 2026-11-04 — Session 6: niche example content (AR-15 charging handles)
+
+- Replaced all hiking-boot example content (homepage hero + card previews, Content/URL Optimizer
+  placeholders and samples, Keyword Clusters sample keywords/pages, Guide examples) with AR-15
+  charging-handle examples for a fictional store, "Example Arms" (shop.example-arms.com). Real
+  brands the user referenced were deliberately not used to avoid implying affiliation.
+- Matching now ignores hyphens/apostrophes inside words (`matchToken`): "ar-15" = "ar15",
+  "m-lok" = "mlok", for keyword checks and clustering. Tests added.
+- Specs: "compatibility" (fits/platform/caliber) added as a key shopping attribute.
+- Content Optimizer card tagged SEO + GEO. 94 unit tests.

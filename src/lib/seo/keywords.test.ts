@@ -25,6 +25,14 @@ describe("terms", () => {
   });
 });
 
+describe("hyphenated spellings", () => {
+  it("clusters ar15 and ar-15 together", () => {
+    const clusters = clusterKeywords(parseKeywords("ar15 charging handle,500\nar-15 charging handle,300\nar10 charging handle,200"), 0.7);
+    expect(clusters.find((c) => c.name === "ar15 charging handle")?.keywords.map((k) => k.keyword)).toContain("ar-15 charging handle");
+    expect(clusters.find((c) => c.name === "ar10 charging handle")).toBeDefined();
+  });
+});
+
 describe("parseKeywords", () => {
   it("handles plain lines, CSV with volume, header row and duplicates", () => {
     const parsed = parseKeywords("Keyword,Volume\nhiking boots,12,000\nHiking Boots\ntrail shoes\t900\n");

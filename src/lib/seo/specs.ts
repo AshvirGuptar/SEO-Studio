@@ -35,6 +35,7 @@ export const SPEC_LIMITS = { minAttributes: 5, goodAttributes: 8, minStructuredS
 
 /** Attributes shoppers (and AI shopping answers) compare on. Matched against spec labels. */
 const KEY_ATTRIBUTES: { name: string; re: RegExp }[] = [
+  { name: "compatibility", re: /compatib|fits|fitment|platform|caliber|calibre|model/i },
   { name: "weight", re: /weight|weighs|mass/i },
   { name: "size / dimensions", re: /size|sizing|dimension|length|width|height|depth|fit/i },
   { name: "material", re: /material|fabric|upper|lining|made of|construction|composition/i },
@@ -58,7 +59,7 @@ export function analyzeSpecs(text: string, opts: { keyword?: string; preset?: st
     id: "specs-count", category: "content", label: "Spec attributes", weight: 4, value: `${specs.length} attributes`,
     ...(specs.length >= SPEC_LIMITS.minAttributes
       ? { severity: "pass", message: "Enough attributes for shoppers and search engines to compare the product." }
-      : { severity: "warn", message: "Only a few specs listed.", fix: `List at least ${SPEC_LIMITS.minAttributes} attributes (weight, dimensions, materials, colors, care, warranty…).` }),
+      : { severity: "warn", message: "Only a few specs listed.", fix: `List at least ${SPEC_LIMITS.minAttributes} attributes (compatibility, materials, finish/color, dimensions, weight, warranty…).` }),
   });
 
   const share = specs.length / total;
@@ -132,7 +133,7 @@ export function analyzeCopyGeo(body: string, specsText: string): Check[] {
     ...(facts >= 5
       ? { severity: "pass", message: "Plenty of specific, verifiable details (sizes, weights, prices, durations)." }
       : { severity: facts >= 2 ? "warn" : "fail", message: "Few concrete facts; AI engines prefer quotable specifics.",
-          fix: "Add measurable details in the copy or specs: weight, dimensions, materials, capacity, warranty length." }),
+          fix: "Add measurable details in the copy or specs: weight, dimensions, materials, compatibility, warranty length." }),
   });
 
   if (specs.length > 0) {

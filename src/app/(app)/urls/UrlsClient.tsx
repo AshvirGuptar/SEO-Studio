@@ -7,9 +7,9 @@ import { scoreColor } from "@/components/ScoreRing";
 import { downloadCsv } from "@/lib/csv";
 import { StartOverButton } from "@/components/ResultActions";
 
-const SAMPLE = `https://shop.example.com/Products/Mens_Waterproof_Hiking_Boot_12345.html
-https://shop.example.com/c/footwear?cat=22&sort=price
-/blog/the-10-best-ways-to-clean-and-care-for-your-leather-hiking-boots-this-winter`;
+const SAMPLE = `https://shop.example-arms.com/Products/AR15_Charging_Handle_MilSpec_10045.html
+https://shop.example-arms.com/c/parts?cat=31&sort=price
+/blog/the-complete-guide-to-choosing-and-installing-the-best-ar-15-charging-handle-for-your-build`;
 
 export function UrlsClient() {
   const [input, setInput] = useState(SAMPLE);
@@ -39,11 +39,11 @@ export function UrlsClient() {
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label className="label" htmlFor="kw">Target keyword (optional)</label>
-            <input id="kw" className="input" placeholder="hiking boots" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+            <input id="kw" className="input" placeholder="ar15 charging handle" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
           </div>
           <div>
             <label className="label" htmlFor="title">Page title → slug (optional)</label>
-            <input id="title" className="input" placeholder="Men's Waterproof Hiking Boots" value={title} onChange={(e) => setTitle(e.target.value)} />
+            <input id="title" className="input" placeholder="Ambidextrous AR-15 Charging Handle" value={title} onChange={(e) => setTitle(e.target.value)} />
             {title && <p className="mt-1 font-mono text-xs text-muted">/{slugify(title)}</p>}
           </div>
         </div>

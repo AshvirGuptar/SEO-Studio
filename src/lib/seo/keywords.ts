@@ -3,7 +3,7 @@
  * Rule-based (no external data): groups keywords that share meaningful terms,
  * so one cluster ≈ one page you should rank with.
  */
-import { STOP_WORDS, words } from "./text";
+import { STOP_WORDS, matchToken, words } from "./text";
 import { pathOf, slugify } from "./slug";
 
 export type Intent = "transactional" | "commercial" | "informational" | "navigational";
@@ -48,7 +48,7 @@ export function classifyIntent(keyword: string): Intent {
   return "commercial";
 }
 
-/** Very light stemmer: enough to treat "boots"/"boot", "running"/"run" as the same term. */
+/** Very light stemmer: enough to treat "handles"/"handle", "running"/"run" as the same term. */
 export function stem(w: string): string {
   if (w.length <= 3) return w;
   if (w.endsWith("ies") && w.length > 4) return w.slice(0, -3) + "y";
@@ -68,8 +68,9 @@ const MODIFIERS = new Set(
 
 /** Meaningful stemmed terms of a keyword (no stop words or intent modifiers). */
 export function coreTerms(keyword: string): Set<string> {
-  const ws = words(keyword).filter((w) => !STOP_WORDS.has(w) && !MODIFIERS.has(w));
-  const terms = ws.length > 0 ? ws : words(keyword);
+  const all = words(keyword).map(matchToken); // "ar-15" and "ar15" are the same term
+  const ws = all.filter((w) => !STOP_WORDS.has(w) && !MODIFIERS.has(w));
+  const terms = ws.length > 0 ? ws : all;
   return new Set(terms.map(stem));
 }
 
@@ -160,7 +161,7 @@ export function mapClustersToPages(clusters: Cluster[], pagesText: string): Mapp
       return { url, terms: coreTerms(`${pathWords} ${title}`), isContent: CONTENT_PAGE.test(`${pathWords} ${title}`) };
     });
 
-  // How many clusters use each term: generic words ("hiking") appear in many, distinctive ones ("clean") in few.
+  // How many clusters use each term: generic words ("handle") appear in many, distinctive ones ("ambidextrous") in few.
   const df = new Map<string, number>();
   for (const c of clusters) for (const t of coreTerms(c.name)) df.set(t, (df.get(t) ?? 0) + 1);
 
@@ -171,7 +172,7 @@ export function mapClustersToPages(clusters: Cluster[], pagesText: string): Mapp
     const minDf = Math.min(...[...terms].map((t) => df.get(t) ?? 0));
     const distinctive = [...terms].filter((t) => (df.get(t) ?? 0) === minDf);
     // A page must cover most of the cluster's terms: all of them for 1–2 term clusters, 2 of 3, 3 of 4…
-    // (sharing one generic word like "hiking" is not a match).
+    // (sharing one generic word like "handle" is not a match).
     const needed = terms.size <= 2 ? terms.size : Math.ceil((terms.size * 2) / 3 - 1e-9);
     let best: { url: string; coverage: number; specificity: number } | null = null;
     const fullMatches: string[] = [];

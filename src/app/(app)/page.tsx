@@ -130,7 +130,7 @@ function HeroVisual() {
       <div className="absolute -inset-6 rounded-[2rem] bg-[radial-gradient(closest-side,rgb(241_90_41/0.25),transparent)]" />
       <div className="card float relative">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-subtle">trailco.com/hiking-boots</span>
+          <span className="text-xs text-subtle">example-arms.com/ar15-charging-handle</span>
           <span className="flex gap-1">{[0, 1, 2].map((i) => <span key={i} className="h-2 w-2 rounded-full bg-surface-2" />)}</span>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-3">
@@ -156,9 +156,9 @@ function HeroVisual() {
           })}
         </div>
         <div className="mt-3 rounded-xl border border-border bg-[#1f1f1f] p-3 font-[arial,sans-serif]">
-          <div className="text-[11px] text-[#bdc1c6]">trailco.com › hiking-boots</div>
-          <div className="text-[15px] text-[#99c3ff]">Waterproof Hiking Boots for Every Trail | TrailCo</div>
-          <div className="mt-0.5 text-[11px] leading-snug text-[#bdc1c6]">Shop waterproof hiking boots built for wet, rocky trails. Free shipping and 60-day returns.</div>
+          <div className="text-[11px] text-[#bdc1c6]">example-arms.com › ar15-charging-handle</div>
+          <div className="text-[15px] text-[#99c3ff]">AR-15 Charging Handle – Ambidextrous, 7075 | Example Arms</div>
+          <div className="mt-0.5 text-[11px] leading-snug text-[#bdc1c6]">Ambidextrous AR-15 charging handle machined from 7075-T6 aluminum. Fits mil-spec uppers. Lifetime warranty.</div>
         </div>
       </div>
       <div className="card float-delay relative -mt-6 ml-auto w-[85%] p-4 shadow-2xl">
@@ -168,8 +168,8 @@ function HeroVisual() {
           <span className="typing ml-auto flex gap-0.5">{[0, 1, 2].map((i) => <span key={i} className="h-1 w-1 rounded-full bg-muted" />)}</span>
         </div>
         <p className="mt-2 text-xs leading-relaxed text-muted">
-          For wet trails, choose a mid-cut waterproof boot with a snug heel and ~1 cm of toe room.
-          <span className="ml-1 rounded bg-accent-soft px-1 text-[10px] text-accent">trailco.com [1]</span>
+          For a suppressed AR-15, a gas-busting charging handle with an extended latch cuts gas to the face; a mil-spec handle fits standard uppers.
+          <span className="ml-1 rounded bg-accent-soft px-1 text-[10px] text-accent">example-arms.com [1]</span>
         </p>
       </div>
     </div>
