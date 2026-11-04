@@ -30,6 +30,12 @@
   --warn: #facc15;
   --fail: #fb7185;
   --info: #60a5fa;
+
+  /* Search-intent categories (Keyword Clusters). Distinct from status + brand colors. */
+  --intent-transactional: #2dd4bf;
+  --intent-commercial: #a78bfa;
+  --intent-informational: #60a5fa;
+  --intent-navigational: #a1a1aa;
 }
 
 @theme inline {
@@ -50,6 +56,10 @@
   --color-warn: var(--warn);
   --color-fail: var(--fail);
   --color-info: var(--info);
+  --color-intent-transactional: var(--intent-transactional);
+  --color-intent-commercial: var(--intent-commercial);
+  --color-intent-informational: var(--intent-informational);
+  --color-intent-navigational: var(--intent-navigational);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

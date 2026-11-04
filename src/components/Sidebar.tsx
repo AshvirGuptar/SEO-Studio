@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "./Logo";
-import { TOOLS } from "./nav";
+import { HELP_LINKS, TOOLS } from "./nav";
 
 export function Sidebar() {
   const path = usePathname();
@@ -34,6 +34,17 @@ export function Sidebar() {
           >
             {active && <span className="absolute inset-y-2 left-0 hidden w-[3px] rounded-full bg-accent md:block" />}
             {t.name}
+          </Link>
+        );
+      })}
+      <span className="label mt-6 hidden px-3 md:block">Help</span>
+      {HELP_LINKS.map((l) => {
+        const active = path.startsWith(l.href);
+        return (
+          <Link key={l.href} href={l.href}
+            className={`relative flex items-center whitespace-nowrap rounded-xl px-3 py-2 text-sm transition ${active ? "bg-accent-soft font-medium text-foreground" : "text-muted hover:bg-surface-2 hover:text-foreground"}`}>
+            {active && <span className="absolute inset-y-2 left-0 hidden w-[3px] rounded-full bg-accent md:block" />}
+            {l.name}
           </Link>
         );
       })}

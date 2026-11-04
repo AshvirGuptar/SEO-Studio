@@ -15,7 +15,8 @@ export default function Home() {
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link href="/analyzer" className="btn">Analyze a page</Link>
-          <Link href="/content" className="btn-ghost">Optimize copy</Link>
+          <Link href="/audit" className="btn-ghost">Audit a whole site</Link>
+          <Link href="/guide" className="btn-ghost">How to use it</Link>
         </div>
       </section>
 

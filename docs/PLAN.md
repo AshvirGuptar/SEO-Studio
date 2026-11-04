@@ -24,6 +24,15 @@ Status keys: `[x]` done · `[~]` in progress · `[ ]` not started
 - [ ] Share link with the team; collect first feedback
 - [x] GitHub Actions CI: test + lint + build on every push
 
+## Pulled forward (built Nov 4)
+- [x] Site Audit crawler (originally Phase 3): robots.txt + sitemap discovery, client-driven BFS crawl
+      up to 500 pages, site-wide issues (broken pages/links, redirect links/chains, duplicate titles/metas,
+      missing title/meta/H1, thin content, missing canonical, alt text, slow pages, orphans, noindex,
+      canonicalized, missing from sitemap), health score, CSV export
+- [x] Keyword Clusters (originally Phase 4): intent classification, clustering with strictness control,
+      mapping to existing pages, content gaps, both kinds of cannibalization, CSV export
+- [x] Guide tab: workflow + ecommerce playbook + score explanations + quick reference + FAQ
+
 ## Phase 1 — Accounts, projects & history (Week 6: Nov 9–15)
 - [ ] Database: Postgres (Neon / Vercel Postgres) + Drizzle ORM; migrations in repo
 - [ ] Auth: restrict to our team (Auth.js with Google sign-in limited to company domain)
@@ -40,16 +49,14 @@ Status keys: `[x]` done · `[~]` in progress · `[ ]` not started
 - [ ] Graceful fallback: template-based suggestions when no key is set
 
 ## Phase 3 — Site Audit crawler (Week 8: Nov 23–29, Thanksgiving week — lighter)
-- [ ] robots.txt + sitemap.xml parsing and validation
-- [ ] Crawl up to N pages (queue, concurrency limit, politeness delay)
-- [ ] Site-wide issues: broken links (4xx/5xx), redirect chains, duplicate titles/metas, orphan
-      pages, missing canonicals, noindex pages, thin content
-- [ ] Background job + progress UI (long crawls exceed request timeouts)
+- [x] robots.txt + sitemap parsing, crawler, site-wide issues, progress UI (pulled forward, see above)
+- [ ] Save audits to projects and compare runs (needs Phase 1 database)
+- [ ] Scheduled re-audits (Vercel cron) with "what changed" summary
 - [ ] Core Web Vitals via Google PageSpeed Insights API (free key)
 
 ## Phase 4 — Keywords & polish (Week 9: Nov 30–Dec 6)
-- [ ] Keyword clustering (lexical first, embeddings if AI key available) + map clusters to pages
-- [ ] Keyword cannibalization detection across a project's pages
+- [x] Keyword clustering + page mapping + cannibalization (pulled forward, see above)
+- [ ] Semantic clustering with embeddings once an AI key is available (catches synonyms)
 - [ ] Competitor compare: analyze two URLs side by side
 - [ ] Polish, onboarding, empty states, docs; prepare the Dec 7 demo
 

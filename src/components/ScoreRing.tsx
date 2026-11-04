@@ -4,7 +4,7 @@ export function scoreColor(score: number) {
   return score >= 80 ? "var(--pass)" : score >= 60 ? "var(--warn)" : "var(--fail)";
 }
 
-export function ScoreRing({ summary, size = 120, label = "SEO score" }: { summary: ScoreSummary; size?: number; label?: string }) {
+export function ScoreRing({ summary, size = 120, label = "SEO score", legend }: { summary: ScoreSummary; size?: number; label?: string; legend?: React.ReactNode }) {
   const r = (size - 12) / 2;
   const c = 2 * Math.PI * r;
   const color = scoreColor(summary.score);
@@ -24,10 +24,14 @@ export function ScoreRing({ summary, size = 120, label = "SEO score" }: { summar
       <div className="text-sm">
         <div className="text-muted">{label}</div>
         <div className="text-2xl font-semibold" style={{ color }}>Grade {summary.grade}</div>
-        <div className="mt-1 flex gap-3 text-xs text-muted">
-          <span><b className="text-pass">{summary.counts.pass}</b> passed</span>
-          <span><b className="text-warn">{summary.counts.warn}</b> warnings</span>
-          <span><b className="text-fail">{summary.counts.fail}</b> failed</span>
+        <div className="mt-1 flex flex-wrap gap-x-3 text-xs text-muted">
+          {legend ?? (
+            <>
+              <span><b className="text-pass">{summary.counts.pass}</b> passed</span>
+              <span><b className="text-warn">{summary.counts.warn}</b> warnings</span>
+              <span><b className="text-fail">{summary.counts.fail}</b> failed</span>
+            </>
+          )}
         </div>
       </div>
     </div>
