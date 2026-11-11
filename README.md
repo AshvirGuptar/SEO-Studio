@@ -21,7 +21,7 @@ Built as a TCSS 490 Artifact 5 moonshot.
 | **Team & access** | Google sign-in, invite-only access, admin/member roles, approve requests | Live (needs sign-in) |
 | AI Rewrite | Generate optimized titles, metas and descriptions | Planned (needs API key) |
 
-Roadmap: [`docs/PLAN.md`](docs/PLAN.md) · Development log: [`LOG.md`](LOG.md)
+Roadmap: [`PLAN.md`](PLAN.md) · Agent guide and development log: [`CLAUDE.md`](CLAUDE.md)
 
 ## Getting started
 ```bash

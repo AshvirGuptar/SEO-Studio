@@ -10,7 +10,7 @@ visibility tracking, and saved history per client.
 **Course:** TCSS 490 Artifact 5 (moonshot) · **Final show & tell:** Monday, **Dec 7, 2026**
 
 Status keys: `[x]` done · `[~]` in progress · `[ ]` not started. Tick items as they land and add a
-dated `LOG.md` entry at the end of every session (see CLAUDE.md).
+row to the Development log at the bottom of `CLAUDE.md` at the end of every session.
 
 ---
 
@@ -34,7 +34,7 @@ Week 1 delivered the scaffolding the assignment asks for, plus every tool that w
 AI API or user accounts:
 
 - [x] **Scaffold:** Next.js 16 + TypeScript + Tailwind; `CLAUDE.md` (agent guide and conventions),
-      this plan, `LOG.md` (13 dated entries); GitHub Actions CI (tests, lint, build) on every push;
+      this plan, a development log; GitHub Actions CI (tests, lint, build) on every push;
       deployed to Vercel from `main`, with a preview deployment for every PR.
 - [x] **Pure, tested analysis engine** (`src/lib/seo/`): one shared `Check` contract and weighted
       scoring, 96 unit tests.
@@ -216,7 +216,7 @@ documented v1.0.
 - [ ] **v1.0 release:** fixes from show feedback, a final security review (auth guards, rate
       limits, secrets), production smoke test, and a tagged release.
 - [ ] **Handoff docs:** README (setup, sign-in, adding a tool via the registry), an admin guide
-      (invites, roles, AI budget), refreshed CLAUDE.md, and a final LOG entry with a retrospective.
+      (invites, roles, AI budget), refreshed CLAUDE.md, and a final Development log row with a retrospective.
 - [ ] **Portfolio card + Canvas:** title, link (live site + repo), a short reflection; each
       teammate submits their own.
 - [ ] **Roadmap for after the course:** the backlog below, ranked by pilot feedback.
@@ -256,7 +256,7 @@ order matters.
   guide and demo.
 - **Shared:** pilot sessions and show prep.
 
-Each works on their own branch, merges through PRs with CI, and writes a LOG entry per session.
+Each works on their own branch, merges through PRs with CI, and adds a Development log row (bottom of CLAUDE.md) per session.
 
 ---
 
