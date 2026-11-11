@@ -15,7 +15,8 @@ Built as a TCSS 490 Artifact 5 moonshot.
 | **Site Audit** | Crawl up to 500 pages: broken pages/links, redirects, duplicates, thin content, orphans, sitemap gaps, AI visibility, avg GEO score, PDF report | Live |
 | **Keyword Clusters** | Group keywords by topic and intent, map them to pages, find content gaps and cannibalization | Live |
 | **Guide** | Step-by-step playbook for site and store owners | Live |
-| AI Visibility | Track whether AI assistants mention and cite your brand for key prompts | Coming soon (needs AI API keys) |
+| GEO Optimization | Fix GEO issues: answer-first rewrites, FAQ + schema markup, llms.txt and AI-crawler rules, re-scored before publishing | Coming soon (Week 3, needs Claude API key) |
+| AI Visibility | Track whether AI assistants mention and cite your brand for key prompts | Coming soon (Week 4, needs AI API keys) |
 | **Projects & History** | Save audits per site or client, chart scores over time, see what changed between runs | Live (needs sign-in) |
 | **Team & access** | Google sign-in, invite-only access, admin/member roles, approve requests | Live (needs sign-in) |
 | AI Rewrite | Generate optimized titles, metas and descriptions | Planned (needs API key) |

@@ -133,8 +133,9 @@ export default function GuidePage() {
             </Card>
           </div>
           <p className="mt-4 text-sm text-muted">
-            Coming soon: <b className="text-foreground">AI Visibility</b> will track whether AI assistants actually mention and cite your brand for the
-            questions your customers ask.
+            Coming soon: <b className="text-foreground">GEO Optimization</b> will make these fixes for you (answer-first rewrites, FAQ and schema
+            markup, llms.txt and AI-crawler rules), and <b className="text-foreground">AI Visibility</b> will track whether AI assistants actually
+            mention and cite your brand for the questions your customers ask.
           </p>
         </Section>
 
