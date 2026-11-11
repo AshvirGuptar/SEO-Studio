@@ -264,3 +264,32 @@ screenshots reviewed by eye. Script saved as scripts/e2e/mobile.cjs.
 
 **Result:** 0px overflow on all 40 page/device combinations + signed-in pages; no browser errors;
 signed-in E2E still passes.
+
+## 2026-11-11 — Session 9: Weeks 2–5 plan, GEO Optimization placeholder
+
+**Plan:** professor's Artifact 5 instructions require a plan broken into pieces, a CLAUDE.md and a
+structure a team can work in. User asked for a purposeful Weeks 2–5 plan (Week 1 = now) covering
+AI Visibility, Projects & History, GEO Optimization, room for more tools, production sign-in and
+saved data, Claude API integration and testing, a guide/demo that proves results, a client pilot
+with feedback, and a modern card-based UI.
+
+**Changes**
+- `docs/PLAN.md` rewritten: calendar mapping project weeks to course weeks and Monday checkpoints;
+  end-of-Week-1 status; per-week goal, "why this takes a week", deliverables, checkpoint and
+  definition of done; effort budget (~130–170 h) with dependencies and a two-person split; risks;
+  post-v1.0 backlog; decisions log. Week 3 planned at ~60% (Thanksgiving); app demo-ready by Dec 6;
+  Week 5 = show & tell Dec 7, v1.0 launch, handoff, portfolio.
+- `CLAUDE.md`: start-of-session now points at the current week in PLAN.md and the latest `main`;
+  new "Working as a team" section; rules for planned tools and for AI features (server-only
+  `src/lib/ai/`, Claude Opus 5.5 default, usage caps, re-scoring, fact preservation, eval gate).
+- New "coming soon" tool **GEO Optimization** (`/geo-optimization`): nav entry, homepage card with
+  before/after GEO preview and use cases; homepage now has four wide cards so 8 cards fill a
+  3-column grid. README and Guide mention it.
+
+**Bug found:** the desktop sidebar logo had been invisible since the mobile-nav change (PR #4): the
+logo renders twice (hidden phone header + sidebar) with the same SVG gradient id, so the visible copy
+referenced the hidden copy's gradient. Fixed with a per-instance id (`useId`), verified on desktop
+and phone.
+
+**Next (Week 2):** production Google sign-in + env vars, client role, rate limits, `src/lib/ai/`
+foundation with cost guardrails, evaluation set v1, tool registry.

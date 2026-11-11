@@ -9,10 +9,19 @@ Live: https://seo-studio-weld.vercel.app/ (Vercel; deploys from `main`, PR branc
 Also the TCSS 490 Artifact 5 moonshot — see `docs/PLAN.md` for the roadmap and `LOG.md` for history.
 
 ## Start of every session
-1. Read the latest entries in `LOG.md` and the current phase in `docs/PLAN.md`.
-2. Run `npm test` to confirm a green baseline.
-3. At the end of the session, append a dated entry to `LOG.md` (what changed, decisions, next steps)
-   and tick off items in `docs/PLAN.md`.
+1. Read the latest entries in `LOG.md` and find the current week in `docs/PLAN.md` (the calendar
+   table maps dates to Weeks 1–5). Work on that week's unchecked deliverables unless asked otherwise.
+2. Start from the latest `main` (a teammate may have merged since), then run `npm test` to confirm a
+   green baseline.
+3. At the end of the session, append a dated entry to `LOG.md` (what changed, decisions, bugs found,
+   next steps) and tick off items in `docs/PLAN.md`. Don't rewrite past log entries.
+
+## Working as a team
+- Two people (and their agents) work in parallel. Each session uses its own branch and merges into
+  `main` through a PR; CI (tests, lint, build) must pass. Never push directly to `main`.
+- Keep PRs focused on one deliverable from the plan; mention the plan item in the PR description.
+- On a merge conflict, update the branch from `main` and resolve it; don't discard a teammate's work.
+- Week ownership suggestion is in PLAN.md ("Team split"); check LOG.md for what the other person did.
 
 ## Commands
 - `npm run dev` — dev server (http://localhost:3000)
@@ -107,6 +116,16 @@ src/components/     Shared UI (CheckList, ScoreRing, SerpPreview, Sidebar). nav.
   content scrolls inside its card instead of the page. Interactive controls ≥32px tall (`.btn`,
   `.btn-ghost` min-h-10, `.pill` min-h-8); no text under 11px except decorative mockups.
   Device sweep: `node scripts/e2e/mobile.cjs <outDir> <baseUrl>` (iPhone SE/14, Pixel 7, iPad).
+
+- Planned tools (see PLAN.md): GEO Optimization (`/geo-optimization`, Week 3) and AI Visibility
+  (`/ai-visibility`, Week 4) exist only as "soon" entries in `nav.ts` today. When building one, add
+  `src/app/(app)/<tool>/` and flip its status to "live"; Week 2 turns nav.ts into a tool registry.
+- AI features (Claude API, from Week 2): server-only code in `src/lib/ai/`, Anthropic TypeScript
+  SDK, key from `ANTHROPIC_API_KEY` (Vercel only, never client-side). Default model
+  `claude-opus-5-5`. Log token usage per user/project and enforce the daily cap. Every AI output is
+  re-scored by the deterministic engine and must pass the fact-preservation check (no invented
+  specs, prices or claims) before it's shown as acceptable. Prompt changes are measured against the
+  evaluation set in `docs/eval/` before merging.
 
 ## Known limitations
 - The Claude Code cloud sandbox can't resolve DNS directly, so live-URL analysis returns

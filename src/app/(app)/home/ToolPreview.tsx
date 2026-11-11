@@ -6,6 +6,7 @@ export function ToolIcon({ href }: { href: string }) {
     "/urls": <><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></>,
     "/audit": <><rect x="9" y="3" width="6" height="5" rx="1" /><rect x="3" y="16" width="6" height="5" rx="1" /><rect x="15" y="16" width="6" height="5" rx="1" /><path d="M12 8v4M6 16v-2h12v2" /></>,
     "/keywords": <><circle cx="8" cy="9" r="4" /><circle cx="16.5" cy="7.5" r="2.5" /><circle cx="15" cy="16" r="4.5" /></>,
+    "/geo-optimization": <><path d="m12 3 1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z" /><path d="M19 15v4M17 17h4M5 17v3M3.5 18.5h3" /></>,
     "/ai-visibility": <><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z" /><path d="M9 11h.01M12 11h.01M15 11h.01" /></>,
     "/projects": <><path d="M3 3v18h18" /><path d="m7 15 4-4 3 3 5-6" /></>,
   };
@@ -82,6 +83,22 @@ export function ToolPreview({ href }: { href: string }) {
               className="origin-center transition-transform duration-500 group-hover:scale-110" style={{ transformBox: "fill-box" }} />
           ))}
         </svg>
+      );
+    case "/geo-optimization":
+      return (
+        <div className="flex h-full items-center justify-center gap-3 px-4 text-[11px]">
+          <div className="w-[42%] rounded-lg border border-border bg-surface/60 p-2">
+            <div className="text-subtle">Before</div>
+            <div className="mt-1 h-1.5 w-full rounded bg-surface-2" /><div className="mt-1 h-1.5 w-10/12 rounded bg-surface-2" /><div className="mt-1 h-1.5 w-11/12 rounded bg-surface-2" />
+            <div className="mt-1.5 font-semibold text-fail">GEO 48</div>
+          </div>
+          <span className="text-accent">→</span>
+          <div className="w-[42%] rounded-lg border border-accent/30 bg-surface/60 p-2">
+            <div className="text-subtle">After</div>
+            <div className="mt-1 h-1.5 w-7/12 rounded bg-pass/40" /><div className="mt-1 text-[10px] text-muted">FAQ · schema</div>
+            <div className="mt-1.5 font-semibold text-pass">GEO 86</div>
+          </div>
+        </div>
       );
     case "/ai-visibility":
       return (

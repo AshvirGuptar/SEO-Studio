@@ -22,8 +22,8 @@ export default function Home() {
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {TOOLS.map((t, i) => {
             const live = toolStatus(t, authEnabled) === "live";
-            // Flagship tools (SEO + GEO) span two columns so 7 cards fill a 3-column grid evenly.
-            const wide = t.href === "/analyzer" || t.href === "/audit";
+            // Four cards span two columns so 8 cards fill a 3-column grid evenly (zig-zag rows).
+            const wide = ["/analyzer", "/audit", "/geo-optimization", "/projects"].includes(t.href);
             const className = `card group relative flex flex-col overflow-hidden p-0 transition duration-300 rise ${wide ? "xl:col-span-2" : ""} ${live ? "hover:-translate-y-1 hover:border-accent/50 hover:shadow-[0_18px_50px_-18px_rgb(241_90_41/0.45)] focus-visible:border-accent" : ""}`;
             const style = { animationDelay: `${i * 60}ms` };
             const body = (
