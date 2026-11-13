@@ -89,8 +89,9 @@ for every AI feature that follows.
         Claude Opus 5.5 (`claude-opus-5-5`, $4 / $20 per million input/output tokens).
   - [ ] Streaming responses for long outputs; handling for refusals, rate limits and timeouts;
         prompt caching for the shared instructions.
-  - [ ] **Cost guardrails:** an `ai_usage` table logging tokens per user and project, a daily
-        per-user cap, and a monthly budget alert.
+  - [~] **Cost guardrails:** an `ai_usage` table logging tokens per user and project, a daily
+        per-user cap, and a monthly budget alert. (Table, daily cap and monthly budget block landed
+        with AI Visibility; an alert/notification is still to do.)
   - [ ] Graceful degradation: with no key set, AI buttons stay visible but disabled (CLAUDE.md rule).
 - [ ] **Evaluation set v1:** 30 realistic pages and products (product, category, blog, plus the
       "Example PC" store). For each one we record the SEO/GEO score before and after a rewrite,
@@ -165,15 +166,17 @@ brand, and reorganize the UI around a client's work. The app should be demo-read
   rerunning the device sweep.
 
 **Deliverables**
-- [ ] **AI Visibility v1** (the locked tab becomes live):
-  - [ ] A prompt set per project (for example "best graphics card for 1440p"), with tracked brands
+- [~] **AI Visibility v1** (the locked tab becomes live; code complete, needs `ANTHROPIC_API_KEY`,
+      `CRON_SECRET` and sign-in in production, then a run on a pilot brand):
+  - [x] A prompt set per project (for example "best graphics card for 1440p"), with tracked brands
         and competitors.
-  - [ ] Runs record whether the brand is mentioned, whether its domain is cited, and the source
+  - [x] Runs record whether the brand is mentioned, whether its domain is cited, and the source
         links, stored per project.
-  - [ ] Share-of-voice vs competitors and a trend over time.
-  - [ ] Cost estimate shown before each run (roughly $0.05–$0.10 per prompt including web search,
+  - [x] Share-of-voice vs competitors and a trend over time.
+  - [x] Cost estimate shown before each run (roughly $0.05–$0.10 per prompt including web search,
         so about 25 prompts per project per week).
-  - [ ] Other engines (ChatGPT, Perplexity, Gemini) are listed as "add a key to enable" (stretch).
+  - [x] Weekly schedule via Vercel Cron (daily check, time-boxed; leftovers continue next day).
+  - [x] Other engines (ChatGPT, Perplexity, Gemini) are listed as "add a key to enable" (stretch).
 - [ ] **Client pilot:**
   - [ ] Pilot users apply recommendations on real pages.
   - [ ] Re-audits show the before/after change with the "what changed" view.

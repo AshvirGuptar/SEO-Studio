@@ -16,7 +16,7 @@ Built as a TCSS 490 Artifact 5 moonshot.
 | **Keyword Clusters** | Group keywords by topic and intent, map them to pages, find content gaps and cannibalization | Live |
 | **Guide** | Step-by-step playbook for site and store owners | Live |
 | GEO Optimization | Fix GEO issues: answer-first rewrites, FAQ + schema markup, llms.txt and AI-crawler rules, re-scored before publishing | Coming soon (Week 3, needs Claude API key) |
-| AI Visibility | Track whether AI assistants mention and cite your brand for key prompts | Coming soon (Week 4, needs AI API keys) |
+| **AI Visibility** | Ask Claude (with web search) the questions customers ask; track brand mentions, citations, share of voice vs competitors and the trend, weekly on a schedule | Live (needs sign-in + `ANTHROPIC_API_KEY`) |
 | **Projects & History** | Save audits per site or client, chart scores over time, see what changed between runs | Live (needs sign-in) |
 | **Team & access** | Google sign-in, invite-only access, admin/member roles, approve requests | Live (needs sign-in) |
 | AI Rewrite | Generate optimized titles, metas and descriptions | Planned (needs API key) |
@@ -65,6 +65,19 @@ created automatically on the next deploy (`scripts/migrate.mjs` runs before ever
 | `AUTO_APPROVE_DOMAINS` | optional, e.g. `company.com`: teammates get in without approval |
 
 **4. Redeploy** (Deployments → ⋯ → Redeploy) and sign in with an `ADMIN_EMAILS` address.
+
+## AI features (Claude API)
+AI Visibility uses Claude with web search. Set these in Vercel (Production) and redeploy:
+
+| Variable | Value |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | from console.anthropic.com. Without it, AI buttons stay visible but disabled. |
+| `AI_DAILY_USER_LIMIT_USD` | optional, default `5`: what one person can spend per day (UTC) |
+| `AI_MONTHLY_BUDGET_USD` | optional, default `50`: app-wide monthly cap; runs stop when it's reached |
+| `CRON_SECRET` | any long random string. Vercel sends it to `/api/cron/visibility` (see `vercel.json`) for weekly scheduled runs. |
+
+A run costs roughly $0.05–$0.10 per prompt (the page shows an estimate first). Every request is logged
+in the `ai_usage` table with its tokens and cost.
 
 ## Access model
 - Everyone signs in with Google (any email address can be a Google account, not just Gmail).

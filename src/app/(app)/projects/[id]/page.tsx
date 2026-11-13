@@ -38,7 +38,10 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[id]"
             <h1 className="text-2xl font-semibold tracking-tight">{project.name}</h1>
             <p className="text-sm text-subtle">{project.domain ?? "No domain set"}</p>
           </div>
-          <ProjectActions project={{ id: project.id, name: project.name, domain: project.domain }} canDelete={canManage} />
+          <div className="flex flex-wrap items-center gap-2">
+            <Link href={`/ai-visibility?project=${project.id}`} className="btn-ghost">AI Visibility</Link>
+            <ProjectActions project={{ id: project.id, name: project.name, domain: project.domain }} canDelete={canManage} />
+          </div>
         </div>
       </div>
 

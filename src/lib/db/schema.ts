@@ -4,6 +4,7 @@
  * After changing this file run `npm run db:generate` and commit the new migration in /drizzle.
  */
 import { boolean, index, jsonb, pgTable, integer, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import type { BrandHit, Source, TrackedBrand } from "../seo/visibility";
 
 // ---------- Better Auth ----------
 export const user = pgTable("user", {
@@ -87,7 +88,71 @@ export const audit = pgTable("audit", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => [index("audit_project_idx").on(t.projectId, t.createdAt), index("audit_url_idx").on(t.projectId, t.url, t.createdAt)]);
 
+// ---------- AI usage (cost guardrails) ----------
+/** One row per Claude API request. userId is null for scheduled (system) runs. */
+export const aiUsage = pgTable("ai_usage", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
+  projectId: text("project_id").references(() => project.id, { onDelete: "set null" }),
+  feature: text("feature").notNull(), // e.g. "ai-visibility"
+  model: text("model").notNull(),
+  inputTokens: integer("input_tokens").notNull().default(0),
+  outputTokens: integer("output_tokens").notNull().default(0),
+  cacheReadTokens: integer("cache_read_tokens").notNull().default(0),
+  cacheWriteTokens: integer("cache_write_tokens").notNull().default(0),
+  webSearches: integer("web_searches").notNull().default(0),
+  costMicros: integer("cost_micros").notNull().default(0), // USD * 1e6
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => [index("ai_usage_user_idx").on(t.userId, t.createdAt), index("ai_usage_created_idx").on(t.createdAt)]);
+
+// ---------- AI Visibility ----------
+/** Per-project prompt set and tracked brands (TrackedBrand[] from src/lib/seo/visibility.ts). */
+export const visibilitySetup = pgTable("visibility_setup", {
+  projectId: text("project_id").primaryKey().references(() => project.id, { onDelete: "cascade" }),
+  prompts: jsonb("prompts").$type<string[]>().notNull(),
+  brands: jsonb("brands").$type<TrackedBrand[]>().notNull(),
+  schedule: text("schedule", { enum: ["off", "weekly"] }).notNull().default("off"),
+  updatedBy: text("updated_by").references(() => user.id, { onDelete: "set null" }),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+/** One run = every prompt in the set asked once. Brands are snapshotted so old runs stay comparable. */
+export const visibilityRun = pgTable("visibility_run", {
+  id: text("id").primaryKey(),
+  projectId: text("project_id").notNull().references(() => project.id, { onDelete: "cascade" }),
+  status: text("status", { enum: ["running", "done", "stopped"] }).notNull().default("running"),
+  trigger: text("trigger", { enum: ["manual", "scheduled"] }).notNull().default("manual"),
+  model: text("model").notNull(),
+  brands: jsonb("brands").$type<TrackedBrand[]>().notNull(),
+  promptCount: integer("prompt_count").notNull(),
+  estimatedCostMicros: integer("estimated_cost_micros").notNull().default(0),
+  createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  completedAt: timestamp("completed_at"),
+}, (t) => [index("visibility_run_project_idx").on(t.projectId, t.createdAt)]);
+
+/** One prompt's answer within a run. Rows start "pending" and are processed one per request. */
+export const visibilityResult = pgTable("visibility_result", {
+  id: text("id").primaryKey(),
+  runId: text("run_id").notNull().references(() => visibilityRun.id, { onDelete: "cascade" }),
+  position: integer("position").notNull(),
+  prompt: text("prompt").notNull(),
+  status: text("status", { enum: ["pending", "running", "done", "error", "skipped"] }).notNull().default("pending"),
+  answer: text("answer"),
+  citations: jsonb("citations").$type<Source[]>(),
+  sources: jsonb("sources").$type<Source[]>(),
+  hits: jsonb("hits").$type<BrandHit[]>(),
+  model: text("model"),
+  error: text("error"),
+  costMicros: integer("cost_micros").notNull().default(0),
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+}, (t) => [index("visibility_result_run_idx").on(t.runId, t.position)]);
+
 export type User = typeof user.$inferSelect;
 export type Project = typeof project.$inferSelect;
 export type Audit = typeof audit.$inferSelect;
 export type Invite = typeof invite.$inferSelect;
+export type VisibilitySetup = typeof visibilitySetup.$inferSelect;
+export type VisibilityRun = typeof visibilityRun.$inferSelect;
+export type VisibilityResult = typeof visibilityResult.$inferSelect;

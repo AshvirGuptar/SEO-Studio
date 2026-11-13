@@ -5,6 +5,8 @@ import { authEnvConfigured, isPublicToolPath, publicToolsEnabled } from "@/lib/a
 
 /** Paths reachable without signing in. */
 const PUBLIC_PATHS = ["/sign-in", "/api/auth"];
+/** Vercel Cron routes: they check CRON_SECRET themselves, so they skip both gates below. */
+const CRON_PREFIX = "/api/cron/";
 
 /**
  * 1. Optional site-wide password (HTTP Basic Auth) when SITE_PASSWORD is set.
@@ -12,6 +14,8 @@ const PUBLIC_PATHS = ["/sign-in", "/api/auth"];
  *    This is an optimistic cookie check; pages and API routes verify the session for real.
  */
 export function proxy(request: NextRequest) {
+  if (request.nextUrl.pathname.startsWith(CRON_PREFIX)) return NextResponse.next();
+
   const password = process.env.SITE_PASSWORD;
   if (password) {
     const user = process.env.SITE_USERNAME || "team";
