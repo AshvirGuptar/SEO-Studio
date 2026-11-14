@@ -71,6 +71,13 @@ src/lib/auth/       access.ts (who gets in: pure), server.ts (Better Auth config
 src/proxy.ts        Optional Basic Auth + redirect signed-out users to /sign-in (optimistic cookie check)
 src/app/(app)/      All pages with the sidebar. sign-in/ lives outside the group (no sidebar).
 src/lib/seo/compare.ts  "What changed" between two saved audits
+src/lib/seo/visibility.ts  AI Visibility engine (pure): brand mention/rank/citation matching, share of voice,
+                    visibility score, cost estimate, setup-text parsing
+src/lib/ai/         Claude API (server-only except pricing.ts/answer.ts): client.ts, pricing.ts (micro-dollar
+                    cost math), budget.ts (aiEnabled, daily/monthly caps), answer.ts (parse web-search
+                    responses), visibility.ts (ask with web search), visibility-runner.ts (one prompt per call)
+src/lib/db/visibility-repo.ts  AI Visibility setup/runs/results + ai_usage queries
+src/app/api/cron/   Vercel Cron routes (vercel.json). Check CRON_SECRET; the proxy lets /api/cron/* through.
 src/app/<tool>/     One folder per tool: page.tsx (server, metadata) + <Tool>Client.tsx (client UI)
 src/components/     Shared UI (CheckList, ScoreRing, SerpPreview, Sidebar). nav.ts lists tools.
 ```
@@ -121,9 +128,14 @@ src/components/     Shared UI (CheckList, ScoreRing, SerpPreview, Sidebar). nav.
   `.btn-ghost` min-h-10, `.pill` min-h-8); no text under 11px except decorative mockups.
   Device sweep: `node scripts/e2e/mobile.cjs <outDir> <baseUrl>` (iPhone SE/14, Pixel 7, iPad).
 
-- Planned tools (see PLAN.md): GEO Optimization (`/geo-optimization`, Week 3) and AI Visibility
-  (`/ai-visibility`, Week 4) exist only as "soon" entries in `nav.ts` today. When building one, add
-  `src/app/(app)/<tool>/` and flip its status to "live"; Week 2 turns nav.ts into a tool registry.
+- Planned tools (see PLAN.md): GEO Optimization (`/geo-optimization`, Week 3) exists only as a "soon"
+  entry in `nav.ts`. When building it, add `src/app/(app)/<tool>/` and flip its status to "live";
+  Week 2 turns nav.ts into a tool registry.
+- AI Visibility (`/ai-visibility`, needs sign-in): runs are driven one prompt per request
+  (`/api/visibility/runs/<id>/next`), like Site Audit, so nothing hits serverless timeouts. Results
+  rows start "pending" and are claimed atomically (FOR UPDATE SKIP LOCKED), so the browser and the
+  daily cron never answer the same prompt twice. The system prompt is fixed and never names the
+  tracked brand, so runs stay comparable week to week. Brands are snapshotted per run.
 - AI features (Claude API, from Week 2): server-only code in `src/lib/ai/`, Anthropic TypeScript
   SDK, key from `ANTHROPIC_API_KEY` (Vercel only, never client-side). Default model
   `claude-opus-5-5`. Log token usage per user/project and enforce the daily cap. Every AI output is
@@ -144,3 +156,4 @@ Add a row at the end of every session (newest at the bottom). Timestamps are loc
 | **2026-11-08 12:00PM** | Claude Code | Scaffolding | Set up the project foundation in Next.js 16, TypeScript and Tailwind, with GitHub Actions CI and deployment to Vercel. Wrote the first CLAUDE.md, PLAN.md and LOG.md so every session could pick up where the last ended. Defined the core architecture: a framework-free analysis engine where every check uses the same scoring format. |
 | **2026-11-10 10:00PM** | Claude Code | Building | Built the Page Analyzer, Content Optimizer (with product specs), URL Optimizer, Site Audit crawler and Keyword Clusters. Added GEO scoring for AI search engines, PDF reports, Start over buttons, a redesigned homepage, and code-complete Google sign-in with saved project history. Tested everything with unit tests, browser tests and a phone/tablet sweep.|
 | **2026-11-11 12:00AM** | Claude Code | Building/Documentation  | Rewrote PLAN.md as a justified Weeks 2–5 roadmap with deliverables, effort estimates, dependencies and risks. Updated CLAUDE.md with team workflow rules, the current-week process and guidelines for upcoming AI features. Added GEO Optimization alongside AI Visibility as coming-soon tools, and fixed a missing sidebar logo along the way.|
+| **2026-11-13 2:45PM** | Claude Code / Claude Opus 5.5 | Building (Week 4: AI Visibility) | Built AI Visibility v1: per-project prompt sets and tracked brands, runs that ask Claude (`claude-opus-5-5`, web search `web_search_20260209`, server-side refusal fallbacks) one prompt per request, a pure engine for mentions/rank/citations, share of voice and a 0–100 visibility score, trend chart, per-prompt answers with sources, CSV export, run history, and a weekly schedule through Vercel Cron (`vercel.json`, `CRON_SECRET`). Added the first slice of the Week 2 AI foundation it needs: `src/lib/ai/` (client, micro-dollar pricing, `ai_usage` logging, daily per-user and monthly budget caps, disabled-without-key). New tables in migration `0001_ai_visibility`. 21 new unit tests (117 total); verified the full run flow locally against a fake Claude server, no real API spend. Not yet run against the real API or on phones. |
