@@ -48,7 +48,7 @@ describe("AI config", () => {
     expect(aiEnabled({})).toBe(false);
     expect(aiEnabled({ ANTHROPIC_API_KEY: "  " })).toBe(false);
     expect(aiEnabled({ ANTHROPIC_API_KEY: "k" })).toBe(true);
-    expect(aiLimits({})).toEqual({ dailyUserMicros: 5_000_000, monthlyMicros: 50_000_000 });
-    expect(aiLimits({ AI_DAILY_USER_LIMIT_USD: "1.5", AI_MONTHLY_BUDGET_USD: "nope" })).toEqual({ dailyUserMicros: 1_500_000, monthlyMicros: 50_000_000 });
+    expect(aiLimits({})).toEqual({ dailyUserMicros: 2_000_000, monthlyMicros: 10_000_000 });
+    expect(aiLimits({ AI_DAILY_USER_LIMIT_USD: "1.5", AI_MONTHLY_BUDGET_USD: "nope" })).toEqual({ dailyUserMicros: 1_500_000, monthlyMicros: 10_000_000 });
   });
 });

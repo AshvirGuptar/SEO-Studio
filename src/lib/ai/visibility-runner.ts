@@ -12,7 +12,7 @@ import {
 import type { VisibilityRun, VisibilitySetup } from "../db/schema";
 import { checkBudget } from "./budget";
 import { askWithWebSearch, AskError, describeAiError } from "./visibility";
-import { DEFAULT_MODEL } from "./pricing";
+import { aiModel, webSearchMaxUses } from "./config";
 
 export const FEATURE = "ai-visibility";
 
@@ -25,11 +25,12 @@ export type StepOutcome =
 export async function startRun(
   setup: VisibilitySetup, trigger: "manual" | "scheduled", userId: string | null,
 ): Promise<{ run: VisibilityRun; error?: undefined } | { run?: undefined; error: string }> {
-  const estimate = estimateRunCost(setup.prompts.length);
+  const model = aiModel();
+  const estimate = estimateRunCost(setup.prompts.length, model, webSearchMaxUses());
   const budget = await checkBudget(userId, estimate.highMicros);
   if (!budget.ok) return { error: budget.reason! };
   const run = await createRun({
-    projectId: setup.projectId, prompts: setup.prompts, brands: setup.brands, model: DEFAULT_MODEL, trigger,
+    projectId: setup.projectId, prompts: setup.prompts, brands: setup.brands, model, trigger,
     estimatedCostMicros: estimate.highMicros,
   }, userId);
   return { run };
@@ -40,7 +41,7 @@ export async function processNextPrompt(runId: string, userId: string | null): P
   const run = await getRun(runId);
   if (!run || run.status !== "running") return { kind: "idle", remaining: 0, status: run?.status ?? "done" };
 
-  const perPrompt = estimateRunCost(1).highMicros;
+  const perPrompt = estimateRunCost(1, aiModel(), webSearchMaxUses()).highMicros;
   const budget = await checkBudget(userId, perPrompt);
   if (!budget.ok) return { kind: "blocked", reason: budget.reason! };
 

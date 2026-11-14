@@ -5,7 +5,8 @@
 import { aiSpendSince } from "../db/visibility-repo";
 import { formatUsd, USD } from "./pricing";
 
-export const DEFAULT_LIMITS = { dailyUserUsd: 5, monthlyUsd: 50 } as const;
+/** Sized for the $10 starter credits; raise with AI_DAILY_USER_LIMIT_USD / AI_MONTHLY_BUDGET_USD. */
+export const DEFAULT_LIMITS = { dailyUserUsd: 2, monthlyUsd: 10 } as const;
 
 /** ANTHROPIC_API_KEY set → AI features are on. Without it they stay visible but disabled. */
 export function aiEnabled(env: Record<string, string | undefined> = process.env): boolean {

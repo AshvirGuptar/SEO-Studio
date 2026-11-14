@@ -257,13 +257,18 @@ export function visibilityScore(s: Pick<BrandSummary, "mentionRate" | "citationR
  */
 export const PROMPT_USAGE_ESTIMATE = {
   low: { inputTokens: 6_000, outputTokens: 800, webSearches: 1 },
-  high: { inputTokens: 14_000, outputTokens: 2_000, webSearches: 3 },
+  /** High case per search used: each search adds roughly 3k input tokens of results. */
+  high: { baseInputTokens: 5_000, inputTokensPerSearch: 3_000, outputTokens: 2_000 },
 } as const;
 
-export function estimateRunCost(promptCount: number, model = DEFAULT_MODEL): { lowMicros: number; highMicros: number } {
+/** Low/high cost of a run. `maxSearches` is the per-question web search cap (AI_WEB_SEARCH_MAX_USES). */
+export function estimateRunCost(promptCount: number, model = DEFAULT_MODEL, maxSearches = 2): { lowMicros: number; highMicros: number } {
+  const h = PROMPT_USAGE_ESTIMATE.high;
+  const high = { inputTokens: h.baseInputTokens + h.inputTokensPerSearch * maxSearches, outputTokens: h.outputTokens, webSearches: maxSearches };
+  const low = { ...PROMPT_USAGE_ESTIMATE.low, webSearches: Math.min(PROMPT_USAGE_ESTIMATE.low.webSearches, maxSearches) };
   return {
-    lowMicros: promptCount * costMicros(model, PROMPT_USAGE_ESTIMATE.low),
-    highMicros: promptCount * costMicros(model, PROMPT_USAGE_ESTIMATE.high),
+    lowMicros: promptCount * costMicros(model, low),
+    highMicros: promptCount * costMicros(model, high),
   };
 }
 

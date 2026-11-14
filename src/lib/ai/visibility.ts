@@ -6,7 +6,8 @@ import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { getAnthropic } from "./client";
 import { addUsage, parseAnswer, type ParsedAnswer } from "./answer";
-import { costMicros, DEFAULT_MODEL, type TokenUsage } from "./pricing";
+import { costMicros, type TokenUsage } from "./pricing";
+import { aiModel, modelOptions, webSearchMaxUses } from "./config";
 
 /** Fixed (never interpolated) so every run asks the same way and results compare across weeks. */
 const SYSTEM = `You are an AI assistant answering a real person's question, like an AI search engine would.
@@ -34,20 +35,23 @@ export async function askWithWebSearch(prompt: string): Promise<AskResult> {
   const messages: Anthropic.Beta.Messages.BetaMessageParam[] = [{ role: "user", content: prompt }];
   let usage: TokenUsage = { inputTokens: 0, outputTokens: 0 };
   let cost = 0;
-  let model = DEFAULT_MODEL;
+  const requestModel = aiModel();
+  const options = modelOptions(requestModel);
+  const maxUses = webSearchMaxUses();
+  let model: string = requestModel;
   const content: Anthropic.Beta.Messages.BetaContentBlock[] = [];
 
   for (let i = 0; i <= MAX_CONTINUATIONS; i++) {
     const response = await client.beta.messages.create({
-      model: DEFAULT_MODEL,
+      model: requestModel,
       max_tokens: 16000,
       system: SYSTEM,
       messages,
-      tools: [{ type: "web_search_20260209", name: "web_search", max_uses: 3 }],
+      tools: [{ type: options.webSearchTool, name: "web_search", max_uses: maxUses }],
       output_config: { effort: "medium" },
-      // If a safety classifier declines, the API retries on a fallback model inside the same call.
-      betas: ["server-side-fallback-2026-07-01"],
-      fallbacks: "default",
+      // Opus/Sonnet: if a safety classifier declines, the API retries on a fallback model inside the
+      // same call. Haiku 5.5 has no server-side fallback, so the parameter (and its beta) is omitted.
+      ...(options.serverFallback ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const } : {}),
     });
     model = response.model;
     usage = addUsage(usage, response.usage);
