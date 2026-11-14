@@ -63,7 +63,7 @@ async function api<T>(url: string, init?: RequestInit): Promise<T> {
   return body as T;
 }
 
-export function VisibilityClient({ projects, initialProjectId, aiEnabled }: { projects: ProjectOption[]; initialProjectId: string; aiEnabled: boolean }) {
+export function VisibilityClient({ projects, initialProjectId, aiEnabled, model, maxSearches }: { projects: ProjectOption[]; initialProjectId: string; aiEnabled: boolean; model: string; maxSearches: number }) {
   const { user } = useSession();
   const [projectId, setProjectId] = useState(initialProjectId);
   const [data, setData] = useState<Payload | null>(null);
@@ -103,7 +103,7 @@ export function VisibilityClient({ projects, initialProjectId, aiEnabled }: { pr
   }, [form]);
 
   const saved = data && form ? JSON.stringify(formFromSetup(data)) === JSON.stringify(form) : true;
-  const estimate = estimateRunCost(parsed?.prompts.length ?? 0);
+  const estimate = estimateRunCost(parsed?.prompts.length ?? 0, model, maxSearches);
   const runs = data?.runs ?? [];
   const active = runs.find((r) => r.id === data?.activeRunId) ?? null;
   const shown = runs.find((r) => r.id === viewRunId) ?? runs[0] ?? null;
@@ -264,7 +264,7 @@ export function VisibilityClient({ projects, initialProjectId, aiEnabled }: { pr
             <div className="text-sm">
               <div className="font-medium">Run {parsed.prompts.length} prompt{parsed.prompts.length === 1 ? "" : "s"} with Claude + web search</div>
               <div className="mt-1 text-muted">
-                Estimated cost {formatUsd(estimate.lowMicros)}–{formatUsd(estimate.highMicros)}.
+                Estimated cost {formatUsd(estimate.lowMicros)}–{formatUsd(estimate.highMicros)} on {model}, up to {maxSearches} web search{maxSearches === 1 ? "" : "es"} per question.
                 {budget && <> You&apos;ve used {formatUsd(budget.spentTodayMicros)} of your {formatUsd(budget.dailyUserMicros)} daily AI limit.</>}
               </div>
               {budget && !budget.ok && <div className="mt-1 text-fail">{budget.reason}</div>}

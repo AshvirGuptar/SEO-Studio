@@ -3,6 +3,7 @@ import Link from "next/link";
 import { requirePageUser } from "@/lib/auth/page-guard";
 import { listProjects } from "@/lib/db/repo";
 import { aiEnabled } from "@/lib/ai/budget";
+import { aiModel, webSearchMaxUses } from "@/lib/ai/config";
 import { SetupNotice } from "@/components/SetupNotice";
 import { VisibilityClient } from "./VisibilityClient";
 
@@ -38,6 +39,8 @@ async function Projects({ initial }: { initial: string | string[] | undefined })
       projects={projects.map((p) => ({ id: p.id, name: p.name, domain: p.domain }))}
       initialProjectId={first}
       aiEnabled={aiEnabled()}
+      model={aiModel()}
+      maxSearches={webSearchMaxUses()}
     />
   );
 }
