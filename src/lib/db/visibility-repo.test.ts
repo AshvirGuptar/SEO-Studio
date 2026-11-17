@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createTestDb } from "./test-db";
 import { getDb } from "./index";
 import { user, visibilityResult, visibilityRun } from "./schema";
-import { createProject } from "./repo";
+import { createProject, ensureOpenModeUser, listUsers, OPEN_MODE_USER } from "./repo";
 import * as v from "./visibility-repo";
 import { checkBudget } from "../ai/budget";
 import { eq } from "drizzle-orm";
@@ -82,6 +82,22 @@ describe("scheduling", () => {
     expect(await v.projectsDueForScheduledRun()).toHaveLength(0); // too recent
     await getDb().update(visibilityRun).set({ createdAt: new Date(Date.now() - v.SCHEDULE_INTERVAL_MS) }).where(eq(visibilityRun.id, run.id));
     expect(await v.projectsDueForScheduledRun()).toHaveLength(1);
+  });
+});
+
+describe("open mode", () => {
+  it("creates the shared Team user once, keeps it out of Team & access, and gives it one shared daily cap", async () => {
+    vi.stubEnv("AI_DAILY_USER_LIMIT_USD", "1");
+    const a = await ensureOpenModeUser();
+    const b = await ensureOpenModeUser();
+    expect(a).toMatchObject({ id: OPEN_MODE_USER.id, role: "admin", status: "active" });
+    expect(b.id).toBe(a.id);
+    expect((await listUsers()).map((u) => u.id)).not.toContain(OPEN_MODE_USER.id);
+    // Projects and runs can be credited to it (foreign keys hold).
+    const p = await createProject({ name: "Shared" }, a.id);
+    expect(p.createdBy).toBe(a.id);
+    await v.logAiUsage({ userId: a.id, projectId: p.id, feature: "ai-visibility", model: "claude-opus-5-5", usage: { inputTokens: 1, outputTokens: 1 }, costMicros: 950_000 });
+    expect((await checkBudget(a.id, 100_000)).reason).toMatch(/team's shared daily/);
   });
 });
 

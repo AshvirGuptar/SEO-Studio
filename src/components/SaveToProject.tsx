@@ -15,9 +15,9 @@ export interface SavePayload {
   data: Record<string, unknown>;
 }
 
-/** "Save to project" control. Hidden entirely when sign-in isn't configured. */
+/** "Save to project" control. Hidden when saved data isn't available. */
 export function SaveToProject({ payload, suggestedName }: { payload: SavePayload; suggestedName?: string }) {
-  const { authEnabled, user } = useSession();
+  const { user } = useSession();
   const [open, setOpen] = useState(false);
   const [projects, setProjects] = useState<ProjectOption[] | null>(null);
   const [projectId, setProjectId] = useState("");
@@ -41,7 +41,7 @@ export function SaveToProject({ payload, suggestedName }: { payload: SavePayload
       .catch(() => setError("Couldn't load projects."));
   }, [open, projects, host, suggestedName]);
 
-  if (!authEnabled || !user) return null;
+  if (!user) return null; // no saved data (no database), or signed out
 
   async function save() {
     setBusy(true);

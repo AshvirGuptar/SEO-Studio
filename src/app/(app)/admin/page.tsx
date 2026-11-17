@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { requirePageUser } from "@/lib/auth/page-guard";
+import { isAuthEnabled } from "@/lib/auth/server";
 import { accessConfigFromEnv } from "@/lib/auth/access";
 import { listInvites, listUsers } from "@/lib/db/repo";
 import { SetupNotice } from "@/components/SetupNotice";
@@ -9,8 +10,9 @@ import { AdminClient } from "./AdminClient";
 export const metadata: Metadata = { title: "Team & access" };
 
 export default async function AdminPage() {
+  if (!isAuthEnabled()) return <SetupNotice feature="Team & access" signInOnly />;
   const user = await requirePageUser();
-  if (!user) return <SetupNotice feature="Team & access" />;
+  if (!user) return <SetupNotice feature="Team & access" signInOnly />;
   if (user.role !== "admin") notFound();
   const [users, invites] = await Promise.all([listUsers(), listInvites()]);
   const cfg = accessConfigFromEnv();

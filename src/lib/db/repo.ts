@@ -7,8 +7,20 @@ import { accessConfigFromEnv, decideAccess, type Role, type Status } from "../au
 const newId = () => crypto.randomUUID();
 
 // ---------- users & access ----------
+/** Shared account used in open mode (no sign-in). The .invalid email can never sign in with Google. */
+export const OPEN_MODE_USER = { id: "open-mode-team", name: "Team", email: "team@open-mode.invalid" } as const;
+
+export async function ensureOpenModeUser(): Promise<User> {
+  await getDb()
+    .insert(user)
+    .values({ ...OPEN_MODE_USER, role: "admin", status: "active" })
+    .onConflictDoNothing({ target: user.id });
+  return (await getUser(OPEN_MODE_USER.id))!;
+}
+
 export async function listUsers(): Promise<User[]> {
-  return getDb().select().from(user).orderBy(user.status, user.createdAt);
+  const all = await getDb().select().from(user).orderBy(user.status, user.createdAt);
+  return all.filter((u) => u.id !== OPEN_MODE_USER.id);
 }
 
 export async function getUser(id: string): Promise<User | undefined> {

@@ -3,6 +3,7 @@
  * Checked before every Claude request; actual cost is logged afterwards in ai_usage.
  */
 import { aiSpendSince } from "../db/visibility-repo";
+import { OPEN_MODE_USER } from "../db/repo";
 import { formatUsd, USD } from "./pricing";
 
 /** Sized for the $10 starter credits; raise with AI_DAILY_USER_LIMIT_USD / AI_MONTHLY_BUDGET_USD. */
@@ -51,7 +52,8 @@ export async function checkBudget(userId: string | null, nextMicros = 0, now = n
     return { ...base, ok: false, reason: `The monthly AI budget (${formatUsd(limits.monthlyMicros)}) is used up. An admin can raise AI_MONTHLY_BUDGET_USD.` };
   }
   if (userId && spentTodayMicros + nextMicros > limits.dailyUserMicros) {
-    return { ...base, ok: false, reason: `You've reached today's AI limit (${formatUsd(limits.dailyUserMicros)}). It resets at midnight UTC.` };
+    const who = userId === OPEN_MODE_USER.id ? "The team's shared daily AI limit" : "Your daily AI limit";
+    return { ...base, ok: false, reason: `${who} (${formatUsd(limits.dailyUserMicros)}) is used up. It resets at midnight UTC.` };
   }
   return { ...base, ok: true };
 }

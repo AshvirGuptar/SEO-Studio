@@ -75,7 +75,8 @@ for every AI feature that follows.
   pages and products with expected outcomes) is slow, careful work, and Week 3 depends on it.
 
 **Deliverables**
-- [ ] **Sign-in live in production:** Google OAuth client; `BETTER_AUTH_SECRET`, `GOOGLE_*` and
+- [ ] **Sign-in live in production** (deferred 2026-11-17; the app runs in open mode with just a
+      database until then, see README): Google OAuth client; `BETTER_AUTH_SECRET`, `GOOGLE_*` and
       `ADMIN_EMAILS` set in Vercel; first migration applied to Neon; sign-in, invite, approve and
       disable verified with real accounts.
 - [ ] **Projects & History in real use:** save page and site audits; check the history chart and

@@ -6,7 +6,21 @@ export function authEnvConfigured(env: Record<string, string | undefined> = proc
 }
 
 /**
- * Demo / open mode: PUBLIC_TOOLS=true lets anyone use the analysis tools without signing in.
+ * Open mode: a database is connected but Google sign-in isn't set up yet. Everyone who can reach the
+ * site acts as one shared "Team" user, so saving, Projects and AI Visibility work without logging in.
+ * Team & access stays off. It ends automatically once the sign-in variables are set.
+ */
+export function openModeEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return !authEnvConfigured(env) && Boolean(env.DATABASE_URL || env.POSTGRES_URL);
+}
+
+/** Saved data (projects, audits, AI Visibility) is available: real sign-in or open mode. */
+export function dataEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return authEnvConfigured(env) || openModeEnabled(env);
+}
+
+/**
+ * Demo / public-tools mode: PUBLIC_TOOLS=true lets anyone use the analysis tools without signing in.
  * Saved data (projects, audits) and Team & access ALWAYS still require an approved account.
  */
 export function publicToolsEnabled(env: Record<string, string | undefined> = process.env): boolean {
