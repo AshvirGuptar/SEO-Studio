@@ -8,7 +8,8 @@ import { HELP_LINKS, TOOLS, toolStatus } from "./nav";
 import type { SessionUser } from "./session";
 import { SignOutButton } from "./SignOutButton";
 
-type Props = { authEnabled: boolean; user: SessionUser | null };
+/** dataEnabled: saved-data tools (Projects, AI Visibility) work, via sign-in or open mode. */
+type Props = { authEnabled: boolean; dataEnabled: boolean; user: SessionUser | null };
 
 /**
  * Navigation. Below the lg breakpoint (phones, tablets in portrait): a top bar with a Menu button
@@ -28,7 +29,7 @@ function NavWithPath(props: Props) {
   return <Nav {...props} path={usePathname()} />;
 }
 
-function Nav({ authEnabled, user, path }: Props & { path: string }) {
+function Nav({ authEnabled, dataEnabled, user, path }: Props & { path: string }) {
   const [open, setOpen] = useState(false);
   const [lastPath, setLastPath] = useState(path);
   // Close the mobile menu after navigating (state reset on path change, no effect needed).
@@ -69,14 +70,14 @@ function Nav({ authEnabled, user, path }: Props & { path: string }) {
       </header>
       {open && (
         <div id="mobile-menu" className="fixed inset-x-0 bottom-0 top-[57px] z-20 overflow-y-auto bg-background/97 px-4 pb-8 pt-4 backdrop-blur lg:hidden">
-          <NavLinks authEnabled={authEnabled} user={user} path={path} />
+          <NavLinks authEnabled={authEnabled} dataEnabled={dataEnabled} user={user} path={path} />
         </div>
       )}
 
       {/* Desktop sidebar */}
       <nav aria-label="Main" className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col overflow-y-auto border-r border-border bg-surface/60 px-3 py-6 lg:flex">
         <Link href="/" className="mb-8 px-2 py-1"><Wordmark /></Link>
-        <NavLinks authEnabled={authEnabled} user={user} path={path} />
+        <NavLinks authEnabled={authEnabled} dataEnabled={dataEnabled} user={user} path={path} />
       </nav>
     </>
   );
@@ -97,13 +98,13 @@ function NavLink({ href, name, active }: { href: string; name: string; active: b
   );
 }
 
-function NavLinks({ authEnabled, user, path }: Props & { path: string }) {
+function NavLinks({ authEnabled, dataEnabled, user, path }: Props & { path: string }) {
   return (
     <div className="flex flex-1 flex-col gap-0.5">
       <span className="label px-3">Tools</span>
       {TOOLS.map((t) =>
-        toolStatus(t, authEnabled) === "soon" ? (
-          <span key={t.href} title={t.needsAuth ? "Available once sign-in is set up" : undefined}
+        toolStatus(t, dataEnabled) === "soon" ? (
+          <span key={t.href} title={t.needsAuth ? "Available once a database is connected" : undefined}
             className="flex min-h-11 cursor-default items-center justify-between gap-2 whitespace-nowrap rounded-xl px-3 text-[15px] text-subtle lg:min-h-9 lg:text-sm">
             {t.name}
             <span className="rounded-md border border-border px-1.5 py-0.5 text-[11px] uppercase tracking-wide">soon</span>

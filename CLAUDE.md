@@ -105,11 +105,20 @@ src/components/     Shared UI (CheckList, ScoreRing, SerpPreview, Sidebar). nav.
   Page mapping needs the cluster's most distinctive term, not just shared generic words.
 
 - Auth: sign-in is ON only when DATABASE_URL, BETTER_AUTH_SECRET, GOOGLE_CLIENT_ID and
-  GOOGLE_CLIENT_SECRET are all set; otherwise tools are open and saving is disabled (keep both modes
-  working). Every API route calls a guard (`requireToolAccess` for tools, `requireActiveUser` /
+  GOOGLE_CLIENT_SECRET are all set. With only DATABASE_URL the app runs in **open mode**
+  (`openModeEnabled()` in enabled.ts): no login, everyone acts as one shared "Team" user
+  (`OPEN_MODE_USER` in repo.ts, created on first use, hidden from Team & access), so Projects, saving
+  and AI Visibility work; Team & access stays off; the daily AI limit is shared. With no database,
+  tools are open and saving is disabled. Keep all three modes working. `dataEnabled()` = saved data
+  available (sign-in or open mode); `toolStatus()` uses it. Every API route calls a guard (`requireToolAccess` for tools, `requireActiveUser` /
   `requireAdmin` for data). The proxy check is optimistic, so never rely on it alone.
 - cacheComponents: anything reading cookies/headers/searchParams (incl. getCurrentUser) must render
-  inside <Suspense>. The (app) layout already wraps the sidebar and page content.
+  inside <Suspense>. The (app) layout already wraps the sidebar and page content. `openModeUser()`
+  calls `connection()` so database pages render per request, not at build time.
+- AI keys and spending: `ANTHROPIC_API_KEY` lives only in Vercel. Never ask for it or write it into
+  code, tests, commits or docs. Build and test AI features against fake responses (point
+  `ANTHROPIC_BASE_URL` at a local fake server); get a teammate's OK before anything that spends real
+  API money. Real tests happen on the deployed site.
 - Schema changes: edit schema.ts → `npm run db:generate` → commit the migration. Never edit applied
   migrations.
 - Signed-in E2E test: scripts/e2e (local PGlite DB + seeded sessions; see its README).
@@ -131,7 +140,7 @@ src/components/     Shared UI (CheckList, ScoreRing, SerpPreview, Sidebar). nav.
 - Planned tools (see PLAN.md): GEO Optimization (`/geo-optimization`, Week 3) exists only as a "soon"
   entry in `nav.ts`. When building it, add `src/app/(app)/<tool>/` and flip its status to "live";
   Week 2 turns nav.ts into a tool registry.
-- AI Visibility (`/ai-visibility`, needs sign-in): runs are driven one prompt per request
+- AI Visibility (`/ai-visibility`, needs saved data: sign-in or open mode): runs are driven one prompt per request
   (`/api/visibility/runs/<id>/next`), like Site Audit, so nothing hits serverless timeouts. Results
   rows start "pending" and are claimed atomically (FOR UPDATE SKIP LOCKED), so the browser and the
   daily cron never answer the same prompt twice. The system prompt is fixed and never names the
@@ -161,3 +170,4 @@ Add a row at the end of every session (newest at the bottom). Timestamps are loc
 | **2026-11-11 12:00AM** | Claude Code | Building/Documentation  | Rewrote PLAN.md as a justified Weeks 2–5 roadmap with deliverables, effort estimates, dependencies and risks. Updated CLAUDE.md with team workflow rules, the current-week process and guidelines for upcoming AI features. Added GEO Optimization alongside AI Visibility as coming-soon tools, and fixed a missing sidebar logo along the way.|
 | **2026-11-13 2:45PM** | Claude Code / Claude Opus 5.5 | Building (Week 4: AI Visibility) | Built AI Visibility v1: per-project prompt sets and tracked brands, runs that ask Claude (`claude-opus-5-5`, web search `web_search_20260209`, server-side refusal fallbacks) one prompt per request, a pure engine for mentions/rank/citations, share of voice and a 0–100 visibility score, trend chart, per-prompt answers with sources, CSV export, run history, and a weekly schedule through Vercel Cron (`vercel.json`, `CRON_SECRET`). Added the first slice of the Week 2 AI foundation it needs: `src/lib/ai/` (client, micro-dollar pricing, `ai_usage` logging, daily per-user and monthly budget caps, disabled-without-key). New tables in migration `0001_ai_visibility`. 21 new unit tests (117 total); verified the full run flow locally against a fake Claude server, no real API spend. Not yet run against the real API or on phones. |
 | **2026-11-14 12:00PM** | Claude Code / Claude Opus 5.5 | API cost controls | Made AI spending safer before Week 2: default limits now $2 per person per day and $10 per month (matching the $10 credits), new `AI_MODEL` setting to test on cheaper Sonnet 5.5 or Haiku 5.5 while production keeps Opus 5.5, and web searches per AI Visibility question default to 2 (`AI_WEB_SEARCH_MAX_USES`). Per-model request options handle Haiku's differences, and cost estimates follow the chosen settings. Weekly runs remain off by default. |
+| **2026-11-17 3:50PM** | Claude Code / Claude Opus 5.5 | Open mode (skip sign-in for now) | Team decided to skip Google sign-in for now and accept a public site. With only `DATABASE_URL` set, the app now runs in open mode: everyone acts as one shared Team user (`OPEN_MODE_USER`, created on first use), so Projects, Save to project and AI Visibility work without logging in; Team & access stays off; the daily AI limit becomes one shared limit (monthly cap unchanged). Guards (`requireActiveUser`, `requirePageUser`) return the Team user in open mode; `requireAdmin` requires real sign-in. Sidebar/home use `dataEnabled()`; setup notice now explains the database-only option. Adding the sign-in variables later switches back to per-person accounts automatically. 3 new tests (125 total); verified locally with no login against a fake Claude server (no real spend). Added the API-key and spending rules to Conventions. |

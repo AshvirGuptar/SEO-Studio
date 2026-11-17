@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { TOOLS, toolStatus } from "@/components/nav";
-import { isAuthEnabled } from "@/lib/auth/server";
+import { dataEnabled } from "@/lib/auth/enabled";
 import { BRAND } from "@/lib/brand";
 import { ToolIcon, ToolPreview } from "./home/ToolPreview";
 import { AI_CRAWLERS } from "@/lib/seo/geo";
 
 export default function Home() {
-  const authEnabled = isAuthEnabled();
+  const hasData = dataEnabled();
   return (
     <div className="space-y-20 pb-10">
       <Hero />
@@ -21,7 +21,7 @@ export default function Home() {
         </div>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {TOOLS.map((t, i) => {
-            const live = toolStatus(t, authEnabled) === "live";
+            const live = toolStatus(t, hasData) === "live";
             // Four cards span two columns so 8 cards fill a 3-column grid evenly (zig-zag rows).
             const wide = ["/analyzer", "/audit", "/geo-optimization", "/projects"].includes(t.href);
             const className = `card group relative flex flex-col overflow-hidden p-0 transition duration-300 rise ${wide ? "xl:col-span-2" : ""} ${live ? "hover:-translate-y-1 hover:border-accent/50 hover:shadow-[0_18px_50px_-18px_rgb(241_90_41/0.45)] focus-visible:border-accent" : ""}`;
@@ -38,7 +38,7 @@ export default function Home() {
                     <span className="ml-auto flex gap-1">
                       {!live ? (
                         <span className="rounded-md border border-border px-1.5 py-0.5 text-[11px] uppercase tracking-wide text-subtle">
-                          {t.needsAuth ? "Sign-in" : "Soon"}
+                          {t.needsAuth ? "Needs database" : "Soon"}
                         </span>
                       ) : (
                         t.tags?.map((tag) => (
@@ -61,7 +61,7 @@ export default function Home() {
                         ))}
                       </ul>
                       <span className="mt-auto pt-3 text-sm font-medium text-accent">
-                        {live ? "Open tool →" : t.needsAuth ? "Available once sign-in is set up" : "Coming soon"}
+                        {live ? "Open tool →" : t.needsAuth ? "Available once a database is connected" : "Coming soon"}
                       </span>
                     </div>
                   )}

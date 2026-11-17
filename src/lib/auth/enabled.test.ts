@@ -1,5 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { isPublicToolPath, publicToolsEnabled } from "./enabled";
+import { dataEnabled, isPublicToolPath, openModeEnabled, publicToolsEnabled } from "./enabled";
+
+describe("open mode", () => {
+  const signIn = { BETTER_AUTH_SECRET: "s", GOOGLE_CLIENT_ID: "i", GOOGLE_CLIENT_SECRET: "c" };
+  it("is on with a database and no sign-in, off once sign-in is set up", () => {
+    expect(openModeEnabled({ DATABASE_URL: "postgres://x" })).toBe(true);
+    expect(openModeEnabled({ POSTGRES_URL: "postgres://x" })).toBe(true);
+    expect(openModeEnabled({})).toBe(false);
+    expect(openModeEnabled({ DATABASE_URL: "postgres://x", ...signIn })).toBe(false);
+  });
+  it("has saved data with sign-in or open mode, not without a database", () => {
+    expect(dataEnabled({ DATABASE_URL: "postgres://x" })).toBe(true);
+    expect(dataEnabled({ DATABASE_URL: "postgres://x", ...signIn })).toBe(true);
+    expect(dataEnabled({})).toBe(false);
+  });
+});
 
 describe("demo mode", () => {
   it("parses PUBLIC_TOOLS", () => {

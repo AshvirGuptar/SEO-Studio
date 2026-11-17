@@ -4,7 +4,7 @@ export interface Tool {
   name: string;
   blurb: string;
   status: "live" | "soon";
-  /** Only available when sign-in + database are configured. */
+  /** Needs saved data: a database (with sign-in, or in open mode). */
   needsAuth?: boolean;
   /** Short "use it to…" list for the homepage hover preview. */
   useCases?: string[];
@@ -26,7 +26,7 @@ export const TOOLS: Tool[] = [
 /** Non-tool links shown below the tools in the sidebar. */
 export const HELP_LINKS = [{ href: "/guide", name: "Guide" }];
 
-/** A tool's effective status given whether sign-in is configured. */
-export function toolStatus(t: Tool, authEnabled: boolean): Tool["status"] {
-  return t.needsAuth && !authEnabled ? "soon" : t.status;
+/** A tool's effective status given whether saved data is available. */
+export function toolStatus(t: Tool, dataEnabled: boolean): Tool["status"] {
+  return t.needsAuth && !dataEnabled ? "soon" : t.status;
 }
