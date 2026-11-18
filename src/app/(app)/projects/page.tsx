@@ -1,21 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { requirePageUser } from "@/lib/auth/page-guard";
+import { premiumPageAccess } from "@/lib/auth/page-guard";
 import { listProjects } from "@/lib/db/repo";
 import { scoreColor } from "@/components/ScoreRing";
-import { SetupNotice } from "@/components/SetupNotice";
+import { PremiumGate } from "@/components/PremiumGate";
 import { Time } from "@/components/Time";
 import { NewProjectForm } from "./NewProjectForm";
 
 export const metadata: Metadata = { title: "Projects" };
 
 export default async function ProjectsPage() {
-  const user = await requirePageUser();
+  const access = await premiumPageAccess();
   return (
     <div>
       <h1 className="text-2xl font-semibold tracking-tight">Projects & History</h1>
       <p className="mt-1 text-muted">Group saved audits by site or client, track scores over time and see what changed between runs.</p>
-      <div className="mt-6">{user ? <ProjectList /> : <SetupNotice feature="Projects & History" />}</div>
+      <div className="mt-6">{access.user ? <ProjectList /> : <PremiumGate feature="Projects & History" path="/projects" gate={access.gate} premium={false} />}</div>
     </div>
   );
 }

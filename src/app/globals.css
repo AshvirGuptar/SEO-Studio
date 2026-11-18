@@ -31,6 +31,10 @@
   --fail: #fb7185;
   --info: #60a5fa;
 
+  /* Premium (AI-powered, sign-in required) tools: gold crown + label. Not a status color. */
+  --premium: #f4c24d;
+  --premium-soft: rgb(244 194 77 / 0.12);
+
   /* Search-intent categories (Keyword Clusters). Distinct from status + brand colors. */
   --intent-transactional: #2dd4bf;
   --intent-commercial: #a78bfa;
@@ -54,6 +58,8 @@
   --color-accent-fg: var(--accent-fg);
   --color-pass: var(--pass);
   --color-warn: var(--warn);
+  --color-premium: var(--premium);
+  --color-premium-soft: var(--premium-soft);
   --color-fail: var(--fail);
   --color-info: var(--info);
   --color-intent-transactional: var(--intent-transactional);

@@ -1,24 +1,28 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { requirePageUser } from "@/lib/auth/page-guard";
+import { premiumPageAccess } from "@/lib/auth/page-guard";
 import { listProjects } from "@/lib/db/repo";
 import { aiEnabled } from "@/lib/ai/budget";
 import { aiModel, webSearchMaxUses } from "@/lib/ai/config";
-import { SetupNotice } from "@/components/SetupNotice";
+import { PremiumGate } from "@/components/PremiumGate";
+import { PremiumBadge } from "@/components/Crown";
 import { VisibilityClient } from "./VisibilityClient";
 
 export const metadata: Metadata = { title: "AI Visibility" };
 
 export default async function AiVisibilityPage({ searchParams }: PageProps<"/ai-visibility">) {
-  const user = await requirePageUser();
+  const access = await premiumPageAccess();
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight">AI Visibility</h1>
+      <div className="flex flex-wrap items-center gap-3">
+        <h1 className="text-2xl font-semibold tracking-tight">AI Visibility</h1>
+        <PremiumBadge />
+      </div>
       <p className="mt-1 max-w-3xl text-muted">
         Ask an AI assistant the questions your customers ask, with live web search, and see whether it mentions your
         brand, cites your site, and how you compare with competitors. Run it weekly to track the trend.
       </p>
-      <div className="mt-6">{user ? <Projects initial={(await searchParams).project} /> : <SetupNotice feature="AI Visibility" />}</div>
+      <div className="mt-6">{access.user ? <Projects initial={(await searchParams).project} /> : <PremiumGate feature="AI Visibility" path="/ai-visibility" gate={access.gate} />}</div>
     </div>
   );
 }

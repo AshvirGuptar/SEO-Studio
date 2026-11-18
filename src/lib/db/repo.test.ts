@@ -4,8 +4,8 @@ import { getDb } from "./index";
 import { user } from "./schema";
 import * as repo from "./repo";
 
-async function addUser(id: string, email: string, status: "pending" | "active" | "disabled" = "pending", role: "admin" | "member" = "member") {
-  await getDb().insert(user).values({ id, name: id, email, status, role });
+async function addUser(id: string, email: string, status: "pending" | "active" | "disabled" = "pending", role: "admin" | "member" = "member", emailVerified = false) {
+  await getDb().insert(user).values({ id, name: id, email, status, role, emailVerified });
 }
 
 beforeEach(async () => {
@@ -18,11 +18,13 @@ describe("access on sign-in", () => {
     vi.stubEnv("ADMIN_EMAILS", "boss@acme.com");
     vi.stubEnv("AUTO_APPROVE_DOMAINS", "acme.com");
     await addUser("a", "boss@acme.com");
-    await addUser("b", "jo@acme.com");
+    await addUser("b", "jo@acme.com", "pending", "member", true); // verified (e.g. Google)
     await addUser("c", "stranger@gmail.com");
+    await addUser("d", "typed@acme.com"); // email + password sign-up: unverified
     expect(await repo.applyAccessOnSignIn("a")).toMatchObject({ role: "admin", status: "active" });
     expect(await repo.applyAccessOnSignIn("b")).toMatchObject({ role: "member", status: "active" });
     expect(await repo.applyAccessOnSignIn("c")).toMatchObject({ status: "pending" });
+    expect(await repo.applyAccessOnSignIn("d")).toMatchObject({ status: "pending" });
   });
 
   it("uses and consumes invites", async () => {

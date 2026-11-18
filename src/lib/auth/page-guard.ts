@@ -15,3 +15,20 @@ export async function requirePageUser(): Promise<CurrentUser | null> {
   if (!user || user.status !== "active") redirect("/sign-in");
   return user;
 }
+
+export type PremiumAccess =
+  | { user: CurrentUser; gate?: undefined }
+  | { user?: undefined; gate: "signin" | "pending" | "disabled" | "setup" };
+
+/**
+ * For premium (Claude API) tool pages. Never redirects: signed-out or not-yet-approved visitors get
+ * a `gate` reason so the page can explain and offer sign-in / request access.
+ */
+export async function premiumPageAccess(): Promise<PremiumAccess> {
+  if (!isAuthEnabled()) return openModeEnabled() ? { user: await openModeUser() } : { gate: "setup" };
+  const user = await getCurrentUser();
+  if (!user) return { gate: "signin" };
+  if (user.status === "pending") return { gate: "pending" };
+  if (user.status === "disabled") return { gate: "disabled" };
+  return { user };
+}

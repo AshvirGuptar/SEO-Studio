@@ -38,41 +38,48 @@ npm run build    # production build
 3. Pushes to the production branch deploy to the main URL; other branches get preview URLs.
 
 ## Open mode (no sign-in yet)
-If only a database is connected (Vercel → Storage → Neon, which sets `DATABASE_URL`) and the Google
-sign-in variables below aren't set, the app runs in **open mode**: no login, and everyone who can reach
+If only a database is connected (Vercel → Storage → Neon, which sets `DATABASE_URL`) and
+`BETTER_AUTH_SECRET` isn't set, the app runs in **open mode**: no login, and everyone who can reach
 the site shares one "Team" account. Projects, Save to project and AI Visibility work; Team & access is
 off; the daily AI limit (`AI_DAILY_USER_LIMIT_USD`) is shared by everyone, and the monthly budget still
 applies. **Anyone with the link can spend AI credits**, so add `SITE_PASSWORD` (see Deploying) or set up
-sign-in when the app should be private. Setting the sign-in variables switches to per-person accounts.
+sign-in when the app should be private. Setting `BETTER_AUTH_SECRET` switches to per-person accounts.
 
-## Sign-in setup (Google)
-Sign-in, Projects & History and Team & access turn on once these are configured. Until then the
-tools work without an account and saving is unavailable.
+## Sign-in setup (email + password)
+Accounts, per-person Projects & History and Team & access turn on once a database and
+`BETTER_AUTH_SECRET` are configured. People create an account with their email and a password
+(8+ characters).
+
+Who gets in:
+- `ADMIN_EMAILS` addresses are admins and get in straight away.
+- `APPROVED_EMAILS` addresses get in straight away as members (handy for testers).
+- Emails an admin invited (Team & access → Invite) get in straight away as that role.
+- Everyone else sees **Access requested** until an admin approves them on Team & access.
+
+No emails are sent. Forgotten password: an admin clicks **Reset password** on Team & access, which
+shows a one-time temporary password and signs that person out everywhere; they then change it on
+their **Account** page. Sign-in, sign-up and password changes are rate limited (5 per minute per IP
+for sign-in, 5 per 10 minutes for sign-up). Because addresses aren't verified, admins should create
+their accounts right after the first deploy so nobody else can register those emails first.
 
 **1. Database.** Add Neon from the Vercel project's **Storage** tab (sets `DATABASE_URL`). Tables are
 created automatically on the next deploy (`scripts/migrate.mjs` runs before every build).
 
-**2. Google OAuth client.** In [Google Cloud Console](https://console.cloud.google.com/):
-1. Create (or pick) a project.
-2. **APIs & Services → OAuth consent screen**: choose **External**, enter the app name
-   (SEO Studio) and a support email. Under **Audience**, click **Publish app** so any Google account
-   can sign in. Only basic profile/email scopes are used, so no Google review is needed.
-3. **APIs & Services → Credentials → Create credentials → OAuth client ID → Web application**:
-   - Authorized JavaScript origin: `https://seo-studio-weld.vercel.app`
-   - Authorized redirect URI: `https://seo-studio-weld.vercel.app/api/auth/callback/google`
-   - (For local development also add `http://localhost:3000` and `http://localhost:3000/api/auth/callback/google`.)
-4. Copy the **Client ID** and **Client secret**.
-
-**3. Vercel environment variables** (Settings → Environment Variables, **Production**):
+**2. Vercel environment variables** (Settings → Environment Variables, **Production**):
 
 | Variable | Value |
 | --- | --- |
 | `BETTER_AUTH_SECRET` | output of `openssl rand -base64 32` (any long random string) |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | from step 2 |
 | `ADMIN_EMAILS` | your email (comma-separate several). These people are always admins. |
-| `AUTO_APPROVE_DOMAINS` | optional, e.g. `company.com`: teammates get in without approval |
+| `APPROVED_EMAILS` | optional: emails approved as members on sign-up (comma-separated) |
+| `PUBLIC_TOOLS` | optional `false`: put the free tools behind sign-in too (default: free tools are public) |
 
-**4. Redeploy** (Deployments → ⋯ → Redeploy) and sign in with an `ADMIN_EMAILS` address.
+**3. Redeploy** (Deployments → ⋯ → Redeploy), open `/sign-in`, choose **Create account** and use an
+`ADMIN_EMAILS` address.
+
+Optional: "Continue with Google" appears too if `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` are set
+(OAuth client with redirect URI `https://<site>/api/auth/callback/google`, published consent screen).
+With Google on, `AUTO_APPROVE_DOMAINS` (e.g. `uw.edu`) approves Google sign-ins from those domains.
 
 ## AI features (Claude API)
 AI Visibility uses Claude with web search. Set these in Vercel (Production) and redeploy:
@@ -102,11 +109,16 @@ Put their emails in `ADMIN_EMAILS` (comma-separated) to make them admins, e.g.
 `ADMIN_EMAILS=you@gmail.com,colleague@gmail.com`. For members, an admin uses **Team & access → Invite**
 (works for any email address, Gmail included). Changes to env vars need a redeploy.
 
-### Demo mode (`PUBLIC_TOOLS=true`)
-For an in-person demo where people use the tools from their own phones: set `PUBLIC_TOOLS=true` in
-Vercel and redeploy. The analysis tools (Page Analyzer, Content/URL Optimizer, Site Audit, Keyword
-Clusters, Guide) work without signing in; **Projects, saved audits and Team & access still require an
-approved account**, so saved data stays private. Delete the variable and redeploy afterwards.
+### Free vs. Premium tools
+The free analysis tools (Page Analyzer, Content/URL Optimizer, Site Audit, Keyword Clusters, Guide)
+work for anyone without an account. **Premium** tools use the Claude API (AI Visibility, and GEO
+Optimization when it ships); they show a gold crown and need an approved account. Signed-out visitors
+who open one see "only for approved users" with **Sign in** / **Request access**; people waiting for
+approval can keep using the free tools. Projects and saved audits also need an account. The APIs
+behind premium tools and saved data always check for an approved user. To mark a new tool premium,
+set `premium: true` in `src/components/nav.ts`, add its path to `PREMIUM_TOOL_PATHS` in
+`src/lib/auth/enabled.ts` and use `premiumPageAccess()` + `<PremiumGate>` on its page.
+Set `PUBLIC_TOOLS=false` to put the free tools behind sign-in as well.
 
 ## Local development with a database
 ```bash

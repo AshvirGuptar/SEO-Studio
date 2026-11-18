@@ -34,7 +34,7 @@ export async function requireActiveUser(): Promise<{ user: CurrentUser; error?: 
 
 /** Team & access needs real sign-in; it's off in open mode. */
 export async function requireAdmin(): Promise<{ user: CurrentUser; error?: undefined } | { user?: undefined; error: Response }> {
-  if (!isAuthEnabled()) return deny(503, "Team & access needs Google sign-in to be set up.");
+  if (!isAuthEnabled()) return deny(503, "Team & access needs accounts to be turned on (BETTER_AUTH_SECRET in Vercel).");
   const r = await requireActiveUser();
   if (r.error) return r;
   if (r.user.role !== "admin") return deny(403, "Admins only.");

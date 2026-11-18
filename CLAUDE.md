@@ -104,8 +104,13 @@ src/components/     Shared UI (CheckList, ScoreRing, SerpPreview, Sidebar). nav.
 - Keyword rules: informational (how-to) keywords never cluster or map with product/category ones.
   Page mapping needs the cluster's most distinctive term, not just shared generic words.
 
-- Auth: sign-in is ON only when DATABASE_URL, BETTER_AUTH_SECRET, GOOGLE_CLIENT_ID and
-  GOOGLE_CLIENT_SECRET are all set. With only DATABASE_URL the app runs in **open mode**
+- Auth: accounts are ON when DATABASE_URL and BETTER_AUTH_SECRET are set (`authEnvConfigured`).
+  Email + password sign-up (Better Auth `emailAndPassword`, 8–128 chars, rate limited in the
+  `rate_limit` table); Google is an optional extra only when GOOGLE_CLIENT_ID/SECRET are set.
+  ADMIN_EMAILS, APPROVED_EMAILS (members) and invited emails get in at once; everyone else is pending until an admin approves.
+  AUTO_APPROVE_DOMAINS applies only to verified emails (Google), never to password sign-ups. No email
+  is sent: admins reset passwords on Team & access (`/api/admin/users/[id]/password`, temp password
+  shown once, sessions revoked); users change theirs on /account. With only DATABASE_URL the app runs in **open mode**
   (`openModeEnabled()` in enabled.ts): no login, everyone acts as one shared "Team" user
   (`OPEN_MODE_USER` in repo.ts, created on first use, hidden from Team & access), so Projects, saving
   and AI Visibility work; Team & access stays off; the daily AI limit is shared. With no database,
@@ -128,7 +133,12 @@ src/components/     Shared UI (CheckList, ScoreRing, SerpPreview, Sidebar). nav.
 - Every tool needs a Start over control (`StartOverButton`); Next keeps hidden routes' state alive
   (cacheComponents + Activity), so results persist across tabs until cleared.
 - PDF text: built-in Helvetica can't render symbols like → ✓; pass strings through `t()` in pdf.tsx.
-- Demo mode: PUBLIC_TOOLS=true opens only PUBLIC_TOOL_PATHS (enabled.ts). Never add data/admin routes.
+- Free vs Premium: free tools (PUBLIC_TOOL_PATHS in enabled.ts) are public by default
+  (`PUBLIC_TOOLS=false` locks them). Never add data/admin routes there. Tools that call the Claude API
+  are **premium**: `premium: true` in nav.ts + path in PREMIUM_TOOL_PATHS (a test keeps them in sync);
+  the page uses `premiumPageAccess()` and renders `<PremiumGate>` for signed-out/pending visitors;
+  their APIs use `requireActiveUser`. Pending users browse free tools as signed out.
+  Premium styling uses the `--premium` gold token + `<Crown>`/`<PremiumBadge>`, never for status.
 
 - Responsive: sidebar only from `lg` (1024px); below that a top bar + Menu panel (Sidebar.tsx).
   Multi-column tool layouts switch at `xl` because lg leaves ~700px beside the sidebar.
@@ -171,3 +181,5 @@ Add a row at the end of every session (newest at the bottom). Timestamps are loc
 | **2026-11-13 2:45PM** | Claude Code / Claude Opus 5.5 | Building (Week 4: AI Visibility) | Built AI Visibility v1: per-project prompt sets and tracked brands, runs that ask Claude (`claude-opus-5-5`, web search `web_search_20260209`, server-side refusal fallbacks) one prompt per request, a pure engine for mentions/rank/citations, share of voice and a 0–100 visibility score, trend chart, per-prompt answers with sources, CSV export, run history, and a weekly schedule through Vercel Cron (`vercel.json`, `CRON_SECRET`). Added the first slice of the Week 2 AI foundation it needs: `src/lib/ai/` (client, micro-dollar pricing, `ai_usage` logging, daily per-user and monthly budget caps, disabled-without-key). New tables in migration `0001_ai_visibility`. 21 new unit tests (117 total); verified the full run flow locally against a fake Claude server, no real API spend. Not yet run against the real API or on phones. |
 | **2026-11-14 12:00PM** | Claude Code / Claude Opus 5.5 | API cost controls | Made AI spending safer before Week 2: default limits now $2 per person per day and $10 per month (matching the $10 credits), new `AI_MODEL` setting to test on cheaper Sonnet 5.5 or Haiku 5.5 while production keeps Opus 5.5, and web searches per AI Visibility question default to 2 (`AI_WEB_SEARCH_MAX_USES`). Per-model request options handle Haiku's differences, and cost estimates follow the chosen settings. Weekly runs remain off by default. |
 | **2026-11-17 3:50PM** | Claude Code / Claude Opus 5.5 | Open mode (skip sign-in for now) | Team decided to skip Google sign-in for now and accept a public site. With only `DATABASE_URL` set, the app now runs in open mode: everyone acts as one shared Team user (`OPEN_MODE_USER`, created on first use), so Projects, Save to project and AI Visibility work without logging in; Team & access stays off; the daily AI limit becomes one shared limit (monthly cap unchanged). Guards (`requireActiveUser`, `requirePageUser`) return the Team user in open mode; `requireAdmin` requires real sign-in. Sidebar/home use `dataEnabled()`; setup notice now explains the database-only option. Adding the sign-in variables later switches back to per-person accounts automatically. 3 new tests (125 total); verified locally with no login against a fake Claude server (no real spend). Added the API-key and spending rules to Conventions. |
+| **2026-11-17 6:00PM** | Claude Code / Claude Opus 5.5 | Email + password accounts (replaces Google requirement) | Google OAuth publishing needed a verified domain, so accounts now use email + password. Accounts turn on with `DATABASE_URL` + `BETTER_AUTH_SECRET`; Google stays optional. New sign-in page with Sign in / Create account tabs, Account page (change password, signs out other devices), admin Reset password on Team & access (one-time temporary password, revokes sessions), Refresh button on Access requested. Rate limits in a new `rate_limit` table (migration `0002`): sign-in 5/min, sign-up 5/10 min, password change 5/min. `AUTO_APPROVE_DOMAINS` now only trusts verified emails, so nobody can type a uw.edu address to skip approval. Revoked sessions now redirect to sign-in. 4 new tests (129 total) plus an 18-step browser run (admin/invited/pending sign-up, approve, duplicate and wrong-password messages, reset, rate limit, change password, iPhone SE layout). |
+| **2026-11-17 7:00PM** | Claude Code / Claude Opus 5.5 | Free vs Premium tools | Tools that use the Claude API are now **Premium**: gold text and a crown in the sidebar and homepage (`--premium` token, `Crown`/`PremiumBadge`). Free tools are public by default (`PUBLIC_TOOLS=false` locks them). Signed-out visitors opening a premium tool see "only for approved users" with Sign in / Request access (the sign-up tab), and return to the tool afterwards; pending users can use the free tools and see a "waiting for approval" card on premium pages; Projects shows a "needs an account" card. Premium APIs still require an approved user. `premiumPageAccess()` in page-guard.ts, `PREMIUM_TOOL_PATHS` kept in sync with nav.ts by a test. New `APPROVED_EMAILS` env var: approved members on sign-up (for the professors testing). 132 tests; 14-step browser run (crown and gold colour, gate, request access, pending, approval, API 401, iPhone SE). |

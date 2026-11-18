@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { TOOLS, toolStatus } from "@/components/nav";
+import { Crown, PremiumBadge } from "@/components/Crown";
 import { dataEnabled } from "@/lib/auth/enabled";
 import { BRAND } from "@/lib/brand";
 import { ToolIcon, ToolPreview } from "./home/ToolPreview";
@@ -34,12 +35,14 @@ export default function Home() {
                 <div className="flex flex-1 flex-col p-5">
                   <div className="flex items-center gap-3">
                     <ToolIcon href={t.href} />
-                    <h3 className="font-medium">{t.name}</h3>
+                    <h3 className={`flex items-center gap-1.5 font-medium ${t.premium ? "text-premium" : ""}`}>{t.name}{t.premium && <Crown size={14} />}</h3>
                     <span className="ml-auto flex gap-1">
                       {!live ? (
                         <span className="rounded-md border border-border px-1.5 py-0.5 text-[11px] uppercase tracking-wide text-subtle">
                           {t.needsAuth ? "Needs database" : "Soon"}
                         </span>
+                      ) : t.premium ? (
+                        <PremiumBadge />
                       ) : (
                         t.tags?.map((tag) => (
                           <span key={tag} className="rounded-md border border-border px-1.5 py-0.5 text-[11px] font-medium text-muted">{tag}</span>

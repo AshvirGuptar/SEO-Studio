@@ -8,10 +8,12 @@ export interface SessionUser {
   email: string;
   image: string | null;
   role: "admin" | "member";
+  /** Signed in but not approved yet (only shown in the sidebar). */
+  pending?: boolean;
 }
 
 interface SessionValue {
-  /** True when Google sign-in + database are configured. Saving features need this. */
+  /** True when accounts (database + BETTER_AUTH_SECRET) are configured. */
   authEnabled: boolean;
   user: SessionUser | null;
 }

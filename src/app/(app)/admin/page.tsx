@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { requirePageUser } from "@/lib/auth/page-guard";
-import { isAuthEnabled } from "@/lib/auth/server";
+import { isAuthEnabled, isGoogleEnabled } from "@/lib/auth/server";
 import { accessConfigFromEnv } from "@/lib/auth/access";
 import { listInvites, listUsers } from "@/lib/db/repo";
 import { SetupNotice } from "@/components/SetupNotice";
@@ -22,7 +22,7 @@ export default async function AdminPage() {
       <h1 className="text-2xl font-semibold tracking-tight">Team & access</h1>
       <p className="mt-1 text-muted">
         Approve access requests, invite people (inside or outside the company) and manage roles.
-        {cfg.autoApproveDomains.length > 0 && <> Emails at <b className="text-foreground">{cfg.autoApproveDomains.join(", ")}</b> are approved automatically.</>}
+        {cfg.autoApproveDomains.length > 0 && isGoogleEnabled() && <> Google sign-ins at <b className="text-foreground">{cfg.autoApproveDomains.join(", ")}</b> are approved automatically (email sign-ups still need approval, since the address isn&apos;t verified).</>}
       </p>
       <AdminClient
         currentUserId={user.id}
