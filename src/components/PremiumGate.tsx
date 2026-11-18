@@ -21,12 +21,12 @@ export function PremiumGate({ feature, path, gate, premium = true }: { feature: 
         <>
           <h2 className="mt-3 text-lg font-medium">{feature} is only for approved users</h2>
           <p className="mt-1 text-sm text-muted">
-            {premium ? "It runs on paid AI, so it needs an approved account." : "Saved work belongs to an account."} Please sign in, or
-            create an account to request access. All the free tools work without one.
+            {premium ? "It runs on paid AI, so it needs an account." : "Saved work belongs to an account."} Sign in, or create
+            one with your UW email address. All the free tools work without one.
           </p>
           <div className="mt-5 flex flex-wrap gap-2">
             <Link href={`/sign-in?next=${next}`} className="btn">Sign in</Link>
-            <Link href={`/sign-in?mode=signup&next=${next}`} className="btn-ghost">Request access</Link>
+            <Link href={`/sign-in?mode=signup&next=${next}`} className="btn-ghost">Create account</Link>
           </div>
         </>
       )}

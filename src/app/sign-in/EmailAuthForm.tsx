@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth/client";
 import { ForgotPassword, loadSavedReset } from "./ForgotPassword";
@@ -13,6 +12,7 @@ function explain(error: { status?: number; code?: string; message?: string } | n
   if (!error) return "Something went wrong. Please try again.";
   if (error.status === 429) return "Too many attempts. Please wait a minute and try again.";
   const code = error.code ?? "";
+  if (code.includes("SIGNUP_DOMAIN_NOT_ALLOWED")) return error.message || "Please use your UW email address.";
   if (code.includes("INVALID_EMAIL_OR_PASSWORD") || code.includes("INVALID_PASSWORD")) return "That email and password don't match.";
   if (code.includes("USER_ALREADY_EXISTS")) return "An account with that email already exists. Sign in instead.";
   if (code.includes("PASSWORD_TOO_SHORT")) return "That password is too short.";
@@ -22,10 +22,11 @@ function explain(error: { status?: number; code?: string; message?: string } | n
 }
 
 /** `emailReset`: "Forgot password?" emails a link (minutes = link lifetime); otherwise admin-approved reset. */
-export function EmailAuthForm({ next, initialMode, minPassword, maxPassword, emailReset, resetMinutes }: {
+export function EmailAuthForm({ next, initialMode, minPassword, maxPassword, emailReset, resetMinutes, signupHint }: {
   next: string; initialMode: Mode; minPassword: number; maxPassword: number; emailReset: boolean; resetMinutes: number;
+  /** e.g. "@uw.edu": who may create accounts (empty = anyone). */
+  signupHint: string;
 }) {
-  const router = useRouter();
   const [mode, setMode] = useState<Mode>(initialMode);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -45,18 +46,30 @@ export function EmailAuthForm({ next, initialMode, minPassword, maxPassword, ema
     e.preventDefault();
     setBusy(true);
     setError(null);
-    const res =
-      mode === "signup"
-        ? await authClient.signUp.email({ name: name.trim() || email.split("@")[0], email: email.trim(), password })
-        : await authClient.signIn.email({ email: email.trim(), password });
+    // Never leave the button spinning: give up after 25 s with a clear message.
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 25_000);
+    let res: Awaited<ReturnType<typeof authClient.signIn.email>>;
+    try {
+      res =
+        mode === "signup"
+          ? await authClient.signUp.email({ name: name.trim() || email.split("@")[0], email: email.trim(), password }, { signal: controller.signal })
+          : await authClient.signIn.email({ email: email.trim(), password }, { signal: controller.signal });
+    } catch {
+      res = { data: null, error: { status: 0, statusText: "", message: "" } } as typeof res;
+    } finally {
+      clearTimeout(timer);
+    }
     if (res.error) {
-      setError(explain(res.error, mode));
+      setError(controller.signal.aborted || res.error.status === 0
+        ? "The server is taking too long to respond. Please try again in a moment."
+        : explain(res.error, mode));
       setBusy(false);
       return;
     }
-    // Signed in. Approved users land in the app; pending users see the "Access requested" screen.
-    router.push(next);
-    router.refresh();
+    // Signed in. A full page load (not client-side navigation) so the new session is picked up
+    // everywhere and nothing can leave this form stuck on "Creating account…".
+    window.location.assign(next);
   }
 
   if (forgot.open && emailReset) return <ForgotByEmail minutes={resetMinutes} onBack={() => setForgot({ open: false, saved: null })} />;
@@ -86,7 +99,8 @@ export function EmailAuthForm({ next, initialMode, minPassword, maxPassword, ema
         )}
         <div>
           <label className="label" htmlFor="auth-email">Email</label>
-          <input id="auth-email" type="email" className="input" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@uw.edu" />
+          <input id="auth-email" type="email" className="input" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={`you${signupHint ? signupHint.split(" ")[0] : "@uw.edu"}`} />
+          {mode === "signup" && signupHint && <p className="mt-1 text-xs text-subtle">Use your {signupHint} email address.</p>}
         </div>
         <div>
           <label className="label" htmlFor="auth-password">Password</label>
