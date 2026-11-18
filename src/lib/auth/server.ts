@@ -15,6 +15,7 @@ import { headers } from "next/headers";
 import { cache } from "react";
 import { getDb, schema } from "@/lib/db";
 import { authEnvConfigured, googleSignInConfigured } from "./enabled";
+import { authBaseURL, authTrustedOrigins, requestOwnOrigin } from "./origins";
 import { accessConfigFromEnv, decideAccess, type Role, type Status } from "./access";
 import { applyAccessOnSignIn, getInvite } from "@/lib/db/repo";
 import { isEmailEnabled, sendEmail } from "@/lib/email/send";
@@ -33,15 +34,11 @@ export function isGoogleEnabled(): boolean {
   return authEnvConfigured() && googleSignInConfigured();
 }
 
-function baseURL(): string | undefined {
-  if (process.env.BETTER_AUTH_URL) return process.env.BETTER_AUTH_URL;
-  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
-  return undefined;
-}
-
 function createAuth() {
   return betterAuth({
-    baseURL: baseURL(),
+    baseURL: authBaseURL(),
+    // The project's known addresses, plus whichever address this request was sent to (same-site).
+    trustedOrigins: (request) => [...authTrustedOrigins(), requestOwnOrigin(request?.headers)],
     secret: process.env.BETTER_AUTH_SECRET,
     database: drizzleAdapter(getDb(), { provider: "pg", schema }),
     emailAndPassword: {
