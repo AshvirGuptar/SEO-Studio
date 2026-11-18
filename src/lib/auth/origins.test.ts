@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { authBaseURL, authTrustedOrigins } from "./origins";
+import { authBaseURL, authTrustedOrigins, requestOwnOrigin } from "./origins";
 
 const vercel = {
   VERCEL_ENV: "production",
@@ -30,5 +30,19 @@ describe("auth origins", () => {
   it("adds TRUSTED_ORIGINS and skips junk", () => {
     expect(authTrustedOrigins({ TRUSTED_ORIGINS: "https://a.com, b.org ,, ::bad::" })).toEqual(["https://a.com", "https://b.org"]);
     expect(authBaseURL({})).toBeUndefined();
+  });
+});
+
+describe("requestOwnOrigin", () => {
+  const h = (o: Record<string, string>) => new Headers(o);
+  it("uses the forwarded host and protocol", () => {
+    expect(requestOwnOrigin(h({ host: "internal:3000", "x-forwarded-host": "seo-studio-weld.vercel.app", "x-forwarded-proto": "https" }))).toBe("https://seo-studio-weld.vercel.app");
+    expect(requestOwnOrigin(h({ host: "localhost:3000" }))).toBe("http://localhost:3000");
+    expect(requestOwnOrigin(h({ host: "Example.COM" }))).toBe("https://example.com");
+  });
+  it("ignores missing or malformed hosts", () => {
+    expect(requestOwnOrigin(undefined)).toBeNull();
+    expect(requestOwnOrigin(h({}))).toBeNull();
+    expect(requestOwnOrigin(h({ host: "evil.com/path" }))).toBeNull();
   });
 });

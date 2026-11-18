@@ -40,3 +40,16 @@ export function authTrustedOrigins(env: Env = process.env): string[] {
   ].map(toOrigin).filter((o): o is string => Boolean(o));
   return [...new Set(list)];
 }
+
+/**
+ * The address this request was sent to (from Host / X-Forwarded-Host). A browser request whose
+ * Origin equals its own host is same-site, so trusting it can't open a cross-site hole: another
+ * website's requests carry that website's Origin and are still rejected.
+ */
+export function requestOwnOrigin(headers: Pick<Headers, "get"> | undefined): string | null {
+  if (!headers) return null;
+  const host = (headers.get("x-forwarded-host") ?? headers.get("host") ?? "").split(",")[0].trim();
+  if (!host || !/^[a-z0-9.-]+(:\d+)?$/i.test(host)) return null;
+  const proto = (headers.get("x-forwarded-proto") ?? "").split(",")[0].trim().toLowerCase();
+  return `${proto === "http" ? "http" : host.startsWith("localhost") || host.startsWith("127.0.0.1") ? "http" : "https"}://${host.toLowerCase()}`;
+}
