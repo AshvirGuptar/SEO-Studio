@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { accessConfigFromEnv, decideAccess, parseList } from "./access";
+import { accessConfigFromEnv, canSignUp, decideAccess, parseList, signupDomainsLabel } from "./access";
 
-const cfg = accessConfigFromEnv({ ADMIN_EMAILS: "Boss@Acme.com, ops@acme.com", APPROVED_EMAILS: "Prof@uni.edu", AUTO_APPROVE_DOMAINS: "@acme.com,acme.co.uk" });
+const cfg = accessConfigFromEnv({ SIGNUP_DOMAINS: "*", ADMIN_EMAILS: "Boss@Acme.com, ops@acme.com", APPROVED_EMAILS: "Prof@uni.edu", AUTO_APPROVE_DOMAINS: "@acme.com,acme.co.uk" });
 
 describe("access config", () => {
   it("parses comma lists, lowercases, strips @", () => {
     expect(parseList(" A@B.com ,, @c.org ")).toEqual(["a@b.com", "c.org"]);
-    expect(cfg).toEqual({ adminEmails: ["boss@acme.com", "ops@acme.com"], approvedEmails: ["prof@uni.edu"], autoApproveDomains: ["acme.com", "acme.co.uk"] });
+    expect(cfg).toEqual({ signupDomains: [], adminEmails: ["boss@acme.com", "ops@acme.com"], approvedEmails: ["prof@uni.edu"], autoApproveDomains: ["acme.com", "acme.co.uk"] });
   });
 });
 
@@ -44,5 +44,32 @@ describe("decideAccess", () => {
   });
   it("keeps an active user's role", () => {
     expect(decideAccess("x@gmail.com", cfg, { current: { role: "admin", status: "active" } })).toEqual({ role: "admin", status: "active" });
+  });
+});
+
+describe("UW-only sign-up (SIGNUP_DOMAINS)", () => {
+  const uw = accessConfigFromEnv({ ADMIN_EMAILS: "boss@gmail.com", APPROVED_EMAILS: "prof@gmail.com" }); // default: uw.edu
+  it("defaults to uw.edu and lets those addresses in straight away", () => {
+    expect(uw.signupDomains).toEqual(["uw.edu"]);
+    expect(signupDomainsLabel(uw)).toBe("@uw.edu");
+    expect(canSignUp("Student@UW.edu", uw)).toBe(true);
+    expect(decideAccess("student@uw.edu", uw)).toEqual({ role: "member", status: "active" });
+  });
+  it("blocks other domains, including look-alikes, but allows named exceptions", () => {
+    expect(canSignUp("x@gmail.com", uw)).toBe(false);
+    expect(canSignUp("x@cs.uw.edu", uw)).toBe(false);
+    expect(canSignUp("x@uw.edu.evil.com", uw)).toBe(false);
+    expect(canSignUp("x@fakeuw.edu", uw)).toBe(false);
+    expect(canSignUp("boss@gmail.com", uw)).toBe(true);
+    expect(canSignUp("prof@gmail.com", uw)).toBe(true);
+    expect(canSignUp("friend@gmail.com", uw, { invited: true })).toBe(true);
+  });
+  it("still respects a disabled account", () => {
+    expect(decideAccess("student@uw.edu", uw, { current: { role: "member", status: "disabled" } }).status).toBe("disabled");
+  });
+  it('"*" allows anyone (then normal approval applies)', () => {
+    const any = accessConfigFromEnv({ SIGNUP_DOMAINS: "*" });
+    expect(canSignUp("x@gmail.com", any)).toBe(true);
+    expect(decideAccess("x@gmail.com", any).status).toBe("pending");
   });
 });

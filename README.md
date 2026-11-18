@@ -51,6 +51,9 @@ Accounts, per-person Projects & History and Team & access turn on once a databas
 (8+ characters).
 
 Who gets in:
+- **Only `@uw.edu` addresses can create accounts**, and they get in straight away (knowing a UW
+  address is the "key"; emails aren't verified). Change with `SIGNUP_DOMAINS` (comma-separated, or
+  `*` for anyone, who then wait for approval).
 - `ADMIN_EMAILS` addresses are admins and get in straight away.
 - `APPROVED_EMAILS` addresses get in straight away as members (handy for testers).
 - Emails an admin invited (Team & access → Invite) get in straight away as that role.
