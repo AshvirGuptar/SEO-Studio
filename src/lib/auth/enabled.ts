@@ -8,6 +8,14 @@ export function authEnvConfigured(env: Record<string, string | undefined> = proc
   return Boolean((env.DATABASE_URL || env.POSTGRES_URL) && env.BETTER_AUTH_SECRET);
 }
 
+/**
+ * Outgoing email (password-reset links) is ON when SMTP_USER and SMTP_PASSWORD are set (e.g. a Gmail
+ * address + app password). Without it, "Forgot password?" falls back to admin-approved resets.
+ */
+export function emailEnvConfigured(env: Record<string, string | undefined> = process.env): boolean {
+  return Boolean(env.SMTP_USER && env.SMTP_PASSWORD);
+}
+
 /** "Continue with Google" is offered only when a Google OAuth client is configured. */
 export function googleSignInConfigured(env: Record<string, string | undefined> = process.env): boolean {
   return Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { authEnvConfigured, dataEnabled, googleSignInConfigured, isPremiumToolPath, isPublicToolPath, openModeEnabled, PREMIUM_TOOL_PATHS, publicToolsEnabled } from "./enabled";
+import { authEnvConfigured, dataEnabled, emailEnvConfigured, googleSignInConfigured, isPremiumToolPath, isPublicToolPath, openModeEnabled, PREMIUM_TOOL_PATHS, publicToolsEnabled } from "./enabled";
 
 describe("open mode", () => {
   const signIn = { BETTER_AUTH_SECRET: "s", GOOGLE_CLIENT_ID: "i", GOOGLE_CLIENT_SECRET: "c" };
@@ -50,5 +50,13 @@ describe("premium tools", () => {
     expect(isPremiumToolPath("/ai-visibility")).toBe(true);
     expect(isPremiumToolPath("/api/visibility/runs/x/next")).toBe(false);
     expect(isPremiumToolPath("/analyzer")).toBe(false);
+  });
+});
+
+describe("email", () => {
+  it("needs both SMTP_USER and SMTP_PASSWORD", () => {
+    expect(emailEnvConfigured({ SMTP_USER: "a@gmail.com", SMTP_PASSWORD: "x" })).toBe(true);
+    expect(emailEnvConfigured({ SMTP_USER: "a@gmail.com" })).toBe(false);
+    expect(emailEnvConfigured({})).toBe(false);
   });
 });

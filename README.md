@@ -56,8 +56,9 @@ Who gets in:
 - Emails an admin invited (Team & access → Invite) get in straight away as that role.
 - Everyone else sees **Access requested** until an admin approves them on Team & access.
 
-No emails are sent. **Forgot password?** on the sign-in page: the person enters their email and
-gets a 4-character code; the request appears on Team & access with the same code. The admin checks
+**Forgot password?** on the sign-in page emails a one-time reset link (valid 60 minutes) when email
+is configured (see below); other signed-in devices are signed out after the reset. Without email
+settings it falls back to admin approval: the person enters their email and gets a 4-character code; the request appears on Team & access with the same code. The admin checks
 the code with them (text/chat) and clicks **Approve**; the person's page then asks for a new password
 (only on the device that made the request, within 24 hours) and signs them in. Admins can't approve
 their own reset, and each account can request 3 per day. Signed-in users change their password on
@@ -83,6 +84,18 @@ created automatically on the next deploy (`scripts/migrate.mjs` runs before ever
 Optional: "Continue with Google" appears too if `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` are set
 (OAuth client with redirect URI `https://<site>/api/auth/callback/google`, published consent screen).
 With Google on, `AUTO_APPROVE_DOMAINS` (e.g. `uw.edu`) approves Google sign-ins from those domains.
+
+### Email (password-reset links)
+The app sends email through any SMTP account; a Gmail account with an App password is the simplest:
+1. In the Gmail account's Google Account → **Security**, turn on **2-Step Verification**.
+2. Search the Google Account settings for **App passwords**, create one (name it "SEO Studio") and copy
+   the 16-character password.
+3. In Vercel add `SMTP_USER` = the Gmail address and `SMTP_PASSWORD` = the app password (no spaces),
+   then redeploy.
+
+Optional: `SMTP_HOST` (default `smtp.gmail.com`), `SMTP_PORT` (default `465`), `EMAIL_FROM`
+(default `"SEO & GEO Studio" <SMTP_USER>`). Gmail allows about 500 emails a day. Reset requests are
+rate limited (3 per 10 minutes per IP). Proton addresses on `@proton.me` can't send via SMTP.
 
 ## AI features (Claude API)
 AI Visibility uses Claude with web search. Set these in Vercel (Production) and redeploy:
