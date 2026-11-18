@@ -8,6 +8,7 @@ type Role = "admin" | "member";
 type Status = "pending" | "active" | "disabled";
 interface Row { id: string; name: string; email: string; image: string | null; role: Role; status: Status; createdAt: string }
 interface InviteRow { email: string; role: Role; createdAt: string }
+interface ResetRow { id: string; userId: string; name: string; email: string; code: string; createdAt: string }
 
 const STATUS_STYLE: Record<Status, string> = {
   active: "bg-pass/15 text-pass",
@@ -15,13 +16,12 @@ const STATUS_STYLE: Record<Status, string> = {
   disabled: "bg-surface-2 text-subtle",
 };
 
-export function AdminClient({ users, invites, currentUserId, envAdmins }: { users: Row[]; invites: InviteRow[]; currentUserId: string; envAdmins: string[] }) {
+export function AdminClient({ users, invites, resets, currentUserId, envAdmins }: { users: Row[]; invites: InviteRow[]; resets: ResetRow[]; currentUserId: string; envAdmins: string[] }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<Role>("member");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
-  const [reset, setReset] = useState<{ email: string; password: string } | null>(null);
 
   const pending = users.filter((u) => u.status === "pending");
   const others = users.filter((u) => u.status !== "pending");
@@ -40,17 +40,6 @@ export function AdminClient({ users, invites, currentUserId, envAdmins }: { user
   }
   const patch = (u: Row, body: Partial<Pick<Row, "role" | "status">>) => call(u.id, `/api/admin/users/${u.id}`, { method: "PATCH", body: JSON.stringify(body) });
 
-  async function resetPassword(u: Row) {
-    if (!confirm(`Reset ${u.email}'s password? They'll be signed out and need the new temporary password.`)) return;
-    setBusy(u.id);
-    setError(null);
-    const r = await fetch(`/api/admin/users/${u.id}/password`, { method: "POST" });
-    const data = await r.json().catch(() => ({}));
-    setBusy(null);
-    if (!r.ok) return setError(data.error ?? "Couldn't reset the password.");
-    setReset({ email: u.email, password: data.password });
-  }
-
   async function invite(e: React.FormEvent) {
     e.preventDefault();
     if (await call("invite", "/api/admin/invites", { method: "POST", body: JSON.stringify({ email, role }) })) setEmail("");
@@ -59,19 +48,37 @@ export function AdminClient({ users, invites, currentUserId, envAdmins }: { user
   return (
     <div className="mt-6 space-y-6">
       {error && <p className="rounded-lg bg-fail/10 p-3 text-sm text-fail">{error}</p>}
-      {reset && (
-        <div className="card border-accent/40" role="status">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h2 className="font-medium">Temporary password for <span className="break-all">{reset.email}</span></h2>
-              <p className="mt-1 text-sm text-muted">Shown once. Send it to them privately; they should change it on their Account page after signing in.</p>
-            </div>
-            <button className="btn-ghost" onClick={() => setReset(null)}>Done</button>
-          </div>
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <code className="rounded-lg bg-surface-2 px-3 py-2 font-mono text-base tracking-wider break-all">{reset.password}</code>
-            <button className="btn-ghost" onClick={() => navigator.clipboard?.writeText(reset.password)}>Copy</button>
-          </div>
+
+      {resets.length > 0 && (
+        <div className="card border-warn/30">
+          <h2 className="font-medium">Password reset requests ({resets.length})</h2>
+          <p className="mt-1 text-sm text-muted">
+            Before approving, check the code with the person (text or chat): it should match what their screen shows.
+            Once approved, they pick a new password on that same device.
+          </p>
+          <ul className="mt-3 divide-y divide-border">
+            {resets.map((r) => (
+              <li key={r.id} className="flex flex-wrap items-center gap-3 py-3">
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm">{r.name}</div>
+                  <div className="truncate text-xs text-subtle">{r.email}</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-[11px] uppercase tracking-wide text-subtle">Code</div>
+                  <code className="font-mono text-lg font-semibold tracking-[0.2em]">{r.code}</code>
+                </div>
+                <span className="text-xs text-subtle">requested <Time iso={r.createdAt} relative /></span>
+                <div className="flex gap-2">
+                  {r.userId === currentUserId ? (
+                    <span className="text-xs text-muted">Another admin must approve your own reset</span>
+                  ) : (
+                    <button className="btn" disabled={busy === r.id} onClick={() => call(r.id, `/api/admin/password-resets/${r.id}`, { method: "PATCH", body: JSON.stringify({ approve: true }) })}>Approve</button>
+                  )}
+                  <button className="btn-ghost" disabled={busy === r.id} onClick={() => call(r.id, `/api/admin/password-resets/${r.id}`, { method: "PATCH", body: JSON.stringify({ approve: false }) })}>Deny</button>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
@@ -127,7 +134,7 @@ export function AdminClient({ users, invites, currentUserId, envAdmins }: { user
 
       <div className="card overflow-x-auto p-0">
         <h2 className="p-4 font-medium">People ({others.length})</h2>
-        <table className="w-full min-w-[720px] text-sm">
+        <table className="w-full min-w-[640px] text-sm">
           <thead className="border-y border-border text-left text-[11px] uppercase tracking-wide text-subtle">
             <tr><th className="p-3">Person</th><th className="p-3">Status</th><th className="p-3">Role</th><th className="p-3">Joined</th><th className="p-3" /></tr>
           </thead>
@@ -154,7 +161,6 @@ export function AdminClient({ users, invites, currentUserId, envAdmins }: { user
                   <td className="p-3 text-right">
                     {!locked && (
                       <div className="flex justify-end gap-1">
-                        <button className="min-h-8 rounded-lg px-2 text-xs text-subtle hover:bg-surface-2 hover:text-foreground" disabled={busy === u.id} onClick={() => resetPassword(u)}>Reset password</button>
                         {u.status === "active" ? (
                           <button className="min-h-8 rounded-lg px-2 text-xs text-subtle hover:bg-surface-2 hover:text-fail" onClick={() => confirm(`Remove ${u.email}'s access?`) && patch(u, { status: "disabled" })}>Disable</button>
                         ) : (

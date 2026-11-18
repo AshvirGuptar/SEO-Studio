@@ -56,9 +56,12 @@ Who gets in:
 - Emails an admin invited (Team & access → Invite) get in straight away as that role.
 - Everyone else sees **Access requested** until an admin approves them on Team & access.
 
-No emails are sent. Forgotten password: an admin clicks **Reset password** on Team & access, which
-shows a one-time temporary password and signs that person out everywhere; they then change it on
-their **Account** page. Sign-in, sign-up and password changes are rate limited (5 per minute per IP
+No emails are sent. **Forgot password?** on the sign-in page: the person enters their email and
+gets a 4-character code; the request appears on Team & access with the same code. The admin checks
+the code with them (text/chat) and clicks **Approve**; the person's page then asks for a new password
+(only on the device that made the request, within 24 hours) and signs them in. Admins can't approve
+their own reset, and each account can request 3 per day. Signed-in users change their password on
+the **Account** page. Sign-in, sign-up and password changes are rate limited (5 per minute per IP
 for sign-in, 5 per 10 minutes for sign-up). Because addresses aren't verified, admins should create
 their accounts right after the first deploy so nobody else can register those emails first.
 

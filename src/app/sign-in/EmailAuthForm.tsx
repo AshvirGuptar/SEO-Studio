@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth/client";
+import { ForgotPassword, loadSavedReset } from "./ForgotPassword";
 
 type Mode = "signin" | "signup";
 
@@ -28,6 +29,13 @@ export function EmailAuthForm({ next, initialMode, minPassword, maxPassword }: {
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [forgot, setForgot] = useState<{ open: boolean; saved: ReturnType<typeof loadSavedReset> }>({ open: false, saved: null });
+
+  // Came back to finish a reset on this device: reopen it.
+  useEffect(() => {
+    const saved = loadSavedReset();
+    if (saved) setTimeout(() => setForgot({ open: true, saved }), 0);
+  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -45,6 +53,11 @@ export function EmailAuthForm({ next, initialMode, minPassword, maxPassword }: {
     // Signed in. Approved users land in the app; pending users see the "Access requested" screen.
     router.push(next);
     router.refresh();
+  }
+
+  if (forgot.open) {
+    return <ForgotPassword next={next} minPassword={minPassword} maxPassword={maxPassword} initial={forgot.saved}
+      onBack={() => setForgot({ open: false, saved: null })} />;
   }
 
   return (
@@ -87,7 +100,7 @@ export function EmailAuthForm({ next, initialMode, minPassword, maxPassword }: {
           {busy ? (mode === "signup" ? "Creating account…" : "Signing in…") : mode === "signup" ? "Create account" : "Sign in"}
         </button>
         {mode === "signin" && (
-          <p className="text-center text-xs text-subtle">Forgot your password? Ask an admin to reset it.</p>
+          <button type="button" className="mx-auto block min-h-8 text-xs text-subtle hover:text-foreground" onClick={() => setForgot({ open: true, saved: null })}>Forgot password?</button>
         )}
       </form>
     </div>
