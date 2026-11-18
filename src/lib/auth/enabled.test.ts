@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dataEnabled, isPublicToolPath, openModeEnabled, publicToolsEnabled } from "./enabled";
+import { authEnvConfigured, dataEnabled, googleSignInConfigured, isPublicToolPath, openModeEnabled, publicToolsEnabled } from "./enabled";
 
 describe("open mode", () => {
   const signIn = { BETTER_AUTH_SECRET: "s", GOOGLE_CLIENT_ID: "i", GOOGLE_CLIENT_SECRET: "c" };
@@ -26,5 +26,16 @@ describe("demo mode", () => {
   it("opens only the tools, never saved data or admin", () => {
     for (const p of ["/", "/analyzer", "/audit", "/api/analyze", "/api/audit/page", "/guide"]) expect(isPublicToolPath(p)).toBe(true);
     for (const p of ["/projects", "/projects/x", "/admin", "/api/projects", "/api/admin/users", "/api/audits/x", "/analyzerx"]) expect(isPublicToolPath(p)).toBe(false);
+  });
+});
+
+describe("accounts", () => {
+  it("turn on with a database and BETTER_AUTH_SECRET; Google is optional", () => {
+    expect(authEnvConfigured({ DATABASE_URL: "postgres://x", BETTER_AUTH_SECRET: "s" })).toBe(true);
+    expect(authEnvConfigured({ DATABASE_URL: "postgres://x" })).toBe(false);
+    expect(authEnvConfigured({ BETTER_AUTH_SECRET: "s" })).toBe(false);
+    expect(openModeEnabled({ DATABASE_URL: "postgres://x", BETTER_AUTH_SECRET: "s" })).toBe(false);
+    expect(googleSignInConfigured({ GOOGLE_CLIENT_ID: "i", GOOGLE_CLIENT_SECRET: "c" })).toBe(true);
+    expect(googleSignInConfigured({ GOOGLE_CLIENT_ID: "i" })).toBe(false);
   });
 });

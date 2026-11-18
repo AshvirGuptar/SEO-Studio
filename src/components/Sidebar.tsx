@@ -115,6 +115,7 @@ function NavLinks({ authEnabled, dataEnabled, user, path }: Props & { path: stri
       )}
       <span className="label mt-6 px-3">Help</span>
       {HELP_LINKS.map((l) => <NavLink key={l.href} href={l.href} name={l.name} active={path.startsWith(l.href)} />)}
+      {user && authEnabled && <NavLink href="/account" name="Account" active={path.startsWith("/account")} />}
       {user?.role === "admin" && <NavLink href="/admin" name="Team & access" active={path.startsWith("/admin")} />}
 
       {!user && authEnabled && (

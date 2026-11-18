@@ -75,16 +75,16 @@ for every AI feature that follows.
   pages and products with expected outcomes) is slow, careful work, and Week 3 depends on it.
 
 **Deliverables**
-- [ ] **Sign-in live in production** (deferred 2026-11-17; the app runs in open mode with just a
-      database until then, see README): Google OAuth client; `BETTER_AUTH_SECRET`, `GOOGLE_*` and
-      `ADMIN_EMAILS` set in Vercel; first migration applied to Neon; sign-in, invite, approve and
-      disable verified with real accounts.
+- [~] **Sign-in live in production:** Google OAuth needed a verified domain, so on 2026-11-17 we
+      switched to email + password accounts with admin approval (Google optional). Code done and
+      tested locally; still to do: set `BETTER_AUTH_SECRET` and `ADMIN_EMAILS` in Vercel, admins
+      create their accounts, verify sign-up, invite, approve, reset and disable with real accounts.
 - [ ] **Projects & History in real use:** save page and site audits; check the history chart and
       "what changed" on real data; add pagination for long histories; rename and delete projects.
 - [ ] **Per-project access:** a read-only **client** role so outside users only see their own
       project. Required before the client pilot in Week 4.
 - [ ] **Abuse controls:** per-user and per-IP rate limits on the tool APIs; request size caps;
-      an audit log of admin actions.
+      an audit log of admin actions. (Sign-in, sign-up and password-change rate limits are done.)
 - [ ] **Claude API foundation** (`src/lib/ai/`, server-only):
   - [ ] Anthropic TypeScript SDK; `ANTHROPIC_API_KEY` stored only in Vercel. The default model is
         Claude Opus 5.5 (`claude-opus-5-5`, $4 / $20 per million input/output tokens).

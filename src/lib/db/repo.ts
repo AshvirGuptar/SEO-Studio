@@ -41,7 +41,7 @@ export async function applyAccessOnSignIn(userId: string): Promise<User | undefi
   const u = await getUser(userId);
   if (!u) return undefined;
   const inv = await getInvite(u.email);
-  const next = decideAccess(u.email, accessConfigFromEnv(), { current: { role: u.role, status: u.status }, invite: inv });
+  const next = decideAccess(u.email, accessConfigFromEnv(), { current: { role: u.role, status: u.status }, invite: inv, emailVerified: u.emailVerified });
   if (inv && next.status === "active") await deleteInvite(inv.email);
   if (next.role === u.role && next.status === u.status) return u;
   return updateUserAccess(u.id, next);

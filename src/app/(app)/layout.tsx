@@ -1,9 +1,10 @@
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { SessionProvider, type SessionUser } from "@/components/session";
 import { AccessGate } from "@/components/AccessGate";
 import { getCurrentUser, isAuthEnabled } from "@/lib/auth/server";
-import { dataEnabled, openModeEnabled } from "@/lib/auth/enabled";
+import { dataEnabled, openModeEnabled, publicToolsEnabled } from "@/lib/auth/enabled";
 import { openModeUser } from "@/lib/auth/open-mode";
 
 /**
@@ -51,5 +52,8 @@ async function Gate({ authEnabled, children }: { authEnabled: boolean; children:
   if (authEnabled && email && status !== "active") {
     return <AccessGate status={status === "disabled" ? "disabled" : "pending"} email={email} />;
   }
+  // The proxy only checks that a session cookie exists. If that session was revoked (password reset,
+  // expired), send the visitor to sign in instead of showing a half-signed-out app.
+  if (authEnabled && !user && !publicToolsEnabled()) redirect("/sign-in");
   return <SessionProvider value={{ authEnabled, user }}>{children}</SessionProvider>;
 }

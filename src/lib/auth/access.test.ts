@@ -15,9 +15,16 @@ describe("decideAccess", () => {
     expect(decideAccess("BOSS@acme.com", cfg)).toEqual({ role: "admin", status: "active" });
     expect(decideAccess("boss@acme.com", cfg, { current: { role: "member", status: "disabled" } })).toEqual({ role: "admin", status: "active" });
   });
-  it("auto-approves company domains as members", () => {
-    expect(decideAccess("jo@acme.com", cfg)).toEqual({ role: "member", status: "active" });
-    expect(decideAccess("jo@sub.acme.com", cfg).status).toBe("pending");
+  it("auto-approves company domains as members only when the email is verified", () => {
+    expect(decideAccess("jo@acme.com", cfg, { emailVerified: true })).toEqual({ role: "member", status: "active" });
+    expect(decideAccess("jo@sub.acme.com", cfg, { emailVerified: true }).status).toBe("pending");
+    // Email + password sign-ups aren't verified: anyone could type an @acme.com address.
+    expect(decideAccess("jo@acme.com", cfg)).toEqual({ role: "member", status: "pending" });
+    expect(decideAccess("jo@acme.com", cfg, { emailVerified: false }).status).toBe("pending");
+  });
+  it("still lets env admins and invited people in without verification", () => {
+    expect(decideAccess("boss@acme.com", cfg, { emailVerified: false })).toEqual({ role: "admin", status: "active" });
+    expect(decideAccess("x@gmail.com", cfg, { emailVerified: false, invite: { role: "member" } }).status).toBe("active");
   });
   it("activates invited outsiders with the invited role", () => {
     expect(decideAccess("freelancer@gmail.com", cfg, { invite: { role: "admin" } })).toEqual({ role: "admin", status: "active" });

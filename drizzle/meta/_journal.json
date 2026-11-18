@@ -15,6 +15,13 @@
       "when": 1794608794642,
       "tag": "0001_ai_visibility",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794965795793,
+      "tag": "0002_rate_limit",
+      "breakpoints": true
     }
   ]
 }

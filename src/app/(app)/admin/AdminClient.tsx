@@ -21,6 +21,7 @@ export function AdminClient({ users, invites, currentUserId, envAdmins }: { user
   const [role, setRole] = useState<Role>("member");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [reset, setReset] = useState<{ email: string; password: string } | null>(null);
 
   const pending = users.filter((u) => u.status === "pending");
   const others = users.filter((u) => u.status !== "pending");
@@ -39,6 +40,17 @@ export function AdminClient({ users, invites, currentUserId, envAdmins }: { user
   }
   const patch = (u: Row, body: Partial<Pick<Row, "role" | "status">>) => call(u.id, `/api/admin/users/${u.id}`, { method: "PATCH", body: JSON.stringify(body) });
 
+  async function resetPassword(u: Row) {
+    if (!confirm(`Reset ${u.email}'s password? They'll be signed out and need the new temporary password.`)) return;
+    setBusy(u.id);
+    setError(null);
+    const r = await fetch(`/api/admin/users/${u.id}/password`, { method: "POST" });
+    const data = await r.json().catch(() => ({}));
+    setBusy(null);
+    if (!r.ok) return setError(data.error ?? "Couldn't reset the password.");
+    setReset({ email: u.email, password: data.password });
+  }
+
   async function invite(e: React.FormEvent) {
     e.preventDefault();
     if (await call("invite", "/api/admin/invites", { method: "POST", body: JSON.stringify({ email, role }) })) setEmail("");
@@ -47,6 +59,21 @@ export function AdminClient({ users, invites, currentUserId, envAdmins }: { user
   return (
     <div className="mt-6 space-y-6">
       {error && <p className="rounded-lg bg-fail/10 p-3 text-sm text-fail">{error}</p>}
+      {reset && (
+        <div className="card border-accent/40" role="status">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="font-medium">Temporary password for <span className="break-all">{reset.email}</span></h2>
+              <p className="mt-1 text-sm text-muted">Shown once. Send it to them privately; they should change it on their Account page after signing in.</p>
+            </div>
+            <button className="btn-ghost" onClick={() => setReset(null)}>Done</button>
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <code className="rounded-lg bg-surface-2 px-3 py-2 font-mono text-base tracking-wider break-all">{reset.password}</code>
+            <button className="btn-ghost" onClick={() => navigator.clipboard?.writeText(reset.password)}>Copy</button>
+          </div>
+        </div>
+      )}
 
       {pending.length > 0 && (
         <div className="card border-warn/30">
@@ -79,7 +106,7 @@ export function AdminClient({ users, invites, currentUserId, envAdmins }: { user
           </select>
         </div>
         <button className="btn" disabled={busy === "invite"}>Invite</button>
-        <p className="w-full text-xs text-subtle">They sign in with Google using that email address and get in straight away. No email is sent, so let them know.</p>
+        <p className="w-full text-xs text-subtle">They create an account with that email address and get in straight away. No email is sent, so let them know.</p>
       </form>
 
       {invites.length > 0 && (
@@ -100,7 +127,7 @@ export function AdminClient({ users, invites, currentUserId, envAdmins }: { user
 
       <div className="card overflow-x-auto p-0">
         <h2 className="p-4 font-medium">People ({others.length})</h2>
-        <table className="w-full min-w-[640px] text-sm">
+        <table className="w-full min-w-[720px] text-sm">
           <thead className="border-y border-border text-left text-[11px] uppercase tracking-wide text-subtle">
             <tr><th className="p-3">Person</th><th className="p-3">Status</th><th className="p-3">Role</th><th className="p-3">Joined</th><th className="p-3" /></tr>
           </thead>
@@ -125,11 +152,16 @@ export function AdminClient({ users, invites, currentUserId, envAdmins }: { user
                   </td>
                   <td className="p-3 text-xs text-muted"><Time iso={u.createdAt} relative /></td>
                   <td className="p-3 text-right">
-                    {!locked && (u.status === "active" ? (
-                      <button className="text-xs text-subtle hover:text-fail" onClick={() => confirm(`Remove ${u.email}'s access?`) && patch(u, { status: "disabled" })}>Disable</button>
-                    ) : (
-                      <button className="text-xs text-subtle hover:text-pass" onClick={() => patch(u, { status: "active" })}>Re-enable</button>
-                    ))}
+                    {!locked && (
+                      <div className="flex justify-end gap-1">
+                        <button className="min-h-8 rounded-lg px-2 text-xs text-subtle hover:bg-surface-2 hover:text-foreground" disabled={busy === u.id} onClick={() => resetPassword(u)}>Reset password</button>
+                        {u.status === "active" ? (
+                          <button className="min-h-8 rounded-lg px-2 text-xs text-subtle hover:bg-surface-2 hover:text-fail" onClick={() => confirm(`Remove ${u.email}'s access?`) && patch(u, { status: "disabled" })}>Disable</button>
+                        ) : (
+                          <button className="min-h-8 rounded-lg px-2 text-xs text-subtle hover:bg-surface-2 hover:text-pass" onClick={() => patch(u, { status: "active" })}>Re-enable</button>
+                        )}
+                      </div>
+                    )}
                   </td>
                 </tr>
               );

@@ -10,7 +10,7 @@ const CRON_PREFIX = "/api/cron/";
 
 /**
  * 1. Optional site-wide password (HTTP Basic Auth) when SITE_PASSWORD is set.
- * 2. When Google sign-in is configured, signed-out visitors are sent to /sign-in (API calls get 401).
+ * 2. When accounts are configured, signed-out visitors are sent to /sign-in (API calls get 401).
  *    This is an optimistic cookie check; pages and API routes verify the session for real.
  */
 export function proxy(request: NextRequest) {

@@ -11,7 +11,7 @@ export interface SessionUser {
 }
 
 interface SessionValue {
-  /** True when Google sign-in + database are configured. Saving features need this. */
+  /** True when accounts (database + BETTER_AUTH_SECRET) are configured. */
   authEnabled: boolean;
   user: SessionUser | null;
 }

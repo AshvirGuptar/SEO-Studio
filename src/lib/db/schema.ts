@@ -3,7 +3,7 @@
  * The first four tables are required by Better Auth (names and columns must match its expectations).
  * After changing this file run `npm run db:generate` and commit the new migration in /drizzle.
  */
-import { boolean, index, jsonb, pgTable, integer, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { boolean, index, jsonb, pgTable, integer, text, timestamp, uniqueIndex, bigint } from "drizzle-orm/pg-core";
 import type { BrandHit, Source, TrackedBrand } from "../seo/visibility";
 
 // ---------- Better Auth ----------
@@ -54,6 +54,14 @@ export const verification = pgTable("verification", {
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+/** Better Auth rate-limit counters (rateLimit.storage = "database"). */
+export const rateLimit = pgTable("rate_limit", {
+  id: text("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  count: integer("count").notNull(),
+  lastRequest: bigint("last_request", { mode: "number" }).notNull(),
 });
 
 // ---------- SEO & GEO Studio ----------

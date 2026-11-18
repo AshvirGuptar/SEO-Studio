@@ -12,7 +12,7 @@ export function AccessGate({ status, email }: { status: "pending" | "disabled"; 
             <h1 className="mt-4 text-xl font-semibold">Access requested</h1>
             <p className="mt-2 text-sm text-muted">
               You&apos;re signed in as <b className="text-foreground">{email}</b>. An admin needs to approve your access.
-              You&apos;ll get in automatically next time you sign in after they do.
+              Once they do, refresh this page to get in.
             </p>
           </>
         ) : (
@@ -23,7 +23,10 @@ export function AccessGate({ status, email }: { status: "pending" | "disabled"; 
             </p>
           </>
         )}
-        <div className="mt-6 flex justify-center"><SignOutButton /></div>
+        <div className="mt-6 flex justify-center gap-2">
+          {status === "pending" && <a href="" className="btn">Refresh</a>}
+          <SignOutButton />
+        </div>
       </div>
     </div>
   );
