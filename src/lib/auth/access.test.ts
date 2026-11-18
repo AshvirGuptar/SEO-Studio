@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { accessConfigFromEnv, canSignUp, decideAccess, parseList, signupDomainsLabel } from "./access";
+import { accessConfigFromEnv, canSignUp, decideAccess, parseList, signupLabel } from "./access";
 
 const cfg = accessConfigFromEnv({ SIGNUP_DOMAINS: "*", ADMIN_EMAILS: "Boss@Acme.com, ops@acme.com", APPROVED_EMAILS: "Prof@uni.edu", AUTO_APPROVE_DOMAINS: "@acme.com,acme.co.uk" });
 
@@ -51,7 +51,9 @@ describe("UW-only sign-up (SIGNUP_DOMAINS)", () => {
   const uw = accessConfigFromEnv({ ADMIN_EMAILS: "boss@gmail.com", APPROVED_EMAILS: "prof@gmail.com" }); // default: uw.edu
   it("defaults to uw.edu and lets those addresses in straight away", () => {
     expect(uw.signupDomains).toEqual(["uw.edu"]);
-    expect(signupDomainsLabel(uw)).toBe("@uw.edu");
+    expect(signupLabel(uw, {})).toBe("UW"); // the UI never prints the domain
+    expect(signupLabel(uw, { SIGNUP_LABEL: "Husky" })).toBe("Husky");
+    expect(signupLabel(accessConfigFromEnv({ SIGNUP_DOMAINS: "*" }), {})).toBe("");
     expect(canSignUp("Student@UW.edu", uw)).toBe(true);
     expect(decideAccess("student@uw.edu", uw)).toEqual({ role: "member", status: "active" });
   });
