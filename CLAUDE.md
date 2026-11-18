@@ -35,7 +35,7 @@ bottom of this file for history.
 
 ## Stack
 Next.js 16 (App Router, `src/` dir, `cacheComponents` on) · React 19 · TypeScript (strict) · Tailwind v4
-· cheerio (HTML parsing) · zod (request validation) · Drizzle ORM + Neon Postgres · Better Auth (Google)
+· cheerio (HTML parsing) · zod (request validation) · Drizzle ORM + Neon Postgres · Better Auth (UW email + password)
 · Vitest (+ PGlite in-memory Postgres for DB tests). Next 16 differs from older versions — check
 `node_modules/next/dist/docs/` before using unfamiliar Next APIs.
 

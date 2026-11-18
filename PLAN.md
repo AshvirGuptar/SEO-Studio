@@ -44,8 +44,8 @@ AI API or user accounts:
       (intent, page mapping, gaps, cannibalization), Guide.
 - [x] **Accounts and saved data, code complete but not switched on:** Neon Postgres + Drizzle
       migrations, Google sign-in (Better Auth), invite-only access with admin/member roles, Projects
-      & History (charts, "what changed" between audits). It's off until Google OAuth keys are set in
-      Vercel.
+      & History (charts, "what changed" between audits). It was off until Google OAuth keys were set
+      in Vercel. (Week 2 replaced Google with UW email accounts; see Week 2 and the Decisions log.)
 - [x] **Quality:** phone/tablet pass (0px overflow on 40 page/device combinations), SSRF-safe
       fetching, demo mode (`PUBLIC_TOOLS`), signed-in end-to-end test script.
 - [x] **Placeholders for the next features:** GEO Optimization and AI Visibility appear as
@@ -64,27 +64,36 @@ dependency order.
 for every AI feature that follows.
 
 **Why this takes a full week**
-- Production sign-in involves outside systems, each with its own setup: a Google Cloud OAuth
-  client with a published consent screen, environment variables in Vercel, running the first
-  migration against the real Neon database, and verifying the admin/invite/approval flows with real
-  Google accounts. None of this can be tested from the dev sandbox, so it needs careful manual
-  checks.
+- Production sign-in involves outside systems, each with its own setup: environment variables in
+  Vercel, running the first migrations against the real Neon database, an email account for
+  password resets, and verifying the sign-up and admin flows with real accounts. None of this can be
+  tested from the dev sandbox, so it needs careful manual checks. (We first planned Google sign-in,
+  but publishing a Google OAuth app requires a verified domain, privacy policy and terms pages, so
+  we switched to UW email accounts; see the Decisions log.)
 - Opening sign-in to outside users makes the app a target, so the API needs rate limiting and abuse
   controls *before* we attach a paid AI key. An open AI endpoint spends real money.
 - AI output quality has to be **measured**, not eyeballed. Building the evaluation set (realistic
   pages and products with expected outcomes) is slow, careful work, and Week 3 depends on it.
 
 **Deliverables**
-- [~] **Sign-in live in production:** Google OAuth needed a verified domain, so on 2026-11-17 we
-      switched to email + password accounts with admin approval (Google optional). Code done and
-      tested locally; still to do: set `BETTER_AUTH_SECRET` and `ADMIN_EMAILS` in Vercel, admins
-      create their accounts, verify sign-up, invite, approve, reset and disable with real accounts.
+- [x] **Sign-in live in production (UW email accounts, 2026-11-17):** email + password accounts
+      that only **@uw.edu** addresses can create; they get in straight away, and the screens say
+      "your UW email" without printing the domain (`SIGNUP_DOMAINS`, default `uw.edu`). Admins
+      (`ADMIN_EMAILS`), named testers such as our professors (`APPROVED_EMAILS`) and invited people
+      can use other addresses. Team & access for roles, invites and disabling accounts; an Account
+      page to change your password; "Forgot password?" emails a one-hour reset link from the app's
+      Gmail account, with an admin-approved code reset as a fallback when email isn't configured.
+      Google sign-in stays in the code as an optional extra but isn't used.
+- [x] **Free vs Premium tools:** the free analysis tools work without an account; tools that use
+      the Claude API (AI Visibility, and GEO Optimization when it ships) are marked Premium with a
+      gold crown and need a signed-in UW account, so visitors can't spend our API credits.
 - [ ] **Projects & History in real use:** save page and site audits; check the history chart and
       "what changed" on real data; add pagination for long histories; rename and delete projects.
 - [ ] **Per-project access:** a read-only **client** role so outside users only see their own
       project. Required before the client pilot in Week 4.
 - [ ] **Abuse controls:** per-user and per-IP rate limits on the tool APIs; request size caps;
-      an audit log of admin actions. (Sign-in, sign-up and password-change rate limits are done.)
+      an audit log of admin actions. (Done: rate limits on sign-in, sign-up, password changes and
+      password-reset requests; premium APIs require a signed-in account.)
 - [ ] **Claude API foundation** (`src/lib/ai/`, server-only):
   - [ ] Anthropic TypeScript SDK; `ANTHROPIC_API_KEY` stored only in Vercel. The default model is
         Claude Opus 5.5 (`claude-opus-5-5`, $4 / $20 per million input/output tokens).
@@ -167,8 +176,9 @@ brand, and reorganize the UI around a client's work. The app should be demo-read
   rerunning the device sweep.
 
 **Deliverables**
-- [~] **AI Visibility v1** (the locked tab becomes live; code complete, needs `ANTHROPIC_API_KEY`,
-      `CRON_SECRET` and sign-in in production, then a run on a pilot brand):
+- [~] **AI Visibility v1** (live behind UW sign-in as a Premium tool; verified end to end against a
+      fake Claude server, report redesigned with cited sites, a question-by-brand grid and "biggest
+      openings"; still to do: one real run on a pilot brand, and `CRON_SECRET` for weekly runs):
   - [x] A prompt set per project (for example "best graphics card for 1440p"), with tracked brands
         and competitors.
   - [x] Runs record whether the brand is mentioned, whether its domain is cited, and the source
@@ -234,7 +244,7 @@ portfolio is submitted.
 
 | Workstream | Weeks | Est. hours | Why it can't be rushed |
 | --- | --- | --- | --- |
-| Production sign-in, client role, abuse controls | 2 | 14–18 | External setup (Google, Vercel, Neon) plus manual verification with real accounts |
+| Production sign-in, client role, abuse controls | 2 | 14–18 | External setup (Vercel, Neon, an email account for resets) plus manual verification with real accounts |
 | Claude API foundation + cost guardrails | 2 | 10–14 | Streaming, refusals, rate limits and budgets must be right before spending money |
 | Evaluation set + evaluation runs | 2–3 | 12–16 | Realistic data and human review; every prompt change is measured against it |
 | GEO Optimization (rewrite, FAQ, schema, AI access kit) | 3 | 18–24 | Iterative prompting, fact preservation, valid markup |
@@ -272,7 +282,8 @@ Each works on their own branch, merges through PRs with CI, and adds a Developme
 | API costs run away | Per-user daily caps, usage logging, budget alerts, prompt caching, cost estimate before AI Visibility runs |
 | Pilot users are slow or unavailable | Recruit early (Week 3), keep the internal team as a fallback pilot, use the "Example PC" demo store |
 | SEO/AI results lag behind changes | Measure on-page score changes immediately; treat citation and ranking changes as longer-term evidence and say so honestly |
-| Google OAuth or Vercel setup blocks sign-in | Code already works locally and in tests; demo mode keeps tools usable; time is set aside in Week 2 |
+| Sign-in setup is blocked by an outside service | Happened with Google OAuth (needed a verified domain); we switched to UW email accounts the same day. Free tools never need sign-in |
+| UW email addresses aren't verified, so anyone who types one can sign up | Deliberately simple for now: AI spending has per-person daily and monthly caps, admins can disable accounts, and email verification at sign-up is in the backlog now that the app can send email |
 | Live demo fails on Dec 7 | Recorded demo video, demo mode, prepared demo account |
 | Scope creep | Backlog below; anything not in Weeks 2–5 waits until after v1.0 |
 
@@ -282,6 +293,7 @@ Each works on their own branch, merges through PRs with CI, and adds a Developme
 
 These plug into the Week 2 tool registry; ordering will follow pilot feedback.
 
+- [ ] Email verification at sign-up (the app can already send email for password resets)
 - [ ] Google Search Console + GA4 integration (real clicks, impressions, rankings)
 - [ ] Core Web Vitals via the PageSpeed Insights API
 - [ ] Internal-link suggestions and competitor page comparison
@@ -296,7 +308,11 @@ These plug into the Week 2 tool registry; ordering will follow pilot feedback.
 ## Decisions log
 
 - **Hosting:** Vercel (deploys from `main`, PR previews). **Database:** Neon Postgres via Drizzle.
-  **Sign-in:** Better Auth + Google, invite-only, so outside users are supported.
+  **Sign-in:** Better Auth. First planned with Google, invite-only. On 2026-11-17 we switched to
+  email + password accounts limited to @uw.edu addresses (approved instantly), because publishing
+  Google OAuth needed a verified domain we don't have. Admins, named testers and invited people can
+  use other addresses; password resets are emailed from the app's Gmail account.
+- **Free vs Premium:** non-AI tools are public; AI tools need a UW account to protect the API budget.
 - **AI provider:** Claude through the Anthropic SDK, server-side only; default model Claude Opus 5.5.
   Every AI output is re-scored by our deterministic engine.
 - **GEO split:** the Page Analyzer and Site Audit *diagnose*, GEO Optimization *fixes*, and AI
