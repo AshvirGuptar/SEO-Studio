@@ -9,7 +9,7 @@ import { formatUsd } from "@/lib/ai/pricing";
 import type { SerializedRun } from "@/lib/ai/visibility-runner";
 import type { BudgetStatus } from "@/lib/ai/budget";
 import { scoreColor } from "@/components/ScoreRing";
-import { ScoreChart } from "@/components/ScoreChart";
+import { VisibilityReport } from "./VisibilityReport";
 import { StartOverButton } from "@/components/ResultActions";
 import { Time } from "@/components/Time";
 import { useSession } from "@/components/session";
@@ -54,7 +54,6 @@ function formFromSetup(p: Payload): Form {
   };
 }
 
-const pct = (x: number) => `${Math.round(x * 100)}%`;
 
 async function api<T>(url: string, init?: RequestInit): Promise<T> {
   const r = await fetch(url, { ...init, headers: { "content-type": "application/json", ...init?.headers } });
@@ -73,6 +72,8 @@ export function VisibilityClient({ projects, initialProjectId, aiEnabled, model,
   const [saving, setSaving] = useState(false);
   const [driving, setDriving] = useState<string | null>(null);
   const [viewRunId, setViewRunId] = useState<string | null>(null);
+  /** null = automatic: open until the setup is saved and has results, then collapsed. */
+  const [setupOpen, setSetupOpen] = useState<boolean | null>(null);
   const stopRef = useRef(false);
 
   const load = useCallback(async (id: string) => {
@@ -116,6 +117,7 @@ export function VisibilityClient({ projects, initialProjectId, aiEnabled, model,
     setError(null);
     setNotice(null);
     setViewRunId(null);
+    setSetupOpen(null);
     setProjectId(id);
   }
 
@@ -214,13 +216,48 @@ export function VisibilityClient({ projects, initialProjectId, aiEnabled, model,
         !error && <div className="h-40 animate-pulse rounded-2xl bg-surface/60" />
       ) : (
         <>
+          {/* ---------- run ---------- */}
+          <section className="card flex flex-wrap items-center justify-between gap-4">
+            <div className="text-sm">
+              <div className="font-medium">Run {parsed.prompts.length} prompt{parsed.prompts.length === 1 ? "" : "s"} with Claude + web search</div>
+              <div className="mt-1 text-muted">
+                Estimated cost {formatUsd(estimate.lowMicros)}–{formatUsd(estimate.highMicros)} on {model}, up to {maxSearches} web search{maxSearches === 1 ? "" : "es"} per question.
+                {budget && <> You&apos;ve used {formatUsd(budget.spentTodayMicros)} of your {formatUsd(budget.dailyUserMicros)} daily AI limit.</>}
+              </div>
+              {budget && !budget.ok && <div className="mt-1 text-fail">{budget.reason}</div>}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {active && !driving && active.trigger === "manual" && (
+                <button className="btn-ghost" onClick={() => drive(active.id)} disabled={!aiEnabled}>Continue run</button>
+              )}
+              {active && <button className="btn-ghost" onClick={() => stop(active.id)}>Stop</button>}
+              <button className="btn" onClick={start} disabled={!canRun}
+                title={!aiEnabled ? "Needs ANTHROPIC_API_KEY" : !saved ? "Save the setup first" : undefined}>
+                {driving ? "Running…" : "Run now"}
+              </button>
+            </div>
+          </section>
+
           {/* ---------- setup ---------- */}
+          {!(setupOpen ?? (!data.setup || runs.length === 0 || !saved)) ? (
+            <section className="card flex flex-wrap items-center justify-between gap-3">
+              <div className="min-w-0 text-sm">
+                <h2 className="font-medium">Questions and brands</h2>
+                <p className="mt-1 text-muted">
+                  {parsed.prompts.length} question{parsed.prompts.length === 1 ? "" : "s"} · tracking {parsed.own?.name ?? "your brand"} vs{" "}
+                  {parsed.brands.length - 1} competitor{parsed.brands.length - 1 === 1 ? "" : "s"} · {form.schedule === "weekly" ? "re-runs weekly" : "manual runs"}
+                </p>
+              </div>
+              <button type="button" className="btn-ghost" onClick={() => setSetupOpen(true)}>Edit setup</button>
+            </section>
+          ) : (
           <section className="card space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="font-medium">Prompts and brands</h2>
+              <h2 className="font-medium">Questions and brands</h2>
               <div className="flex flex-wrap gap-2">
                 <button type="button" className="btn-ghost" onClick={() => setForm(EXAMPLE)}>Load example</button>
                 <StartOverButton label="Undo changes" onClick={() => { setForm(formFromSetup(data)); setError(null); setNotice(null); }} />
+                {data.setup && runs.length > 0 && saved && <button type="button" className="btn-ghost" onClick={() => setSetupOpen(false)}>Done</button>}
               </div>
             </div>
             <div className="grid gap-4 xl:grid-cols-2">
@@ -258,34 +295,21 @@ export function VisibilityClient({ projects, initialProjectId, aiEnabled, model,
               {!saved && <span className="text-sm text-warn">Unsaved changes</span>}
             </div>
           </section>
-
-          {/* ---------- run ---------- */}
-          <section className="card flex flex-wrap items-center justify-between gap-4">
-            <div className="text-sm">
-              <div className="font-medium">Run {parsed.prompts.length} prompt{parsed.prompts.length === 1 ? "" : "s"} with Claude + web search</div>
-              <div className="mt-1 text-muted">
-                Estimated cost {formatUsd(estimate.lowMicros)}–{formatUsd(estimate.highMicros)} on {model}, up to {maxSearches} web search{maxSearches === 1 ? "" : "es"} per question.
-                {budget && <> You&apos;ve used {formatUsd(budget.spentTodayMicros)} of your {formatUsd(budget.dailyUserMicros)} daily AI limit.</>}
-              </div>
-              {budget && !budget.ok && <div className="mt-1 text-fail">{budget.reason}</div>}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {active && !driving && active.trigger === "manual" && (
-                <button className="btn-ghost" onClick={() => drive(active.id)} disabled={!aiEnabled}>Continue run</button>
-              )}
-              {active && <button className="btn-ghost" onClick={() => stop(active.id)}>Stop</button>}
-              <button className="btn" onClick={start} disabled={!canRun}
-                title={!aiEnabled ? "Needs ANTHROPIC_API_KEY" : !saved ? "Save the setup first" : undefined}>
-                {driving ? "Running…" : "Run now"}
-              </button>
-            </div>
-          </section>
+          )}
 
           {active && <Progress run={active} />}
 
           {/* ---------- results ---------- */}
           {shown ? (
-            <RunView run={shown} runs={runs} />
+            <>
+              <VisibilityReport run={shown} runs={runs} onExport={() => exportRunCsv(shown)} />
+              <section className="card overflow-x-auto p-0">
+                <h2 className="p-4 font-medium">Answers by question</h2>
+                <ul className="divide-y divide-border border-t border-border">
+                  {shown.results.map((r) => <PromptRow key={r.id} r={r} />)}
+                </ul>
+              </section>
+            </>
           ) : (
             <div className="card text-sm text-muted">No runs yet. Save your setup, then click <b className="text-foreground">Run now</b>.</div>
           )}
@@ -327,90 +351,17 @@ function Progress({ run }: { run: SerializedRun }) {
   );
 }
 
-function RunView({ run, runs }: { run: SerializedRun; runs: SerializedRun[] }) {
-  const s = run.summary;
-  const own = s.own;
-  const trend = runs
-    .filter((r) => r.summary.score !== null && r.status !== "running")
-    .map((r) => ({ date: r.createdAt, score: r.summary.score!, label: `${r.summary.answered} prompts` }));
-  const sorted = [...s.brands].sort((a, b) => b.shareOfVoice - a.shareOfVoice);
-
-  function exportCsv() {
-    const header = ["prompt", "status", ...run.brands.flatMap((b) => [`${b.name} mentioned`, `${b.name} rank`, `${b.name} cited`]), "cited sources"];
-    const rows = run.results.map((r) => {
-      const hit = (name: string) => r.hits.find((h) => h.brand === name);
-      return [
-        r.prompt, r.status,
-        ...run.brands.flatMap((b) => { const h = hit(b.name); return [h?.mentioned ? "yes" : "no", h?.rank ?? "", h?.cited ? "yes" : "no"]; }),
-        r.citations.map((c) => c.url).join(" "),
-      ];
-    });
-    downloadCsv(`ai-visibility-${run.createdAt.slice(0, 10)}.csv`, [header, ...rows]);
-  }
-
-  return (
-    <div className="space-y-6">
-      <section className="card">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h2 className="font-medium">Run from <Time iso={run.createdAt} /></h2>
-            <p className="text-xs text-subtle">
-              {s.answered} of {run.promptCount} prompts answered · {run.trigger === "scheduled" ? "scheduled" : "manual"} · cost {formatUsd(run.costMicros)}
-              {run.status === "stopped" && " · stopped early"}
-            </p>
-          </div>
-          <button className="btn-ghost" onClick={exportCsv}>Export CSV</button>
-        </div>
-        <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
-          <Tile label="Visibility score" value={s.score === null ? "—" : String(s.score)} color={s.score === null ? undefined : scoreColor(s.score)}
-            hint="60% mention rate + 40% citation rate" />
-          <Tile label="Mentioned" value={own ? `${own.promptsMentioned}/${s.answered}` : "—"} hint={own ? `${pct(own.mentionRate)} of answers` : undefined} />
-          <Tile label="Your site cited" value={own ? `${own.promptsCited}/${s.answered}` : "—"} hint={own ? `${pct(own.citationRate)} of answers` : undefined} />
-          <Tile label="Avg position" value={own?.avgRank ? `#${own.avgRank}` : "—"} hint="Among tracked brands, when named" />
-        </div>
-      </section>
-
-      <div className="grid gap-6 xl:grid-cols-2">
-        <section className="card">
-          <h2 className="font-medium">Share of voice</h2>
-          <p className="mt-1 text-xs text-subtle">Each brand&apos;s share of all tracked-brand mentions and citations in this run.</p>
-          <div className="mt-4 space-y-3">
-            {sorted.map((b) => (
-              <div key={b.brand}>
-                <div className="flex justify-between gap-2 text-sm">
-                  <span className={b.own ? "font-semibold" : "text-muted"}>{b.brand}{b.own && <span className="ml-2 chip">You</span>}</span>
-                  <span className="tabular-nums text-xs text-muted">{pct(b.shareOfVoice)} mentions · {pct(b.citationShare)} citations</span>
-                </div>
-                <div className="mt-1 h-2 overflow-hidden rounded-full bg-surface-2" aria-hidden="true">
-                  <div className="h-full rounded-full" style={{ width: pct(b.shareOfVoice), background: b.own ? "var(--foreground)" : "var(--subtle)" }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-        <section className="card">
-          {trend.length > 0 ? <ScoreChart title="Visibility score over time" points={trend} /> : <p className="text-sm text-muted">The trend appears after the first finished run.</p>}
-        </section>
-      </div>
-
-      <section className="card overflow-x-auto p-0">
-        <h2 className="p-4 font-medium">Answers by prompt</h2>
-        <ul className="divide-y divide-border border-t border-border">
-          {run.results.map((r) => <PromptRow key={r.id} r={r} />)}
-        </ul>
-      </section>
-    </div>
-  );
-}
-
-function Tile({ label, value, hint, color }: { label: string; value: string; hint?: string; color?: string }) {
-  return (
-    <div className="rounded-xl border border-border bg-surface-2 p-3">
-      <div className="label">{label}</div>
-      <div className="text-2xl font-semibold tabular-nums" style={color ? { color } : undefined}>{value}</div>
-      {hint && <div className="text-xs text-subtle">{hint}</div>}
-    </div>
-  );
+function exportRunCsv(run: SerializedRun) {
+  const header = ["prompt", "status", ...run.brands.flatMap((b) => [`${b.name} mentioned`, `${b.name} rank`, `${b.name} cited`]), "cited sources"];
+  const rows = run.results.map((r) => {
+    const hit = (name: string) => r.hits.find((h) => h.brand === name);
+    return [
+      r.prompt, r.status,
+      ...run.brands.flatMap((b) => { const h = hit(b.name); return [h?.mentioned ? "yes" : "no", h?.rank ?? "", h?.cited ? "yes" : "no"]; }),
+      r.citations.map((c) => c.url).join(" "),
+    ];
+  });
+  downloadCsv(`ai-visibility-${run.createdAt.slice(0, 10)}.csv`, [header, ...rows]);
 }
 
 function PromptRow({ r }: { r: SerializedRun["results"][number] }) {
