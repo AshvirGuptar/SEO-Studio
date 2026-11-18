@@ -38,7 +38,7 @@ export function ChangePasswordForm() {
       <div>
         <label className="label" htmlFor="pw-new">New password</label>
         <input id="pw-new" type="password" className="input" autoComplete="new-password" required minLength={8} value={next} onChange={(e) => setNext(e.target.value)} />
-        <p className="mt-1 text-xs text-subtle">At least 8 characters. If an admin gave you a temporary password, change it here.</p>
+        <p className="mt-1 text-xs text-subtle">At least 8 characters.</p>
       </div>
       {msg && <p className={`rounded-lg p-2 text-sm ${msg.ok ? "bg-pass/10 text-pass" : "bg-fail/10 text-fail"}`} role="status">{msg.text}</p>}
       <button className="btn" disabled={busy}>{busy ? "Saving…" : "Change password"}</button>

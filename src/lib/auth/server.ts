@@ -17,10 +17,17 @@ import { getDb, schema } from "@/lib/db";
 import { authEnvConfigured, googleSignInConfigured } from "./enabled";
 import { accessConfigFromEnv, decideAccess, type Role, type Status } from "./access";
 import { applyAccessOnSignIn, getInvite } from "@/lib/db/repo";
+import { isEmailEnabled, sendEmail } from "@/lib/email/send";
+import { resetPasswordEmail } from "@/lib/email/templates";
+
+/** Password-reset links (emailed) stay valid this long. */
+export const RESET_LINK_MINUTES = 60;
 
 export function isAuthEnabled(): boolean {
   return authEnvConfigured();
 }
+
+export { isEmailEnabled };
 
 export function isGoogleEnabled(): boolean {
   return authEnvConfigured() && googleSignInConfigured();
@@ -42,6 +49,17 @@ function createAuth() {
       minPasswordLength: PASSWORD_LIMITS.min,
       maxPasswordLength: PASSWORD_LIMITS.max,
       autoSignIn: true, // signed in right after creating an account (then approval decides access)
+      // "Forgot password?" emails a one-time link when SMTP is configured; otherwise the sign-in page
+      // uses the admin-approved reset flow instead (lib/db/reset-repo.ts).
+      ...(isEmailEnabled()
+        ? {
+            sendResetPassword: async ({ user, url }: { user: { email: string; name: string }; url: string }) => {
+              await sendEmail(user.email, resetPasswordEmail({ name: user.name, url, minutes: RESET_LINK_MINUTES }));
+            },
+            resetPasswordTokenExpiresIn: RESET_LINK_MINUTES * 60,
+            revokeSessionsOnPasswordReset: true,
+          }
+        : {}),
     },
     socialProviders: googleSignInConfigured()
       ? {
@@ -63,6 +81,8 @@ function createAuth() {
         "/sign-in/email": { window: 60, max: 5 },
         "/sign-up/email": { window: 60 * 10, max: 5 },
         "/change-password": { window: 60, max: 5 },
+        "/request-password-reset": { window: 60 * 10, max: 3 },
+        "/reset-password": { window: 60 * 10, max: 10 },
       },
     },
     user: {

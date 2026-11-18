@@ -4,6 +4,7 @@ import { requirePageUser } from "@/lib/auth/page-guard";
 import { isAuthEnabled, isGoogleEnabled } from "@/lib/auth/server";
 import { accessConfigFromEnv } from "@/lib/auth/access";
 import { listInvites, listUsers } from "@/lib/db/repo";
+import { listPendingResets } from "@/lib/db/reset-repo";
 import { SetupNotice } from "@/components/SetupNotice";
 import { AdminClient } from "./AdminClient";
 
@@ -14,7 +15,7 @@ export default async function AdminPage() {
   const user = await requirePageUser();
   if (!user) return <SetupNotice feature="Team & access" signInOnly />;
   if (user.role !== "admin") notFound();
-  const [users, invites] = await Promise.all([listUsers(), listInvites()]);
+  const [users, invites, resets] = await Promise.all([listUsers(), listInvites(), listPendingResets()]);
   const cfg = accessConfigFromEnv();
 
   return (
@@ -28,6 +29,7 @@ export default async function AdminPage() {
         currentUserId={user.id}
         envAdmins={cfg.adminEmails}
         users={users.map((u) => ({ id: u.id, name: u.name, email: u.email, image: u.image, role: u.role, status: u.status, createdAt: u.createdAt.toISOString() }))}
+        resets={resets.map((r) => ({ id: r.id, userId: r.userId, name: r.name, email: r.email, code: r.code, createdAt: r.createdAt.toISOString() }))}
         invites={invites.map((i) => ({ email: i.email, role: i.role, createdAt: i.createdAt.toISOString() }))}
       />
     </div>

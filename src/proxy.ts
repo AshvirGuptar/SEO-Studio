@@ -4,7 +4,7 @@ import { checkBasicAuth } from "@/lib/auth/basic-auth";
 import { authEnvConfigured, isPremiumToolPath, isPublicToolPath, publicToolsEnabled } from "@/lib/auth/enabled";
 
 /** Paths reachable without signing in. */
-const PUBLIC_PATHS = ["/sign-in", "/api/auth"];
+const PUBLIC_PATHS = ["/sign-in", "/reset-password", "/api/auth", "/api/password-reset"];
 /** Vercel Cron routes: they check CRON_SECRET themselves, so they skip both gates below. */
 const CRON_PREFIX = "/api/cron/";
 

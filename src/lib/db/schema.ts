@@ -65,6 +65,24 @@ export const rateLimit = pgTable("rate_limit", {
 });
 
 // ---------- SEO & GEO Studio ----------
+/**
+ * "Forgot password" requests (we can't send email). The person requests a reset and gets a short
+ * code; an admin checks the code with them and approves; then the SAME browser (it holds the secret
+ * token; only its hash is stored) picks a new password.
+ */
+export const passwordReset = pgTable("password_reset", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  tokenHash: text("token_hash").notNull().unique(),
+  code: text("code").notNull(),
+  status: text("status", { enum: ["pending", "approved", "denied", "used"] }).notNull().default("pending"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  decidedAt: timestamp("decided_at"),
+  decidedBy: text("decided_by").references(() => user.id, { onDelete: "set null" }),
+  /** Pending requests and approvals both lapse after this. */
+  expiresAt: timestamp("expires_at").notNull(),
+}, (t) => [index("password_reset_user_idx").on(t.userId)]);
+
 /** Emails an admin has invited. Signing in with an invited email activates the account. */
 export const invite = pgTable("invite", {
   email: text("email").primaryKey(), // stored lowercase
@@ -161,6 +179,7 @@ export type User = typeof user.$inferSelect;
 export type Project = typeof project.$inferSelect;
 export type Audit = typeof audit.$inferSelect;
 export type Invite = typeof invite.$inferSelect;
+export type PasswordReset = typeof passwordReset.$inferSelect;
 export type VisibilitySetup = typeof visibilitySetup.$inferSelect;
 export type VisibilityRun = typeof visibilityRun.$inferSelect;
 export type VisibilityResult = typeof visibilityResult.$inferSelect;
