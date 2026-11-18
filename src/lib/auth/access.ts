@@ -55,9 +55,13 @@ export function canSignUp(email: string, cfg: AccessConfig, opts: { invited?: bo
   return cfg.signupDomains.includes(emailDomain(e));
 }
 
-/** "@uw.edu" / "@uw.edu or @x.org" for messages. */
-export function signupDomainsLabel(cfg: AccessConfig): string {
-  return cfg.signupDomains.map((d) => `@${d}`).join(" or ");
+/**
+ * How the UI names the allowed addresses ("UW" → "your UW email"). The domain itself is never shown.
+ * SIGNUP_LABEL overrides it; empty when anyone may sign up.
+ */
+export function signupLabel(cfg: AccessConfig, env: Record<string, string | undefined> = process.env): string {
+  if (cfg.signupDomains.length === 0) return "";
+  return env.SIGNUP_LABEL?.trim() || "UW";
 }
 
 /**

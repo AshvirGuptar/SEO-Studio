@@ -38,7 +38,7 @@ export function ForgotByEmail({ onBack, minutes }: { onBack: () => void; minutes
           <p className="text-sm text-muted">Enter your account email and we&apos;ll send you a link to choose a new password.</p>
           <div>
             <label className="label" htmlFor="forgot-email">Email</label>
-            <input id="forgot-email" type="email" className="input" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@uw.edu" />
+            <input id="forgot-email" type="email" className="input" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Your email" />
           </div>
           {error && <p className="rounded-lg bg-fail/10 p-2 text-sm text-fail" role="alert">{error}</p>}
           <button className="btn w-full" disabled={busy}>{busy ? "Sending…" : "Email me a reset link"}</button>

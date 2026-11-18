@@ -110,7 +110,7 @@ export function ForgotPassword({ next, minPassword, maxPassword, onBack, initial
           <p className="text-sm text-muted">Enter your account email. An admin approves the reset, then you choose a new password here.</p>
           <div>
             <label className="label" htmlFor="reset-email">Email</label>
-            <input id="reset-email" type="email" className="input" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@uw.edu" />
+            <input id="reset-email" type="email" className="input" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Your email" />
           </div>
           {error && <p className="rounded-lg bg-fail/10 p-2 text-sm text-fail" role="alert">{error}</p>}
           <button className="btn w-full" disabled={busy}>{busy ? "Sending…" : "Request reset"}</button>

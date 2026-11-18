@@ -12,7 +12,7 @@ function explain(error: { status?: number; code?: string; message?: string } | n
   if (!error) return "Something went wrong. Please try again.";
   if (error.status === 429) return "Too many attempts. Please wait a minute and try again.";
   const code = error.code ?? "";
-  if (code.includes("SIGNUP_DOMAIN_NOT_ALLOWED")) return error.message || "Please use your UW email address.";
+  if (code.includes("SIGNUP_DOMAIN_NOT_ALLOWED")) return error.message || "Please use your UW email.";
   if (code.includes("INVALID_EMAIL_OR_PASSWORD") || code.includes("INVALID_PASSWORD")) return "That email and password don't match.";
   if (code.includes("USER_ALREADY_EXISTS")) return "An account with that email already exists. Sign in instead.";
   if (code.includes("PASSWORD_TOO_SHORT")) return "That password is too short.";
@@ -24,7 +24,7 @@ function explain(error: { status?: number; code?: string; message?: string } | n
 /** `emailReset`: "Forgot password?" emails a link (minutes = link lifetime); otherwise admin-approved reset. */
 export function EmailAuthForm({ next, initialMode, minPassword, maxPassword, emailReset, resetMinutes, signupHint }: {
   next: string; initialMode: Mode; minPassword: number; maxPassword: number; emailReset: boolean; resetMinutes: number;
-  /** e.g. "@uw.edu": who may create accounts (empty = anyone). */
+  /** e.g. "UW" → "your UW email" (empty = anyone may sign up). The domain is never shown. */
   signupHint: string;
 }) {
   const [mode, setMode] = useState<Mode>(initialMode);
@@ -99,8 +99,8 @@ export function EmailAuthForm({ next, initialMode, minPassword, maxPassword, ema
         )}
         <div>
           <label className="label" htmlFor="auth-email">Email</label>
-          <input id="auth-email" type="email" className="input" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={`you${signupHint ? signupHint.split(" ")[0] : "@uw.edu"}`} />
-          {mode === "signup" && signupHint && <p className="mt-1 text-xs text-subtle">Use your {signupHint} email address.</p>}
+          <input id="auth-email" type="email" className="input" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={signupHint ? `Your ${signupHint} email` : "Your email"} />
+          {mode === "signup" && signupHint && <p className="mt-1 text-xs text-subtle">Use your {signupHint} email.</p>}
         </div>
         <div>
           <label className="label" htmlFor="auth-password">Password</label>

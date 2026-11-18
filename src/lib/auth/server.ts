@@ -17,7 +17,7 @@ import { getDb, schema } from "@/lib/db";
 import { authEnvConfigured, googleSignInConfigured } from "./enabled";
 import { authBaseURL, authTrustedOrigins, requestOwnOrigin } from "./origins";
 import { APIError } from "better-auth/api";
-import { accessConfigFromEnv, canSignUp, decideAccess, signupDomainsLabel, type Role, type Status } from "./access";
+import { accessConfigFromEnv, canSignUp, decideAccess, signupLabel, type Role, type Status } from "./access";
 import { applyAccessOnSignIn, getInvite } from "@/lib/db/repo";
 import { isEmailEnabled, sendEmail } from "@/lib/email/send";
 import { resetPasswordEmail } from "@/lib/email/templates";
@@ -103,7 +103,7 @@ function createAuth() {
             if (!canSignUp(u.email, cfg, { invited: Boolean(inv) })) {
               throw new APIError("FORBIDDEN", {
                 code: "SIGNUP_DOMAIN_NOT_ALLOWED",
-                message: `Please use your ${signupDomainsLabel(cfg)} email address to create an account.`,
+                message: `Please use your ${signupLabel(cfg)} email address to create an account.`,
               });
             }
             const access = decideAccess(u.email, cfg, { invite: inv, emailVerified: u.emailVerified });
