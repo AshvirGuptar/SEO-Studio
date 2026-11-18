@@ -7,6 +7,7 @@ import { Wordmark } from "./Wordmark";
 import { HELP_LINKS, TOOLS, toolStatus } from "./nav";
 import type { SessionUser } from "./session";
 import { SignOutButton } from "./SignOutButton";
+import { Crown } from "./Crown";
 
 /** dataEnabled: saved-data tools (Projects, AI Visibility) work, via sign-in or open mode. */
 type Props = { authEnabled: boolean; dataEnabled: boolean; user: SessionUser | null };
@@ -83,7 +84,7 @@ function Nav({ authEnabled, dataEnabled, user, path }: Props & { path: string })
   );
 }
 
-function NavLink({ href, name, active }: { href: string; name: string; active: boolean }) {
+function NavLink({ href, name, active, premium }: { href: string; name: string; active: boolean; premium?: boolean }) {
   return (
     <Link
       href={href}
@@ -93,7 +94,11 @@ function NavLink({ href, name, active }: { href: string; name: string; active: b
       }`}
     >
       {active && <span className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-accent" />}
-      {name}
+      {premium ? (
+        <span className="flex items-center gap-1.5 text-premium" title="Premium: needs an approved account">
+          {name}<Crown size={13} /><span className="sr-only"> (premium)</span>
+        </span>
+      ) : name}
     </Link>
   );
 }
@@ -106,11 +111,11 @@ function NavLinks({ authEnabled, dataEnabled, user, path }: Props & { path: stri
         toolStatus(t, dataEnabled) === "soon" ? (
           <span key={t.href} title={t.needsAuth ? "Available once a database is connected" : undefined}
             className="flex min-h-11 cursor-default items-center justify-between gap-2 whitespace-nowrap rounded-xl px-3 text-[15px] text-subtle lg:min-h-9 lg:text-sm">
-            {t.name}
+            <span className="flex items-center gap-1.5">{t.name}{t.premium && <Crown size={12} className="opacity-60" />}</span>
             <span className="rounded-md border border-border px-1.5 py-0.5 text-[11px] uppercase tracking-wide">soon</span>
           </span>
         ) : (
-          <NavLink key={t.href} href={t.href} name={t.name} active={path.startsWith(t.href)} />
+          <NavLink key={t.href} href={t.href} name={t.name} active={path.startsWith(t.href)} premium={t.premium} />
         ),
       )}
       <span className="label mt-6 px-3">Help</span>
@@ -134,7 +139,7 @@ function NavLinks({ authEnabled, dataEnabled, user, path }: Props & { path: stri
           )}
           <div className="min-w-0 flex-1">
             <div className="truncate text-sm">{user.name}</div>
-            <div className="truncate text-xs text-subtle">{user.role === "admin" ? "Admin" : "Member"}</div>
+            <div className="truncate text-xs text-subtle">{user.pending ? <span className="text-warn">Access pending</span> : user.role === "admin" ? "Admin" : "Member"}</div>
           </div>
           <SignOutButton className="min-h-10 rounded-lg px-2 text-xs text-muted hover:text-accent" />
         </div>

@@ -28,15 +28,27 @@ export function dataEnabled(env: Record<string, string | undefined> = process.en
 }
 
 /**
- * Demo / public-tools mode: PUBLIC_TOOLS=true lets anyone use the analysis tools without signing in.
- * Saved data (projects, audits) and Team & access ALWAYS still require an approved account.
+ * Free tools are public by default: anyone can use the non-AI analysis tools without an account.
+ * PUBLIC_TOOLS=false puts them behind sign-in too. Premium (AI) tools, saved data and Team & access
+ * ALWAYS require an approved account.
  */
 export function publicToolsEnabled(env: Record<string, string | undefined> = process.env): boolean {
-  return /^(1|true|yes|on)$/i.test(env.PUBLIC_TOOLS ?? "");
+  return !/^(0|false|no|off)$/i.test((env.PUBLIC_TOOLS ?? "").trim());
 }
 
 /** Pages and APIs that become public when PUBLIC_TOOLS is on. Everything else stays behind sign-in. */
 export const PUBLIC_TOOL_PATHS = ["/", "/analyzer", "/content", "/urls", "/audit", "/keywords", "/guide", "/api/analyze", "/api/audit"];
+
+/**
+ * Premium (Claude API) tool pages, kept in sync with `premium: true` in components/nav.ts (a test checks).
+ * Signed-out visitors may open these pages so they see a "sign in / request access" prompt; the
+ * pages' APIs still require an approved account.
+ */
+export const PREMIUM_TOOL_PATHS = ["/ai-visibility", "/geo-optimization"];
+
+export function isPremiumToolPath(pathname: string): boolean {
+  return PREMIUM_TOOL_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
 
 export function isPublicToolPath(pathname: string): boolean {
   return PUBLIC_TOOL_PATHS.some((p) => (p === "/" ? pathname === "/" : pathname === p || pathname.startsWith(`${p}/`)));

@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 import { checkBasicAuth } from "@/lib/auth/basic-auth";
-import { authEnvConfigured, isPublicToolPath, publicToolsEnabled } from "@/lib/auth/enabled";
+import { authEnvConfigured, isPremiumToolPath, isPublicToolPath, publicToolsEnabled } from "@/lib/auth/enabled";
 
 /** Paths reachable without signing in. */
 const PUBLIC_PATHS = ["/sign-in", "/api/auth"];
@@ -31,7 +31,9 @@ export function proxy(request: NextRequest) {
     const { pathname, search } = request.nextUrl;
     const isPublic =
       PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`)) ||
-      (publicToolsEnabled() && isPublicToolPath(pathname)); // demo mode: tools open, saved data still private
+      (publicToolsEnabled() && isPublicToolPath(pathname)) || // free tools open; saved data still private
+      isPremiumToolPath(pathname) || // page shows its own sign-in prompt; its APIs (/api/...) stay private
+      pathname === "/projects"; // same: explains that saving needs an account
     if (!isPublic && !getSessionCookie(request)) {
       if (pathname.startsWith("/api/")) return Response.json({ error: "Please sign in." }, { status: 401 });
       const url = new URL("/sign-in", request.url);

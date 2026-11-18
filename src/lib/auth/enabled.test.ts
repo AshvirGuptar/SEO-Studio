@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { authEnvConfigured, dataEnabled, googleSignInConfigured, isPublicToolPath, openModeEnabled, publicToolsEnabled } from "./enabled";
+import { authEnvConfigured, dataEnabled, googleSignInConfigured, isPremiumToolPath, isPublicToolPath, openModeEnabled, PREMIUM_TOOL_PATHS, publicToolsEnabled } from "./enabled";
 
 describe("open mode", () => {
   const signIn = { BETTER_AUTH_SECRET: "s", GOOGLE_CLIENT_ID: "i", GOOGLE_CLIENT_SECRET: "c" };
@@ -21,7 +21,8 @@ describe("demo mode", () => {
     expect(publicToolsEnabled({ PUBLIC_TOOLS: "true" })).toBe(true);
     expect(publicToolsEnabled({ PUBLIC_TOOLS: "1" })).toBe(true);
     expect(publicToolsEnabled({ PUBLIC_TOOLS: "false" })).toBe(false);
-    expect(publicToolsEnabled({})).toBe(false);
+    expect(publicToolsEnabled({})).toBe(true); // free tools are public by default
+    expect(publicToolsEnabled({ PUBLIC_TOOLS: "off" })).toBe(false);
   });
   it("opens only the tools, never saved data or admin", () => {
     for (const p of ["/", "/analyzer", "/audit", "/api/analyze", "/api/audit/page", "/guide"]) expect(isPublicToolPath(p)).toBe(true);
@@ -37,5 +38,17 @@ describe("accounts", () => {
     expect(openModeEnabled({ DATABASE_URL: "postgres://x", BETTER_AUTH_SECRET: "s" })).toBe(false);
     expect(googleSignInConfigured({ GOOGLE_CLIENT_ID: "i", GOOGLE_CLIENT_SECRET: "c" })).toBe(true);
     expect(googleSignInConfigured({ GOOGLE_CLIENT_ID: "i" })).toBe(false);
+  });
+});
+
+describe("premium tools", () => {
+  it("PREMIUM_TOOL_PATHS matches the premium tools in nav.ts", async () => {
+    const { TOOLS } = await import("@/components/nav");
+    expect([...PREMIUM_TOOL_PATHS].sort()).toEqual(TOOLS.filter((t) => t.premium).map((t) => t.href).sort());
+  });
+  it("matches premium pages but never their APIs or free tools", () => {
+    expect(isPremiumToolPath("/ai-visibility")).toBe(true);
+    expect(isPremiumToolPath("/api/visibility/runs/x/next")).toBe(false);
+    expect(isPremiumToolPath("/analyzer")).toBe(false);
   });
 });

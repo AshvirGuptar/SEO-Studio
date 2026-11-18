@@ -70,7 +70,7 @@ created automatically on the next deploy (`scripts/migrate.mjs` runs before ever
 | --- | --- |
 | `BETTER_AUTH_SECRET` | output of `openssl rand -base64 32` (any long random string) |
 | `ADMIN_EMAILS` | your email (comma-separate several). These people are always admins. |
-| `PUBLIC_TOOLS` | optional `true`: the free tools stay usable without an account |
+| `PUBLIC_TOOLS` | optional `false`: put the free tools behind sign-in too (default: free tools are public) |
 
 **3. Redeploy** (Deployments → ⋯ → Redeploy), open `/sign-in`, choose **Create account** and use an
 `ADMIN_EMAILS` address.
@@ -107,11 +107,16 @@ Put their emails in `ADMIN_EMAILS` (comma-separated) to make them admins, e.g.
 `ADMIN_EMAILS=you@gmail.com,colleague@gmail.com`. For members, an admin uses **Team & access → Invite**
 (works for any email address, Gmail included). Changes to env vars need a redeploy.
 
-### Demo mode (`PUBLIC_TOOLS=true`)
-For an in-person demo where people use the tools from their own phones: set `PUBLIC_TOOLS=true` in
-Vercel and redeploy. The analysis tools (Page Analyzer, Content/URL Optimizer, Site Audit, Keyword
-Clusters, Guide) work without signing in; **Projects, saved audits and Team & access still require an
-approved account**, so saved data stays private. Delete the variable and redeploy afterwards.
+### Free vs. Premium tools
+The free analysis tools (Page Analyzer, Content/URL Optimizer, Site Audit, Keyword Clusters, Guide)
+work for anyone without an account. **Premium** tools use the Claude API (AI Visibility, and GEO
+Optimization when it ships); they show a gold crown and need an approved account. Signed-out visitors
+who open one see "only for approved users" with **Sign in** / **Request access**; people waiting for
+approval can keep using the free tools. Projects and saved audits also need an account. The APIs
+behind premium tools and saved data always check for an approved user. To mark a new tool premium,
+set `premium: true` in `src/components/nav.ts`, add its path to `PREMIUM_TOOL_PATHS` in
+`src/lib/auth/enabled.ts` and use `premiumPageAccess()` + `<PremiumGate>` on its page.
+Set `PUBLIC_TOOLS=false` to put the free tools behind sign-in as well.
 
 ## Local development with a database
 ```bash

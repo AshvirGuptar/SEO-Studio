@@ -8,6 +8,8 @@ export interface SessionUser {
   email: string;
   image: string | null;
   role: "admin" | "member";
+  /** Signed in but not approved yet (only shown in the sidebar). */
+  pending?: boolean;
 }
 
 interface SessionValue {
