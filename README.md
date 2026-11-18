@@ -62,8 +62,8 @@ settings it falls back to admin approval: the person enters their email and gets
 the code with them (text/chat) and clicks **Approve**; the person's page then asks for a new password
 (only on the device that made the request, within 24 hours) and signs them in. Admins can't approve
 their own reset, and each account can request 3 per day. Signed-in users change their password on
-the **Account** page. Sign-in, sign-up and password changes are rate limited (5 per minute per IP
-for sign-in, 5 per 10 minutes for sign-up). Because addresses aren't verified, admins should create
+the **Account** page. Sign-in, sign-up and password changes are rate limited (10 per minute per IP
+for sign-in, 10 per 10 minutes for sign-up). Because addresses aren't verified, admins should create
 their accounts right after the first deploy so nobody else can register those emails first.
 
 **1. Database.** Add Neon from the Vercel project's **Storage** tab (sets `DATABASE_URL`). Tables are
