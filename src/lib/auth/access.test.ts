@@ -1,16 +1,22 @@
 import { describe, expect, it } from "vitest";
 import { accessConfigFromEnv, decideAccess, parseList } from "./access";
 
-const cfg = accessConfigFromEnv({ ADMIN_EMAILS: "Boss@Acme.com, ops@acme.com", AUTO_APPROVE_DOMAINS: "@acme.com,acme.co.uk" });
+const cfg = accessConfigFromEnv({ ADMIN_EMAILS: "Boss@Acme.com, ops@acme.com", APPROVED_EMAILS: "Prof@uni.edu", AUTO_APPROVE_DOMAINS: "@acme.com,acme.co.uk" });
 
 describe("access config", () => {
   it("parses comma lists, lowercases, strips @", () => {
     expect(parseList(" A@B.com ,, @c.org ")).toEqual(["a@b.com", "c.org"]);
-    expect(cfg).toEqual({ adminEmails: ["boss@acme.com", "ops@acme.com"], autoApproveDomains: ["acme.com", "acme.co.uk"] });
+    expect(cfg).toEqual({ adminEmails: ["boss@acme.com", "ops@acme.com"], approvedEmails: ["prof@uni.edu"], autoApproveDomains: ["acme.com", "acme.co.uk"] });
   });
 });
 
 describe("decideAccess", () => {
+  it("lets APPROVED_EMAILS in as members without verification, but respects a disable", () => {
+    expect(decideAccess("PROF@uni.edu", cfg)).toEqual({ role: "member", status: "active" });
+    expect(decideAccess("prof@uni.edu", cfg, { current: { role: "member", status: "pending" } }).status).toBe("active");
+    expect(decideAccess("prof@uni.edu", cfg, { current: { role: "member", status: "disabled" } }).status).toBe("disabled");
+    expect(decideAccess("other@uni.edu", cfg).status).toBe("pending");
+  });
   it("makes env admins active admins, even if disabled", () => {
     expect(decideAccess("BOSS@acme.com", cfg)).toEqual({ role: "admin", status: "active" });
     expect(decideAccess("boss@acme.com", cfg, { current: { role: "member", status: "disabled" } })).toEqual({ role: "admin", status: "active" });

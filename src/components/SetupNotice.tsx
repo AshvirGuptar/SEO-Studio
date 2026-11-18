@@ -17,6 +17,7 @@ export function SetupNotice({ feature, signInOnly = false }: { feature: string; 
         <li>DATABASE_URL <span className="text-subtle">(added by the Neon integration)</span></li>
         <li>BETTER_AUTH_SECRET <span className="text-subtle">(any long random string)</span></li>
         <li>ADMIN_EMAILS <span className="text-subtle">(your email addresses, comma-separated)</span></li>
+        <li>APPROVED_EMAILS <span className="text-subtle">(optional: people approved on sign-up)</span></li>
       </ul>
       <p className="mt-3 text-sm text-muted">See the README&apos;s “Sign-in setup” section for step-by-step instructions.</p>
     </div>

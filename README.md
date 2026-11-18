@@ -52,6 +52,7 @@ Accounts, per-person Projects & History and Team & access turn on once a databas
 
 Who gets in:
 - `ADMIN_EMAILS` addresses are admins and get in straight away.
+- `APPROVED_EMAILS` addresses get in straight away as members (handy for testers).
 - Emails an admin invited (Team & access → Invite) get in straight away as that role.
 - Everyone else sees **Access requested** until an admin approves them on Team & access.
 
@@ -70,6 +71,7 @@ created automatically on the next deploy (`scripts/migrate.mjs` runs before ever
 | --- | --- |
 | `BETTER_AUTH_SECRET` | output of `openssl rand -base64 32` (any long random string) |
 | `ADMIN_EMAILS` | your email (comma-separate several). These people are always admins. |
+| `APPROVED_EMAILS` | optional: emails approved as members on sign-up (comma-separated) |
 | `PUBLIC_TOOLS` | optional `false`: put the free tools behind sign-in too (default: free tools are public) |
 
 **3. Redeploy** (Deployments → ⋯ → Redeploy), open `/sign-in`, choose **Create account** and use an

@@ -3,6 +3,8 @@
  *
  * Configure with environment variables (comma-separated, case-insensitive):
  *   ADMIN_EMAILS          always admin + active (bootstrap; can't be locked out)
+ *   APPROVED_EMAILS       active members as soon as they sign up (a standing invite). An admin can
+ *                       still disable them on Team & access.
  *   AUTO_APPROVE_DOMAINS  VERIFIED emails at these domains become active members automatically.
  *                       Email + password sign-ups aren't verified (we can't send email yet), so a
  *                       typed "@uw.edu" address still waits for approval; Google accounts are verified.
@@ -13,6 +15,7 @@ export type Status = "pending" | "active" | "disabled";
 
 export interface AccessConfig {
   adminEmails: string[];
+  approvedEmails: string[];
   autoApproveDomains: string[];
 }
 
@@ -21,7 +24,11 @@ export function parseList(value: string | undefined): string[] {
 }
 
 export function accessConfigFromEnv(env: Record<string, string | undefined> = process.env): AccessConfig {
-  return { adminEmails: parseList(env.ADMIN_EMAILS), autoApproveDomains: parseList(env.AUTO_APPROVE_DOMAINS) };
+  return {
+    adminEmails: parseList(env.ADMIN_EMAILS),
+    approvedEmails: parseList(env.APPROVED_EMAILS),
+    autoApproveDomains: parseList(env.AUTO_APPROVE_DOMAINS),
+  };
 }
 
 export function emailDomain(email: string): string {
@@ -45,6 +52,7 @@ export function decideAccess(
   if (current?.status === "active") return current;
 
   if (invite) return { role: invite.role, status: "active" };
+  if (cfg.approvedEmails.includes(e)) return { role: current?.role ?? "member", status: "active" };
   // Only trust the domain when the email address is proven (e.g. Google sign-in); anyone can type one.
   if (opts.emailVerified && cfg.autoApproveDomains.includes(emailDomain(e))) return { role: current?.role ?? "member", status: "active" };
   return { role: current?.role ?? "member", status: "pending" };
