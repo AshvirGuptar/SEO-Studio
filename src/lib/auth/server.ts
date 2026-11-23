@@ -21,6 +21,7 @@ import { accessConfigFromEnv, canSignUp, decideAccess, signupLabel, type Role, t
 import { applyAccessOnSignIn, getInvite } from "@/lib/db/repo";
 import { isEmailEnabled, sendEmail } from "@/lib/email/send";
 import { resetPasswordEmail } from "@/lib/email/templates";
+import { describeEmailError } from "@/lib/email/errors";
 
 /** Password-reset links (emailed) stay valid this long. */
 export const RESET_LINK_MINUTES = 60;
@@ -52,7 +53,14 @@ function createAuth() {
       ...(isEmailEnabled()
         ? {
             sendResetPassword: async ({ user, url }: { user: { email: string; name: string }; url: string }) => {
-              await sendEmail(user.email, resetPasswordEmail({ name: user.name, url, minutes: RESET_LINK_MINUTES }));
+              try {
+                await sendEmail(user.email, resetPasswordEmail({ name: user.name, url, minutes: RESET_LINK_MINUTES }));
+              } catch (e) {
+                // The person still sees "check your email" (so the form can't reveal who has an
+                // account), so log clearly; admins can diagnose with "Send test email" on Team & access.
+                console.error(`[email] password reset email failed: ${describeEmailError(e)}`);
+                throw e;
+              }
             },
             resetPasswordTokenExpiresIn: RESET_LINK_MINUTES * 60,
             revokeSessionsOnPasswordReset: true,
