@@ -7,6 +7,8 @@ import { listInvites, listUsers } from "@/lib/db/repo";
 import { listPendingResets } from "@/lib/db/reset-repo";
 import { SetupNotice } from "@/components/SetupNotice";
 import { AdminClient } from "./AdminClient";
+import { EmailCheck } from "./EmailCheck";
+import { emailSenderAddress } from "@/lib/email/send";
 
 export const metadata: Metadata = { title: "Team & access" };
 
@@ -25,6 +27,7 @@ export default async function AdminPage() {
         Approve access requests, invite people (inside or outside the company) and manage roles.
         {cfg.autoApproveDomains.length > 0 && isGoogleEnabled() && <> Google sign-ins at <b className="text-foreground">{cfg.autoApproveDomains.join(", ")}</b> are approved automatically (email sign-ups still need approval, since the address isn&apos;t verified).</>}
       </p>
+      <div className="mt-6"><EmailCheck sender={emailSenderAddress()} /></div>
       <AdminClient
         currentUserId={user.id}
         envAdmins={cfg.adminEmails}

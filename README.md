@@ -96,6 +96,11 @@ The app sends email through any SMTP account; a Gmail account with an App passwo
 3. In Vercel add `SMTP_USER` = the Gmail address and `SMTP_PASSWORD` = the app password (no spaces),
    then redeploy.
 
+To check it, open **Team & access**: the "Password-reset emails" card says whether email is on and has a
+**Send test email** button that sends to you and explains any failure (for example a rejected app
+password). A failed reset email is otherwise invisible to the person, who still sees "check your
+email" so the form can't reveal which addresses have accounts; it's logged as `[email] …` in Vercel.
+
 Optional: `SMTP_HOST` (default `smtp.gmail.com`), `SMTP_PORT` (default `465`), `EMAIL_FROM`
 (default `"SEO & GEO Studio" <SMTP_USER>`). Gmail allows about 500 emails a day. Reset requests are
 rate limited (3 per 10 minutes per IP). Proton addresses on `@proton.me` can't send via SMTP.
