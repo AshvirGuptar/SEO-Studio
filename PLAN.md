@@ -18,13 +18,35 @@ row to the Development log at the bottom of `CLAUDE.md` at the end of every sess
 
 | Project week | Dates | Course week | Theme | Monday checkpoint |
 | --- | --- | --- | --- | --- |
-| Week 1 (now) | Nov 4 – Nov 15 | 6 | Scaffold + rule-based tools (done, see below) | Nov 9 office hours |
-| **Week 2** | Nov 16 – 22 | 7 | Accounts, data & the AI foundation | Nov 16 office hours |
-| **Week 3** | Nov 23 – 29 | 8 | AI-powered tools: GEO Optimization + AI rewrite | Nov 23 office hours |
+| Week 1 | Nov 4 – Nov 15 | 6 | Scaffold + rule-based tools (done, see below) | Nov 9 office hours |
+| Week 2 | Nov 16 – 22 | 7 | Accounts, data & the AI foundation (mostly done; carry-overs in Week 3) | Nov 16 office hours |
+| **Week 3 (now)** | Nov 23 – 29 | 8 | Carry-overs from Week 2, then AI-powered tools: GEO Optimization + AI rewrite | Nov 23 office hours |
 | **Week 4** | Nov 30 – Dec 6 | 9 | AI Visibility, client pilot, card-based dashboard, guided demo | Nov 30 office hours |
 | **Week 5** | Dec 7 – 13 | 10 | **Show & tell (Dec 7)**, launch v1.0, handoff, portfolio | Dec 7 final show |
 
 Week 3 includes Thanksgiving (Thu Nov 26), so it's planned at about 60% capacity.
+
+---
+
+## Progress at a glance (updated Nov 23)
+
+The work didn't land in the planned order, so this is the honest picture at the start of Week 3:
+
+| Area | Planned for | Status |
+| --- | --- | --- |
+| Sign-in (UW email accounts), Team & access, password resets | Week 2 | **Done**, live |
+| Free vs Premium tools (AI tools need an account) | not planned | **Done**, live (added to protect the API budget) |
+| AI Visibility tracker | Week 4 | **Built early (Nov 13–18)**, live; first real run on a brand still to do |
+| Claude API foundation (SDK, key, cost caps, usage log, refusal/timeout handling) | Week 2 | **Mostly done**, landed with AI Visibility; streaming + prompt caching move to Week 3 with AI rewrite |
+| Projects & History | Week 2 | Built (save, history chart, "what changed", rename/delete); needs a check on real data |
+| Evaluation set | Week 2 | **Not started**: moved to Week 3, and it blocks GEO Optimization and AI rewrite |
+| Client role, abuse controls on tool APIs, tool registry | Week 2 | Not started / partly done: moved to Week 3–4 |
+| GEO Optimization, AI rewrite | Week 3 | Not started (on schedule to begin now) |
+| Client pilot, card-based dashboard, guided demo | Week 4 | Not started; AI Visibility being done early frees Week 4 time for these |
+
+**What this changes:** Week 3 starts with the evaluation set (it gates both AI writing tools),
+then GEO Optimization and AI rewrite. Week 4 no longer needs to build AI Visibility, only to run it
+on pilot brands, so that time goes to the pilot, dashboard and demo.
 
 ---
 
@@ -58,7 +80,7 @@ dependency order.
 
 ---
 
-## Week 2 (Nov 16–22): Accounts, data & the AI foundation
+## Week 2 (Nov 16–22): Accounts, data & the AI foundation (wrapped up; see carry-overs)
 
 **Goal:** turn on real logins and saved data in production, and build a safe, measured foundation
 for every AI feature that follows.
@@ -87,26 +109,31 @@ for every AI feature that follows.
 - [x] **Free vs Premium tools:** the free analysis tools work without an account; tools that use
       the Claude API (AI Visibility, and GEO Optimization when it ships) are marked Premium with a
       gold crown and need a signed-in UW account, so visitors can't spend our API credits.
-- [ ] **Projects & History in real use:** save page and site audits; check the history chart and
-      "what changed" on real data; add pagination for long histories; rename and delete projects.
+- [~] **Projects & History in real use:** saving page and site audits, the history chart, "what
+      changed", and rename/delete projects are built. Still to do (moved to Week 3): check them on
+      real data on the live site, and add pagination for long histories.
 - [ ] **Per-project access:** a read-only **client** role so outside users only see their own
-      project. Required before the client pilot in Week 4.
-- [ ] **Abuse controls:** per-user and per-IP rate limits on the tool APIs; request size caps;
+      project. Required before the client pilot in Week 4. (Moved to Week 3. Outside clients can
+      already be let in by invite or `APPROVED_EMAILS`, but they currently see every project.)
+- [~] **Abuse controls:** per-user and per-IP rate limits on the tool APIs; request size caps;
       an audit log of admin actions. (Done: rate limits on sign-in, sign-up, password changes and
       password-reset requests; premium APIs require a signed-in account.)
-- [ ] **Claude API foundation** (`src/lib/ai/`, server-only):
-  - [ ] Anthropic TypeScript SDK; `ANTHROPIC_API_KEY` stored only in Vercel. The default model is
-        Claude Opus 5.5 (`claude-opus-5-5`, $4 / $20 per million input/output tokens).
-  - [ ] Streaming responses for long outputs; handling for refusals, rate limits and timeouts;
-        prompt caching for the shared instructions.
+- [~] **Claude API foundation** (`src/lib/ai/`, server-only; landed with AI Visibility):
+  - [x] Anthropic TypeScript SDK; `ANTHROPIC_API_KEY` stored only in Vercel. The default model is
+        Claude Opus 5.5 (`claude-opus-5-5`, $4 / $20 per million input/output tokens); `AI_MODEL`
+        switches to Sonnet 5.5 or Haiku 5.5 for cheaper testing.
+  - [x] Handling for refusals (server-side fallback), rate limits and timeouts.
+  - [ ] Streaming responses for long outputs and prompt caching for the shared instructions
+        (moved to Week 3: needed by AI rewrite, not by AI Visibility).
   - [~] **Cost guardrails:** an `ai_usage` table logging tokens per user and project, a daily
         per-user cap, and a monthly budget alert. (Table, daily cap and monthly budget block landed
         with AI Visibility; an alert/notification is still to do.)
-  - [ ] Graceful degradation: with no key set, AI buttons stay visible but disabled (CLAUDE.md rule).
-- [ ] **Evaluation set v1:** 30 realistic pages and products (product, category, blog, plus the
+  - [x] Graceful degradation: with no key set, AI buttons stay visible but disabled (CLAUDE.md rule).
+- [ ] **Evaluation set v1** (moved to Week 3, first priority): 30 realistic pages and products (product, category, blog, plus the
       "Example PC" store). For each one we record the SEO/GEO score before and after a rewrite,
       whether all facts and specs were preserved, and a human quality rating.
-- [ ] **Tool platform for future tools:** turn the tool list into a registry. Each tool declares
+- [~] **Tool platform for future tools:** turn the tool list into a registry. (Partly done:
+      `nav.ts` already declares each tool's status, tags, sign-in and Premium flags and use cases.) Each tool declares
       its name, status, tags, sign-in/AI requirements, preview and use cases, so a new tool is one
       folder plus one registry entry. This is the "space for more tools".
 
@@ -131,6 +158,14 @@ human accepts it.
   unchanged) and human review of edge cases.
 - Generated markup (FAQ, Product, Organization JSON-LD) must be valid. We validate it against
   schema.org shapes and re-run our own analyzer on the result.
+
+**Carried over from Week 2 (do these first)**
+- [ ] **Evaluation set v1** (see Week 2): GEO Optimization and AI rewrite can't be measured, or
+      released, without it.
+- [ ] **AI Visibility first real run:** one run on a real brand on the live site (about $0.30–$0.50
+      for 5 questions, within the $2/day cap) to confirm the real API matches our local tests.
+- [ ] **Projects & History check on real data** and pagination for long histories.
+- [ ] **Client role** (read-only, own project only), before the Week 4 pilot.
 
 **Deliverables**
 - [ ] **GEO Optimization tool** (the locked tab becomes live):
@@ -158,7 +193,7 @@ single fact-preservation failure; pilot baselines are saved.
 
 ---
 
-## Week 4 (Nov 30 – Dec 6): AI Visibility, client pilot, dashboard & demo
+## Week 4 (Nov 30 – Dec 6): AI Visibility on pilot brands, client pilot, dashboard & demo
 
 **Goal:** prove the tool works on real sites, measure what AI assistants actually say about a
 brand, and reorganize the UI around a client's work. The app should be demo-ready by Sunday Dec 6.
@@ -166,8 +201,8 @@ brand, and reorganize the UI around a client's work. The app should be demo-read
 **Why this takes a week**
 - **AI Visibility** is a new kind of measurement. We ask AI assistants the questions customers ask,
   using Claude with the web search tool (`web_search_20260209`) to see which sites get cited, and
-  record mentions and citations over time. Designing fair prompt sets, parsing citations reliably,
-  and scheduling repeat runs within budget all need careful design and testing.
+  record mentions and citations over time. The tool itself was built early (Week 2), so this week is
+  about running it on pilot brands with fair prompt sets, and switching on weekly runs within budget.
 - **Real users take calendar time:** scheduling sessions, watching people use the tool, collecting
   feedback, and fixing what confuses them. Their pages also need to be re-audited after they apply
   fixes.
@@ -176,9 +211,9 @@ brand, and reorganize the UI around a client's work. The app should be demo-read
   rerunning the device sweep.
 
 **Deliverables**
-- [~] **AI Visibility v1** (live behind UW sign-in as a Premium tool; verified end to end against a
-      fake Claude server, report redesigned with cited sites, a question-by-brand grid and "biggest
-      openings"; still to do: one real run on a pilot brand, and `CRON_SECRET` for weekly runs):
+- [x] **AI Visibility v1, built early (Nov 13–18)**: live behind UW sign-in as a Premium tool;
+      verified end to end against a fake Claude server; report with score, share of voice, cited
+      sites, a question-by-brand grid and "biggest openings":
   - [x] A prompt set per project (for example "best graphics card for 1440p"), with tracked brands
         and competitors.
   - [x] Runs record whether the brand is mentioned, whether its domain is cited, and the source
@@ -188,6 +223,8 @@ brand, and reorganize the UI around a client's work. The app should be demo-read
         so about 25 prompts per project per week).
   - [x] Weekly schedule via Vercel Cron (daily check, time-boxed; leftovers continue next day).
   - [x] Other engines (ChatGPT, Perplexity, Gemini) are listed as "add a key to enable" (stretch).
+- [ ] **AI Visibility in use:** prompt sets for each pilot brand, weekly runs switched on
+      (`CRON_SECRET` in Vercel), and results reviewed with pilot users.
 - [ ] **Client pilot:**
   - [ ] Pilot users apply recommendations on real pages.
   - [ ] Re-audits show the before/after change with the "what changed" view.
@@ -257,7 +294,7 @@ portfolio is submitted.
 | Launch, security review, docs, show prep, portfolio | 5 | 10–12 | The polish that makes it hand-off-able |
 | **Total** | | **≈ 130–170 h** | About 26–34 h/week for 2 people, or a full load solo |
 
-**Dependencies:** sign-in and the client role (Week 2) come before the client pilot (Week 4). The AI
+**Dependencies:** sign-in (done) and the client role (moved to Week 3) come before the client pilot (Week 4). The AI
 foundation and evaluation set (Week 2) come before GEO Optimization and AI rewrite (Week 3), which
 come before the pilot fixes. Pilot baselines (Week 3) come before before/after proof (Weeks 4–5),
 which comes before the case study and show. Skipping a week breaks the chain, which is why the
