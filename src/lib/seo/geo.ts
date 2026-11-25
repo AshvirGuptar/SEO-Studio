@@ -5,7 +5,7 @@
  * (crawler user-agents, snippet controls) plus widely recommended content practices.
  */
 import type { Check } from "./types";
-import type { PageFacts } from "./extract";
+import type { GeoFacts, PageFacts } from "./extract";
 import { agentAllowed } from "./robots";
 import { words } from "./text";
 
@@ -55,7 +55,9 @@ export interface GeoContext {
 }
 
 const QUESTION = /^(who|what|when|where|why|how|which|can|does|do|is|are|should|will)\b|\?\s*$/i;
-const LIMITS = { answerMin: 25, answerMax: 90, leadMin: 15, leadMax: 80, sectionMax: 350, longParagraph: 120, staleDays: 365 };
+/** Is this heading phrased as a question (the way people prompt AI assistants)? */
+export const isQuestion = (heading: string) => QUESTION.test(heading.trim());
+export const GEO_LIMITS = { answerMin: 25, answerMax: 90, leadMin: 15, leadMax: 80, sectionMax: 350, longParagraph: 120, staleDays: 365 };
 
 export function analyzeGeo(f: PageFacts, ctx: GeoContext = {}): { checks: Check[]; crawlers?: CrawlerAccess[] } {
   const g = f.geo;
@@ -120,63 +122,8 @@ export function analyzeGeo(f: PageFacts, ctx: GeoContext = {}): { checks: Check[
   }
 
   // ---------- Answer-ready content ----------
-  const content = g.sections.filter((s) => s.level >= 2);
-  const questions = content.filter((s) => QUESTION.test(s.heading));
-  checks.push({
-    id: "geo-question-headings", category: "answer-ready", label: "Question-style headings", weight: 4, value: `${questions.length} found`,
-    ...(questions.length > 0
-      ? { severity: "pass", message: "Headings phrased as questions match how people prompt AI assistants." }
-      : { severity: "warn", message: "No headings phrased as questions.",
-          fix: "Add H2/H3s that mirror real questions (“How do I choose…?”, “What size…?”) and answer each one directly below." }),
-  });
-
-  if (questions.length > 0) {
-    const direct = questions.filter((q) => q.firstParagraphWords >= LIMITS.answerMin && q.firstParagraphWords <= LIMITS.answerMax);
-    checks.push({
-      id: "geo-direct-answers", category: "answer-ready", label: "Direct answers under questions", weight: 6,
-      value: `${direct.length}/${questions.length}`,
-      ...(direct.length / questions.length >= 0.6
-        ? { severity: "pass", message: "Questions are followed by concise answers that AI engines can lift as-is." }
-        : { severity: "warn", message: "Many questions aren't followed by a short, self-contained answer.",
-            fix: `Start each answer with a ${LIMITS.answerMin}–${LIMITS.answerMax} word paragraph that fully answers the question, then add detail.` }),
-    });
-  }
-
-  checks.push({
-    id: "geo-summary-lead", category: "answer-ready", label: "Answer-first opening", weight: 5, value: `${g.firstParagraphWords} words`,
-    ...(g.firstParagraphWords >= LIMITS.leadMin && g.firstParagraphWords <= LIMITS.leadMax
-      ? { severity: "pass", message: "The opening paragraph is a concise summary, which is ideal for AI overviews." }
-      : { severity: "warn", message: g.firstParagraphWords === 0 ? "No opening paragraph found." : "The opening paragraph is too long (or too short) to work as a summary.",
-          fix: `Open with a ${LIMITS.leadMin}–${LIMITS.leadMax} word paragraph that states what the page is about and the key takeaway.` }),
-  });
-
-  checks.push({
-    id: "geo-lists-tables", category: "answer-ready", label: "Lists & tables", weight: 3, value: `${g.lists} lists · ${g.tables} tables`,
-    ...(g.lists + g.tables > 0
-      ? { severity: "pass", message: "Structured lists/tables are easy for AI to extract (specs, steps, comparisons)." }
-      : { severity: "warn", message: "No lists or tables.", fix: "Put steps, specs, pros/cons or comparisons in lists or tables." }),
-  });
-
-  if (content.length > 0) {
-    const longSections = content.filter((s) => s.words > LIMITS.sectionMax).length;
-    checks.push({
-      id: "geo-chunking", category: "answer-ready", label: "Scannable sections", weight: 3, value: `${longSections} long sections`,
-      ...(longSections === 0
-        ? { severity: "pass", message: "Sections are short and focused, so each can stand alone as an answer." }
-        : { severity: "warn", message: `${longSections} section(s) run over ${LIMITS.sectionMax} words without a subheading.`,
-            fix: "Break long sections up with descriptive subheadings; AI engines retrieve passages, not whole pages." }),
-    });
-  }
-
-  if (g.paragraphWordCounts.length > 0) {
-    const long = g.paragraphWordCounts.filter((n) => n > LIMITS.longParagraph).length;
-    checks.push({
-      id: "geo-paragraphs", category: "answer-ready", label: "Paragraph length", weight: 2, value: `${long} over ${LIMITS.longParagraph} words`,
-      ...(long === 0
-        ? { severity: "pass", message: "Paragraphs are compact." }
-        : { severity: "warn", message: "Some paragraphs are very long.", fix: "Keep paragraphs to one idea, 2–4 sentences." }),
-    });
-  }
+  checks.push(...analyzeAnswerReady(g));
+  const questions = g.sections.filter((s) => s.level >= 2 && isQuestion(s.heading));
 
   // ---------- Trust & citability ----------
   checks.push({
@@ -193,7 +140,7 @@ export function analyzeGeo(f: PageFacts, ctx: GeoContext = {}): { checks: Check[
     id: "geo-freshness", category: "trust", label: "Dates & freshness", weight: 4, value: date && ageDays !== null ? date.toISOString().slice(0, 10) : undefined,
     ...(ageDays === null
       ? { severity: "warn", message: "No published or updated date found.", fix: "Expose datePublished/dateModified in schema and show “Updated <date>” on the page." }
-      : ageDays > LIMITS.staleDays
+      : ageDays > GEO_LIMITS.staleDays
         ? { severity: "warn", message: `Last updated over a year ago (${Math.round(ageDays / 30)} months).`, fix: "Refresh the content and update dateModified; AI engines favor current information." }
         : { severity: "pass", message: "Dated and recently updated." }),
   });
@@ -242,4 +189,73 @@ export function analyzeGeo(f: PageFacts, ctx: GeoContext = {}): { checks: Check[
   });
 
   return { checks, crawlers };
+}
+
+/** The page structure the answer-ready checks need: from parsed HTML (extract.ts) or a draft (geo-optimize.ts). */
+export type AnswerStructure = Pick<GeoFacts, "sections" | "firstParagraphWords" | "paragraphWordCounts" | "lists" | "tables">;
+
+/**
+ * Answer-ready checks (summary lead, question headings, direct answers, lists, chunking, paragraphs).
+ * Shared by the Page Analyzer and GEO Optimization, so a rewritten draft is judged exactly like a live page.
+ */
+export function analyzeAnswerReady(g: AnswerStructure): Check[] {
+  const checks: Check[] = [];
+  const content = g.sections.filter((s) => s.level >= 2);
+  const questions = content.filter((s) => isQuestion(s.heading));
+  checks.push({
+    id: "geo-question-headings", category: "answer-ready", label: "Question-style headings", weight: 4, value: `${questions.length} found`,
+    ...(questions.length > 0
+      ? { severity: "pass", message: "Headings phrased as questions match how people prompt AI assistants." }
+      : { severity: "warn", message: "No headings phrased as questions.",
+          fix: "Add H2/H3s that mirror real questions (“How do I choose…?”, “What size…?”) and answer each one directly below." }),
+  });
+
+  if (questions.length > 0) {
+    const direct = questions.filter((q) => q.firstParagraphWords >= GEO_LIMITS.answerMin && q.firstParagraphWords <= GEO_LIMITS.answerMax);
+    checks.push({
+      id: "geo-direct-answers", category: "answer-ready", label: "Direct answers under questions", weight: 6,
+      value: `${direct.length}/${questions.length}`,
+      ...(direct.length / questions.length >= 0.6
+        ? { severity: "pass", message: "Questions are followed by concise answers that AI engines can lift as-is." }
+        : { severity: "warn", message: "Many questions aren't followed by a short, self-contained answer.",
+            fix: `Start each answer with a ${GEO_LIMITS.answerMin}–${GEO_LIMITS.answerMax} word paragraph that fully answers the question, then add detail.` }),
+    });
+  }
+
+  checks.push({
+    id: "geo-summary-lead", category: "answer-ready", label: "Answer-first opening", weight: 5, value: `${g.firstParagraphWords} words`,
+    ...(g.firstParagraphWords >= GEO_LIMITS.leadMin && g.firstParagraphWords <= GEO_LIMITS.leadMax
+      ? { severity: "pass", message: "The opening paragraph is a concise summary, which is ideal for AI overviews." }
+      : { severity: "warn", message: g.firstParagraphWords === 0 ? "No opening paragraph found." : "The opening paragraph is too long (or too short) to work as a summary.",
+          fix: `Open with a ${GEO_LIMITS.leadMin}–${GEO_LIMITS.leadMax} word paragraph that states what the page is about and the key takeaway.` }),
+  });
+
+  checks.push({
+    id: "geo-lists-tables", category: "answer-ready", label: "Lists & tables", weight: 3, value: `${g.lists} lists · ${g.tables} tables`,
+    ...(g.lists + g.tables > 0
+      ? { severity: "pass", message: "Structured lists/tables are easy for AI to extract (specs, steps, comparisons)." }
+      : { severity: "warn", message: "No lists or tables.", fix: "Put steps, specs, pros/cons or comparisons in lists or tables." }),
+  });
+
+  if (content.length > 0) {
+    const longSections = content.filter((s) => s.words > GEO_LIMITS.sectionMax).length;
+    checks.push({
+      id: "geo-chunking", category: "answer-ready", label: "Scannable sections", weight: 3, value: `${longSections} long sections`,
+      ...(longSections === 0
+        ? { severity: "pass", message: "Sections are short and focused, so each can stand alone as an answer." }
+        : { severity: "warn", message: `${longSections} section(s) run over ${GEO_LIMITS.sectionMax} words without a subheading.`,
+            fix: "Break long sections up with descriptive subheadings; AI engines retrieve passages, not whole pages." }),
+    });
+  }
+
+  if (g.paragraphWordCounts.length > 0) {
+    const long = g.paragraphWordCounts.filter((n) => n > GEO_LIMITS.longParagraph).length;
+    checks.push({
+      id: "geo-paragraphs", category: "answer-ready", label: "Paragraph length", weight: 2, value: `${long} over ${GEO_LIMITS.longParagraph} words`,
+      ...(long === 0
+        ? { severity: "pass", message: "Paragraphs are compact." }
+        : { severity: "warn", message: "Some paragraphs are very long.", fix: "Keep paragraphs to one idea, 2–4 sentences." }),
+    });
+  }
+  return checks;
 }

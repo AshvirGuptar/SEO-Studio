@@ -16,7 +16,7 @@ Built as a TCSS 490 Artifact 5 moonshot.
 | **Site Audit** | Crawl up to 500 pages: broken pages/links, redirects, duplicates, thin content, orphans, sitemap gaps, AI visibility, avg GEO score, PDF report | Live |
 | **Keyword Clusters** | Group keywords by topic and intent, map them to pages, find content gaps and cannibalization | Live |
 | **Guide** | Step-by-step playbook for site and store owners | Live |
-| GEO Optimization | Fix GEO issues: answer-first rewrites, FAQ + schema markup, llms.txt and AI-crawler rules, re-scored before publishing | Coming soon (Week 3, needs Claude API key) |
+| **GEO Optimization** (Premium) | Fix GEO issues: answer-first rewrite with before/after GEO score and a side-by-side diff, FAQ generator with FAQPage JSON-LD, Product/Organization/Article schema builder with validation, AI-crawler robots.txt rules and llms.txt (from a Site Audit CSV) | Live (AI parts need an account + `ANTHROPIC_API_KEY`; schema builder and AI access kit are free) |
 | **AI Visibility** | Ask Claude (with web search) the questions customers ask; track brand mentions, citations, share of voice vs competitors and the trend, weekly on a schedule | Live (needs a database + `ANTHROPIC_API_KEY`; sign-in optional) |
 | **Projects & History** | Save audits per site or client, chart scores over time, see what changed between runs | Live (needs sign-in) |
 | **Team & access** | UW email accounts, invites, admin/member/client roles, password resets, AI budget, admin activity log | Live (needs sign-in) |
