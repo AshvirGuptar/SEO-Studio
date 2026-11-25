@@ -3,7 +3,7 @@
  * The first four tables are required by Better Auth (names and columns must match its expectations).
  * After changing this file run `npm run db:generate` and commit the new migration in /drizzle.
  */
-import { boolean, index, jsonb, pgTable, integer, text, timestamp, uniqueIndex, bigint } from "drizzle-orm/pg-core";
+import { boolean, index, jsonb, pgTable, integer, text, timestamp, uniqueIndex, bigint, primaryKey } from "drizzle-orm/pg-core";
 import type { BrandHit, Source, TrackedBrand } from "../seo/visibility";
 
 // ---------- Better Auth ----------
@@ -16,7 +16,7 @@ export const user = pgTable("user", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
   // SEO & GEO Studio access control
-  role: text("role", { enum: ["admin", "member"] }).notNull().default("member"),
+  role: text("role", { enum: ["admin", "member", "client"] }).notNull().default("member"),
   status: text("status", { enum: ["pending", "active", "disabled"] }).notNull().default("pending"),
 });
 
@@ -86,8 +86,10 @@ export const passwordReset = pgTable("password_reset", {
 /** Emails an admin has invited. Signing in with an invited email activates the account. */
 export const invite = pgTable("invite", {
   email: text("email").primaryKey(), // stored lowercase
-  role: text("role", { enum: ["admin", "member"] }).notNull().default("member"),
+  role: text("role", { enum: ["admin", "member", "client"] }).notNull().default("member"),
   invitedBy: text("invited_by").references(() => user.id, { onDelete: "set null" }),
+  /** For client invites: the project they get read-only access to on sign-up. */
+  projectId: text("project_id"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -175,6 +177,38 @@ export const visibilityResult = pgTable("visibility_result", {
   completedAt: timestamp("completed_at"),
 }, (t) => [index("visibility_result_run_idx").on(t.runId, t.position)]);
 
+// ---------- Clients, abuse controls, admin activity ----------
+/** Projects a read-only client can see (members and admins see every project). */
+export const projectMember = pgTable("project_member", {
+  projectId: text("project_id").notNull().references(() => project.id, { onDelete: "cascade" }),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => [primaryKey({ columns: [t.projectId, t.userId] }), index("project_member_user_idx").on(t.userId)]);
+
+/** Fixed-window request counters for the public tool APIs (key = "<bucket>:<ip>"). */
+export const apiRate = pgTable("api_rate", {
+  key: text("key").primaryKey(),
+  windowStart: bigint("window_start", { mode: "number" }).notNull(),
+  count: integer("count").notNull(),
+});
+
+/** What admins changed and when (invites, roles, access, password resets, email tests). */
+export const adminAudit = pgTable("admin_audit", {
+  id: text("id").primaryKey(),
+  actorId: text("actor_id").references(() => user.id, { onDelete: "set null" }),
+  actorEmail: text("actor_email").notNull(),
+  action: text("action").notNull(),
+  target: text("target"),
+  details: jsonb("details"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => [index("admin_audit_created_idx").on(t.createdAt)]);
+
+/** Monthly AI budget alerts already sent (id = "2026-11:80"), so each fires once. */
+export const aiAlert = pgTable("ai_alert", {
+  id: text("id").primaryKey(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export type User = typeof user.$inferSelect;
 export type Project = typeof project.$inferSelect;
 export type Audit = typeof audit.$inferSelect;
@@ -183,3 +217,4 @@ export type PasswordReset = typeof passwordReset.$inferSelect;
 export type VisibilitySetup = typeof visibilitySetup.$inferSelect;
 export type VisibilityRun = typeof visibilityRun.$inferSelect;
 export type VisibilityResult = typeof visibilityResult.$inferSelect;
+export type AdminAuditEntry = typeof adminAudit.$inferSelect;

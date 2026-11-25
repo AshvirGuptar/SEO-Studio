@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { requireActiveUser } from "@/lib/auth/guard";
+import { requireEditor, requireProjectView } from "@/lib/auth/guard";
 import { getProject } from "@/lib/db/repo";
 import { getActiveRun, getVisibilitySetup, listRunsWithResults, saveVisibilitySetup } from "@/lib/db/visibility-repo";
 import { aiEnabled, checkBudget } from "@/lib/ai/budget";
@@ -8,9 +8,9 @@ import { LIMITS, normalizeDomain } from "@/lib/seo/visibility";
 
 /** Everything the AI Visibility page needs for one project. */
 export async function GET(_req: Request, ctx: RouteContext<"/api/projects/[id]/visibility">) {
-  const r = await requireActiveUser();
-  if (r.error) return r.error;
   const { id } = await ctx.params;
+  const r = await requireProjectView(id);
+  if (r.error) return r.error;
   const project = await getProject(id);
   if (!project) return Response.json({ error: "Project not found." }, { status: 404 });
   const [setup, runs, active, budget] = await Promise.all([
@@ -39,7 +39,7 @@ const Body = z.object({
 });
 
 export async function PUT(request: Request, ctx: RouteContext<"/api/projects/[id]/visibility">) {
-  const r = await requireActiveUser();
+  const r = await requireEditor();
   if (r.error) return r.error;
   const { id } = await ctx.params;
   if (!(await getProject(id))) return Response.json({ error: "Project not found." }, { status: 404 });

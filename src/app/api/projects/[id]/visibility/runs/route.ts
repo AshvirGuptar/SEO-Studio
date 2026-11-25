@@ -1,4 +1,4 @@
-import { requireActiveUser } from "@/lib/auth/guard";
+import { requireEditor } from "@/lib/auth/guard";
 import { getProject } from "@/lib/db/repo";
 import { getActiveRun, getRunWithResults, getVisibilitySetup } from "@/lib/db/visibility-repo";
 import { aiEnabled } from "@/lib/ai/budget";
@@ -6,7 +6,7 @@ import { serializeRun, startRun } from "@/lib/ai/visibility-runner";
 
 /** Starts a run. The browser then calls /api/visibility/runs/<id>/next once per prompt. */
 export async function POST(_req: Request, ctx: RouteContext<"/api/projects/[id]/visibility/runs">) {
-  const r = await requireActiveUser();
+  const r = await requireEditor();
   if (r.error) return r.error;
   if (!aiEnabled()) return Response.json({ error: "AI isn't set up yet: an admin needs to add ANTHROPIC_API_KEY." }, { status: 503 });
   const { id } = await ctx.params;

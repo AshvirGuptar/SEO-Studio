@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { premiumPageAccess } from "@/lib/auth/page-guard";
 import { listProjects } from "@/lib/db/repo";
+import { canEdit } from "@/lib/auth/access";
+import type { CurrentUser } from "@/lib/auth/server";
 import { scoreColor } from "@/components/ScoreRing";
 import { PremiumGate } from "@/components/PremiumGate";
 import { Time } from "@/components/Time";
@@ -15,17 +17,20 @@ export default async function ProjectsPage() {
     <div>
       <h1 className="text-2xl font-semibold tracking-tight">Projects & History</h1>
       <p className="mt-1 text-muted">Group saved audits by site or client, track scores over time and see what changed between runs.</p>
-      <div className="mt-6">{access.user ? <ProjectList /> : <PremiumGate feature="Projects & History" path="/projects" gate={access.gate} premium={false} />}</div>
+      <div className="mt-6">{access.user ? <ProjectList viewer={access.user} /> : <PremiumGate feature="Projects & History" path="/projects" gate={access.gate} premium={false} />}</div>
     </div>
   );
 }
 
-async function ProjectList() {
-  const projects = await listProjects();
+async function ProjectList({ viewer }: { viewer: CurrentUser }) {
+  const projects = await listProjects(viewer);
+  const editor = canEdit(viewer.role);
   return (
     <div className="space-y-6">
-      <NewProjectForm />
-      {projects.length === 0 ? (
+      {editor && <NewProjectForm />}
+      {projects.length === 0 && !editor ? (
+        <div className="card text-sm text-muted">No projects have been shared with you yet. Ask the team that invited you.</div>
+      ) : projects.length === 0 ? (
         <div className="card text-sm text-muted">
           No projects yet. Create one above, or run the <Link href="/analyzer" className="text-accent hover:underline">Page Analyzer</Link> or{" "}
           <Link href="/audit" className="text-accent hover:underline">Site Audit</Link> and click <b className="text-foreground">Save to project</b>.

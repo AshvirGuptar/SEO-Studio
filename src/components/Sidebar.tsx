@@ -139,7 +139,7 @@ function NavLinks({ authEnabled, dataEnabled, user, path }: Props & { path: stri
           )}
           <div className="min-w-0 flex-1">
             <div className="truncate text-sm">{user.name}</div>
-            <div className="truncate text-xs text-subtle">{user.pending ? <span className="text-warn">Access pending</span> : user.role === "admin" ? "Admin" : "Member"}</div>
+            <div className="truncate text-xs text-subtle">{user.pending ? <span className="text-warn">Access pending</span> : user.role === "admin" ? "Admin" : user.role === "client" ? "Client (read-only)" : "Member"}</div>
           </div>
           <SignOutButton className="min-h-10 rounded-lg px-2 text-xs text-muted hover:text-accent" />
         </div>

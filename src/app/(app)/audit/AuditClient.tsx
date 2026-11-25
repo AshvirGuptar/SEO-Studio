@@ -85,9 +85,17 @@ export function AuditClient() {
         concurrency: 4,
         signal: ctrl.signal,
         fetchOne: async (u, depth) => {
-          const r = await fetch("/api/audit/page", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url: u, depth }) });
-          if (!r.ok) throw new Error(`Audit API returned ${r.status}`);
-          return r.json();
+          // On "too many requests", wait as told and try again (up to 3 times) instead of failing the page.
+          for (let attempt = 0; ; attempt++) {
+            const r = await fetch("/api/audit/page", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url: u, depth }), signal: ctrl.signal });
+            if (r.status === 429 && attempt < 3) {
+              const wait = Math.min(Number(r.headers.get("retry-after")) || 5, 60);
+              await new Promise((res) => setTimeout(res, wait * 1000));
+              continue;
+            }
+            if (!r.ok) throw new Error(`Audit API returned ${r.status}`);
+            return r.json();
+          }
         },
         onPage: (p, s) => {
           collected.push(p);

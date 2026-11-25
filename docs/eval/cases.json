@@ -1,0 +1,549 @@
+[
+  {
+    "id": "product-example-pc-aurora-12gb",
+    "type": "product",
+    "keyword": "Aurora 12GB graphics card",
+    "url": "/Products/item?id=8812",
+    "title": "Example PC | Shop | GPUs | Aurora 12GB - Buy Now - Best Price Guaranteed on Graphics Hardware",
+    "meta": "Buy the Aurora at Example PC.",
+    "body": "The Aurora is here and it is our fastest card yet! Gamers and creators alike will love the incredible performance and stunning looks of this beast.\n\nBuilt with premium components and a triple-fan cooler, the Aurora keeps temps low even when you push it hard. Whether you are playing the latest titles at 1440p or rendering video, this card is ready for anything you throw at it.\n\nOrder today from Example PC and get free shipping on all orders. Backed by our 3-year warranty for total peace of mind.",
+    "specs": "Memory: 12 GB GDDR6X\nBoost Clock: 2,610 MHz\nInterface: PCIe 4.0 x16\nLength: 285 mm\nRecommended PSU: 650 W\nWarranty: 3-year warranty\nPrice: $549",
+    "facts": [
+      "12 GB GDDR6X",
+      "2,610 MHz",
+      "PCIe 4.0 x16",
+      "285 mm",
+      "650 W",
+      "3-year warranty",
+      "$549"
+    ],
+    "notes": "Title is stuffed with navigation crumbs and buries the model name, the meta is a five-word stub, and the body is hype with no direct answer about who the card is for or what it fits."
+  },
+  {
+    "id": "product-kestrel-volt-850w-psu",
+    "type": "product",
+    "keyword": "850W modular power supply",
+    "url": "/power-supplies/volt-850-gold",
+    "title": "Volt 850 Gold",
+    "meta": "The Volt 850 Gold from Kestrel Power is a fully modular 850W power supply with 80 PLUS Gold efficiency, a quiet 135 mm fan and a 7-year warranty.",
+    "body": "The Volt 850 Gold is a fully modular power supply for mid- to high-end gaming builds. It delivers 850W of continuous power with 80 PLUS Gold efficiency, so less energy is lost as heat.\n\nA 135 mm fluid dynamic bearing fan stays off below 40% load, which keeps light workloads silent. Every cable is detachable, including the 24-pin, and a native 12V-2x6 connector powers current graphics cards without adapters.\n\nIt is a good match for graphics cards that draw up to 450 W.",
+    "specs": "Wattage: 850W\nEfficiency: 80 PLUS Gold\nModularity: Fully modular\nFan: 135 mm FDB\nGPU connector: 1x 12V-2x6, 4x PCIe 8-pin\nDimensions: 150 x 150 x 86 mm\nWarranty: 7-year warranty\nPrice: $119.99",
+    "facts": [
+      "850W",
+      "80 PLUS Gold",
+      "135 mm",
+      "12V-2x6",
+      "150 x 150 x 86 mm",
+      "7-year warranty",
+      "$119.99"
+    ],
+    "notes": "Body and specs are solid, but the title is just the product name with no keyword, wattage or store, so it wastes most of the SERP width."
+  },
+  {
+    "id": "product-ridgeline-tr2-trail-running-shoe",
+    "type": "product",
+    "keyword": "men's trail running shoes",
+    "url": "/shoes/ridgeline-tr2",
+    "title": "Ridgeline TR2 Men's Trail Running Shoe - Lightweight, Grippy, Waterproof, Cushioned, Durable, Comfortable - Free Shipping",
+    "meta": "Shop now.",
+    "body": "Hit the trails in style with the Ridgeline TR2! This shoe is amazing on any terrain and you will never want to take it off.\n\nOur best-selling trail shoe just got better, with a grippier outsole, a more breathable upper and the same cushioned ride runners already love. Whether you are racing an ultra or just exploring local singletrack, it has you covered.\n\nGrab a pair before they sell out!",
+    "specs": "Weight: 285 g (men's size 9)\nDrop: 6 mm\nLug depth: 5 mm\nUpper: ripstop mesh with TPU overlays\nWaterproofing: StormShell membrane\nPrice: $139.95",
+    "facts": [
+      "Ridgeline TR2",
+      "285 g",
+      "6 mm",
+      "5 mm",
+      "StormShell",
+      "$139.95"
+    ],
+    "notes": "Title is a run-on list of adjectives far past 60 characters, the meta is two words, and the body is thin salesy filler that never states weight, drop or grip."
+  },
+  {
+    "id": "product-kettlebrook-conical-burr-grinder",
+    "type": "product",
+    "keyword": "conical burr coffee grinder",
+    "url": "/coffee/grinders/kettlebrook-cb40",
+    "title": "Kettlebrook CB40 Grinder",
+    "meta": "A great grinder for coffee lovers who want fresh coffee every morning at home.",
+    "body": "Fresh ground coffee makes all the difference. The Kettlebrook CB40 gives you cafe quality grounds right in your own kitchen.\n\nWith 40 grind settings you can go from fine espresso to coarse French press. The 40 mm stainless steel conical burrs grind evenly and quietly, and the hopper holds 250 g of beans so you are not refilling every day.\n\nIt is easy to clean and looks great on any counter. Comes with a 2-year limited warranty.",
+    "specs": "Burrs: 40 mm stainless steel conical\nGrind settings: 40\nHopper capacity: 250 g\nMotor: 150 W\nWarranty: 2-year limited warranty\nPrice: $89.00",
+    "facts": [
+      "Kettlebrook CB40",
+      "40 grind settings",
+      "40 mm",
+      "250 g",
+      "150 W",
+      "2-year limited warranty",
+      "$89.00"
+    ],
+    "notes": "Decent body, but the title and meta both miss the phrase \"conical burr\" and the meta is generic with no specs or price."
+  },
+  {
+    "id": "product-lumiere-vitamin-c-serum",
+    "type": "product",
+    "keyword": "vitamin C serum",
+    "url": "/skincare/serums/lumiere-bright-15",
+    "title": "Bright 15 | Lumiere Skin",
+    "meta": "",
+    "body": "Glow up with Bright 15, the serum everyone is talking about! Our cult favorite formula gives you radiant, dewy skin you will love.\n\nPacked with good-for-you ingredients and made with love in small batches. Dermatologist tested and suitable for all skin types. Use morning and night for best results.\n\nJoin thousands of happy customers and see the difference for yourself.",
+    "specs": "Active: 15% L-ascorbic acid\nSupporting: 1% vitamin E, 0.5% ferulic acid\npH: 3.2\nSize: 30 ml\nFragrance free\nPrice: $42",
+    "facts": [
+      "15% L-ascorbic acid",
+      "1% vitamin E",
+      "0.5% ferulic acid",
+      "pH: 3.2",
+      "30 ml",
+      "$42"
+    ],
+    "notes": "No meta description, the title never says \"vitamin C serum\", the body is vague hype, and one spec line (\"Fragrance free\") is not in Label: Value form."
+  },
+  {
+    "id": "product-switchback-g1-gravel-bike",
+    "type": "product",
+    "keyword": "aluminum gravel bike",
+    "url": "/bikes/gravel/switchback-g1-alloy",
+    "title": "Switchback G1 Alloy Gravel Bike | Corsa Cycles",
+    "meta": "The Switchback G1 is an aluminum gravel bike with 2x10 gearing, hydraulic disc brakes and room for 45 mm tires. 10.4 kg in size M. $1,299.",
+    "body": "The Switchback G1 is an aluminum gravel bike built for mixed-surface rides, from paved commutes to forest fire roads.\n\nThe 6061 alloy frame is paired with a full carbon fork and clears tires up to 45 mm, so you can run fast slicks or knobby gravel tires. A 2x10 drivetrain gives a wide gear range for steep climbs, and hydraulic disc brakes stop reliably in the wet.\n\nMounts for racks, fenders and three bottle cages make it ready for bikepacking. Size M weighs 10.4 kg.",
+    "specs": "Frame: 6061 aluminum\nFork: full carbon, 12 mm thru-axle\nDrivetrain: 2x10\nBrakes: hydraulic disc, 160 mm rotors\nTire clearance: 45 mm\nWeight: 10.4 kg (size M)\nPrice: $1,299",
+    "facts": [
+      "Switchback G1",
+      "6061",
+      "2x10",
+      "45 mm",
+      "10.4 kg",
+      "160 mm",
+      "$1,299"
+    ],
+    "notes": "Fairly strong already; the main gaps are no who-is-it-for answer in the first sentence's comparison context and no warranty or sizing info for answer engines."
+  },
+  {
+    "id": "product-haven-ergonomic-office-chair",
+    "type": "product",
+    "keyword": "ergonomic office chair",
+    "url": "/furniture/chairs/HAVEN_PRO_mesh_chair_black_v2",
+    "title": "HAVEN PRO MESH CHAIR BLACK V2 - Office Furniture - Chairs - Task Chairs - Northwood Home",
+    "meta": "Comfortable chair for your office. Order online today.",
+    "body": "Work in comfort all day long with the Haven Pro. This chair supports your back so you can focus on what matters.\n\nThe breathable mesh back keeps you cool and the padded seat is comfy for long hours. Adjustable everything means it fits you perfectly. Supports up to 300 lb.\n\nAssembly takes about 15 minutes and every chair is covered by our 12-year warranty.",
+    "specs": "Seat height: 17-21 in\nMax load: 300 lb\nLumbar support: adjustable depth\nArmrests: 4D\nTilt: synchro tilt with lock\n12-year warranty\nPrice: $449",
+    "facts": [
+      "Haven Pro",
+      "300 lb",
+      "17-21 in",
+      "4D",
+      "12-year warranty",
+      "$449"
+    ],
+    "notes": "All-caps SKU-style title and URL, generic meta without the keyword, \"adjustable everything\" instead of concrete adjustments, and a warranty line not in Label: Value form."
+  },
+  {
+    "id": "product-meadowbrook-grain-free-dog-food",
+    "type": "product",
+    "keyword": "grain-free dog food",
+    "url": "/dog/food/dry/meadowbrook-salmon-sweet-potato-24lb",
+    "title": "Meadowbrook Salmon & Sweet Potato Recipe",
+    "meta": "Real salmon is the #1 ingredient in this tasty recipe your dog will love.",
+    "body": "Your dog deserves the best. That is why Meadowbrook Salmon & Sweet Potato starts with real salmon as the #1 ingredient.\n\nThis grain-free recipe uses sweet potato and peas for energy and is made without corn, wheat or soy. Omega fatty acids support a shiny coat and healthy skin, and added probiotics help with digestion.\n\nDogs love the taste and owners love the ingredients. Available in a 24 lb bag.",
+    "specs": "Bag size: 24 lb\nCrude protein: 28% min\nCrude fat: 16% min\nCalories: 3,650 kcal/kg\nLife stage: all life stages\nPrice: $64.99",
+    "facts": [
+      "24 lb",
+      "28% min",
+      "16% min",
+      "3,650 kcal/kg",
+      "$64.99"
+    ],
+    "notes": "Title and meta omit \"grain-free dog food\" entirely, and the body is short with no feeding guidance or AAFCO-style statement an answer engine could quote."
+  },
+  {
+    "id": "product-solace-b5-bookshelf-speakers",
+    "type": "product",
+    "keyword": "powered bookshelf speakers",
+    "url": "/audio/speakers/solace-b5",
+    "title": "Solace B5 Powered Bookshelf Speakers with Bluetooth 5.3, HDMI ARC, Phono Input and Optical - Walnut Finish (Pair)",
+    "meta": "Experience room-filling sound with the Solace B5 powered bookshelf speakers. Perfect for music, movies and gaming. Shop the walnut finish today.",
+    "body": "Experience sound like never before. The Solace B5 brings concert-hall audio to your living room with deep bass and crystal clear highs.\n\nConnect your TV with HDMI ARC, stream from your phone over Bluetooth 5.3, or plug in a turntable thanks to the built-in phono preamp. The 5.25-inch woofers and silk dome tweeters are driven by 100 W of total power.\n\nThe real walnut veneer looks beautiful in any room.",
+    "specs": "Power: 100 W total (2 x 50 W)\nWoofer: 5.25-inch\nTweeter: 1-inch silk dome\nInputs: HDMI ARC, optical, phono, RCA, Bluetooth 5.3\nFrequency response: 48 Hz - 20 kHz\nDimensions: 300 x 180 x 230 mm\nPrice: $399 per pair",
+    "facts": [
+      "Solace B5",
+      "Bluetooth 5.3",
+      "100 W",
+      "5.25-inch",
+      "48 Hz - 20 kHz",
+      "300 x 180 x 230 mm",
+      "$399 per pair"
+    ],
+    "notes": "Title runs well past the SERP width, and the body leads with cliches instead of a direct answer about room size and connectivity."
+  },
+  {
+    "id": "product-ironpeak-adjustable-dumbbells",
+    "type": "product",
+    "keyword": "adjustable dumbbells",
+    "url": "/fitness/strength/ironpeak-select-52",
+    "title": "IronPeak Select 52 Adjustable Dumbbells (Pair) | IronPeak Fitness",
+    "meta": "Replace 15 pairs of dumbbells with one. The IronPeak Select 52 adjusts from 5 to 52.5 lb in seconds with a turn of the dial.",
+    "body": "The IronPeak Select 52 replaces 15 pairs of dumbbells with a single set that fits in a corner.\n\nTurn the dial on each end to choose a weight from 5 to 52.5 lb in 2.5 lb steps up to 25 lb. The plates lock into a molded tray, so the unused weight stays put when you lift.\n\nEach dumbbell measures 16.9 in long. A 2-year warranty covers the plates and handles.",
+    "specs": "Weight range: 5 to 52.5 lb per dumbbell\nIncrements: 2.5 lb (up to 25 lb)\nReplaces: 15 pairs\nLength: 16.9 in\nWarranty: 2-year warranty\nPrice: $329 per pair",
+    "facts": [
+      "IronPeak Select 52",
+      "5 to 52.5 lb",
+      "2.5 lb",
+      "15 pairs",
+      "16.9 in",
+      "2-year warranty",
+      "$329 per pair"
+    ],
+    "notes": "Decent overall, but the body is short and doesn't explain how increments work above 25 lb or compare with fixed dumbbells for answer engines."
+  },
+  {
+    "id": "product-folio-a5-dotted-notebook",
+    "type": "product",
+    "keyword": "A5 dotted notebook",
+    "url": "/stationery/notebooks/p/10442",
+    "title": "Notebook",
+    "meta": "",
+    "body": "Our signature notebook in a fresh new look. Great for journaling, planning, sketching and more.\n\nLay-flat binding, thick paper and a soft cover make it a joy to use every day. The pages hold up to most fountain pens and markers, and a ribbon bookmark and back pocket keep your notes organized.\n\nMakes a perfect gift for the creative in your life! Available in six colors.",
+    "specs": "Size: A5 (148 x 210 mm)\nPages: 192 numbered pages\nPaper: 120 gsm acid-free\nRuling: 5 mm dot grid\nBinding: lay-flat thread-bound\nPrice: $24.50",
+    "facts": [
+      "148 x 210 mm",
+      "192 numbered pages",
+      "120 gsm",
+      "5 mm dot grid",
+      "$24.50"
+    ],
+    "notes": "One-word title, no meta, an opaque numeric URL, and a body that never says A5, dotted or the paper weight."
+  },
+  {
+    "id": "product-cirrus-1p-ultralight-tent",
+    "type": "product",
+    "keyword": "ultralight one person tent",
+    "url": "/camping/tents/cirrus-1p",
+    "title": "Cirrus 1P Tent - Summit Supply Co.",
+    "meta": "The Cirrus 1P is our lightest freestanding tent.",
+    "body": "Go farther with less weight on your back. The Cirrus 1P is a freestanding one person tent that packs down small and pitches in minutes.\n\nAt 1.08 kg trail weight it is light enough for thru-hikes, yet the 20D ripstop fly with a 1,500 mm coating keeps you dry in sustained rain. A single large door and vestibule give room for boots and a pack.\n\nPacked size is 46 x 13 cm. Includes stakes and a stuff sack.",
+    "specs": "Trail weight: 1.08 kg\nFloor area: 1.9 m²\nPeak height: 99 cm\nFly: 20D ripstop nylon, 1,500 mm\nPacked size: 46 x 13 cm\nPrice: $379.95",
+    "facts": [
+      "Cirrus 1P",
+      "1.08 kg",
+      "1.9 m²",
+      "99 cm",
+      "1,500 mm",
+      "46 x 13 cm",
+      "$379.95"
+    ],
+    "notes": "Title lacks \"ultralight\" and \"one person\", and the meta is a single short line with no weight or price."
+  },
+  {
+    "id": "category-example-pc-graphics-cards",
+    "type": "category",
+    "keyword": "graphics cards for gaming",
+    "url": "/category/gpu",
+    "title": "GPUs",
+    "meta": "Shop GPUs at Example PC.",
+    "body": "Welcome to the Example PC graphics card department! We carry a huge range of GPUs for every budget and every build.\n\nWhether you are a casual gamer or a hardcore enthusiast, we have the perfect card for you. Browse our selection below and filter by brand, memory and price to find your next upgrade.\n\nOur flagship Aurora 12GB is a customer favorite. All graphics cards ship free on orders over $99, and every card is backed by a minimum 3-year warranty.",
+    "specs": "",
+    "facts": [
+      "Aurora 12GB",
+      "$99",
+      "3-year warranty"
+    ],
+    "notes": "Four-character title and a five-word meta, and the intro is boilerplate that never answers which card suits which resolution or power supply."
+  },
+  {
+    "id": "category-womens-hiking-boots",
+    "type": "category",
+    "keyword": "women's waterproof hiking boots",
+    "url": "/womens/footwear/hiking-boots",
+    "title": "Women's Hiking Boots | Free Shipping & Returns | Summit Supply Co. Outdoor Gear Store Since 1987",
+    "meta": "Shop women's hiking boots from top brands. Free shipping on orders over $75 and free returns within 60 days.",
+    "body": "Find your perfect pair of women's hiking boots at Summit Supply Co. From lightweight day hikers to burly backpacking boots, we have something for every adventure.\n\nOur collection includes waterproof and breathable options, mid and high cuts, and women's-specific fits designed for a narrower heel. Not sure what size you need? Our boot fitters can help in store or over video chat.\n\nFree shipping on orders over $75 and free returns within 60 days, even if the boots have been worn on the trail.",
+    "specs": "",
+    "facts": [
+      "$75",
+      "60 days",
+      "Since 1987"
+    ],
+    "notes": "Title is overlong and misses \"waterproof\", and the copy never explains how to choose between cuts or what waterproof membranes mean."
+  },
+  {
+    "id": "category-home-espresso-machines",
+    "type": "category",
+    "keyword": "home espresso machines",
+    "url": "/kitchen/coffee/Espresso-Machines?sort=popular&page=1",
+    "title": "Espresso Machines - Kettlebrook",
+    "meta": "",
+    "body": "Make cafe-quality espresso at home with our curated selection of espresso machines.\n\nWe carry everything from beginner-friendly single boilers to dual boiler machines for serious home baristas, plus a few manual lever machines for the enthusiasts. Every machine we sell is tested by our team in our Portland roastery before it goes on the site.\n\nUse the filters to narrow things down by boiler type, built-in grinder or price, and compare up to four machines side by side. Free shipping on machines over $300 and a 30-day return window.",
+    "specs": "",
+    "facts": [
+      "$300",
+      "30-day return window",
+      "Portland"
+    ],
+    "notes": "No meta, a query-string URL, a body at the bottom of the word range, and no guidance on single vs. dual boiler or price tiers."
+  },
+  {
+    "id": "category-mineral-sunscreen",
+    "type": "category",
+    "keyword": "mineral sunscreen for face",
+    "url": "/skincare/sun-protection",
+    "title": "Sun Protection | Lumiere Skin",
+    "meta": "Protect your skin with our range of sunscreens for every skin type.",
+    "body": "Sunscreen is the most important step in any skincare routine. At Lumiere Skin we make gentle, effective sun protection you will actually want to wear every day.\n\nOur mineral sunscreens use non-nano zinc oxide to sit on top of the skin and reflect UV rays. Every formula is broad spectrum SPF 30 or higher, reef friendly and free of fragrance. Tinted options blend into light, medium and deep skin tones without a white cast.\n\nShop our full range below, from lightweight daily fluids to water-resistant (80 minutes) sport formulas.",
+    "specs": "",
+    "facts": [
+      "SPF 30",
+      "non-nano zinc oxide",
+      "80 minutes"
+    ],
+    "notes": "Title and meta use the vague \"sun protection\" instead of the target keyword, and the page lacks a direct answer on mineral vs. chemical filters."
+  },
+  {
+    "id": "category-commuter-electric-bikes",
+    "type": "category",
+    "keyword": "commuter electric bikes",
+    "url": "/bikes/electric",
+    "title": "Electric Bikes | Corsa Cycles - Shop E-Bikes Online - Commuter, Cargo, Mountain, Folding & More",
+    "meta": "Browse electric bikes.",
+    "body": "E-bikes are taking over and it is easy to see why! They are fun, fast and great for the planet.\n\nShop all our electric bikes below. We have models for commuting, hauling kids and groceries, hitting the trails, and folding up for the train. Use the filters to sort by style, frame size or price.\n\nAll Corsa e-bikes are Class 1 or Class 2, are UL 2849 certified, and come with a 2-year warranty on the motor and battery. Financing available from 0% APR.",
+    "specs": "",
+    "facts": [
+      "Class 1",
+      "Class 2",
+      "UL 2849",
+      "2-year warranty",
+      "0% APR"
+    ],
+    "notes": "Title is overlong and keyword-diluted, the meta is three words, and the copy never covers range, battery size or what the classes mean for commuters."
+  },
+  {
+    "id": "category-standing-desks",
+    "type": "category",
+    "keyword": "electric standing desks",
+    "url": "/furniture/desks/standing-desks",
+    "title": "Electric Standing Desks | Northwood Home",
+    "meta": "Shop electric standing desks with dual motors, height ranges from 25 to 50 inches and a 10-year warranty on the frame. Free delivery.",
+    "body": "An electric standing desk lets you switch between sitting and standing at the press of a button. All Northwood standing desks use dual motors, which lift more weight more smoothly than single-motor frames.\n\nOur frames adjust from 25 to 50 inches, which fits most people from about 5 ft to 6 ft 6 in. Tops come in solid oak, walnut and bamboo in widths from 48 to 72 inches, and every desk has a programmable keypad with four memory presets.\n\nFrames carry a 10-year warranty and lift up to 350 lb. Delivery is free in the contiguous US.",
+    "specs": "",
+    "facts": [
+      "25 to 50 inches",
+      "48 to 72 inches",
+      "four memory presets",
+      "10-year warranty",
+      "350 lb"
+    ],
+    "notes": "One of the stronger pages: keyword in title and meta with concrete specs, though it lacks a short comparison of top materials or an FAQ."
+  },
+  {
+    "id": "category-cat-trees",
+    "type": "category",
+    "keyword": "cat trees for large cats",
+    "url": "/cat/furniture/trees-condos",
+    "title": "Cat Trees & Condos",
+    "meta": "Cat trees, condos and towers for happy cats. Free shipping over $49.",
+    "body": "Give your cat a place to climb, scratch and nap! Our cat trees and condos come in all shapes and sizes, from simple scratching posts to multi-level towers with hideaways and hammocks.\n\nEvery tree is wrapped in natural sisal rope and covered in soft plush. Shop by height, from compact 24 in perches to floor-to-ceiling towers. Most trees ship in one box and assemble in under 30 minutes.\n\nCats of every size and age are welcome here. Free shipping over $49.",
+    "specs": "",
+    "facts": [
+      "24 in",
+      "30 minutes",
+      "$49"
+    ],
+    "notes": "Thin intro that never addresses large cats (platform size, weight limits, stability), and the title and meta skip the target keyword."
+  },
+  {
+    "id": "category-non-slip-yoga-mats",
+    "type": "category",
+    "keyword": "non-slip yoga mats",
+    "url": "/yoga/mats",
+    "title": "Yoga Mats - Flowstate",
+    "meta": "Shop yoga mats at Flowstate. We have the best yoga mats for every practice. Find your yoga mat today and start your yoga journey with Flowstate yoga mats.",
+    "body": "Looking for a yoga mat? You have come to the right place. Flowstate yoga mats are the best yoga mats for yoga. Whether you do hot yoga, power yoga or restorative yoga, our yoga mats are made for your yoga practice.\n\nOur mats come in 4 mm and 6 mm thicknesses and are made from natural tree rubber with a polyurethane top layer for grip. Every mat is 183 x 66 cm and free of PVC.\n\nBuy your yoga mat from Flowstate today.",
+    "specs": "",
+    "facts": [
+      "4 mm",
+      "6 mm",
+      "183 x 66 cm",
+      "PVC"
+    ],
+    "notes": "Meta and body are stuffed with \"yoga mat\" repetition while the actual target, non-slip grip, is barely explained."
+  },
+  {
+    "id": "category-turntables",
+    "type": "category",
+    "keyword": "turntables for beginners",
+    "url": "/audio/turntables",
+    "title": "Turntables | Solace Audio",
+    "meta": "Shop turntables from Solace Audio.",
+    "body": "Rediscover the warmth of vinyl with a Solace turntable. Our range is designed in-house and built to bring out every detail in your record collection.\n\nAll of our turntables play 33 1/3 and 45 RPM records, and most include a built-in switchable phono preamp, so you can connect them straight to powered speakers like the Solace B5. Belt-drive models start at $249 and come with a pre-mounted, pre-aligned cartridge, so there is no fiddly setup.\n\nEvery turntable is covered by a 3-year warranty.",
+    "specs": "",
+    "facts": [
+      "33 1/3 and 45 RPM",
+      "$249",
+      "3-year warranty",
+      "Solace B5"
+    ],
+    "notes": "Title and meta never mention beginners, and the page doesn't explain what a phono preamp is or why it matters when choosing a first turntable."
+  },
+  {
+    "id": "blog-example-pc-psu-for-aurora-12gb",
+    "type": "blog",
+    "keyword": "what PSU for Aurora 12GB",
+    "url": "/blog/2026/10/psu-guide-post-final",
+    "title": "Power Supply Guide",
+    "meta": "Everything you need to know about power supplies.",
+    "body": "Power supplies are one of the most overlooked parts of any PC build. Many people spend hours choosing a graphics card and a processor, then grab whatever power supply is cheapest. That can lead to crashes, coil whine or worse.\n\nAt Example PC we get a lot of questions about power supplies, especially from customers buying our Aurora 12GB graphics card. So we put together this guide.\n\nFirst, a bit of background. A power supply converts AC power from the wall into the DC power your components use. Efficiency ratings like 80 PLUS Bronze, Gold and Platinum tell you how much power is wasted as heat. Higher is better, but Gold is the sweet spot for most builds.\n\nSo what do you need for the Aurora? We recommend a 650 W power supply for a typical build with a mid-range processor. If you run a high-end processor or plan to overclock, step up to 750 W for more headroom. Make sure the unit has two PCIe 8-pin connectors, because the Aurora draws up to 250 W on its own.\n\nWe hope this guide helps. Check out our power supply range for great deals.",
+    "specs": "",
+    "facts": [
+      "Aurora 12GB",
+      "650 W",
+      "750 W",
+      "250 W",
+      "two PCIe 8-pin connectors"
+    ],
+    "notes": "The direct answer (650 W) is buried in the fourth paragraph, and the generic title and meta never mention the Aurora or the question being answered."
+  },
+  {
+    "id": "blog-how-to-dial-in-espresso",
+    "type": "blog",
+    "keyword": "how to dial in espresso",
+    "url": "/journal/dialing-in",
+    "title": "How to Dial In Espresso at Home: A Step-by-Step Guide",
+    "meta": "Learn how to dial in espresso at home with a simple recipe: 18 g in, 36 g out, in 25 to 30 seconds. Adjust grind first, then dose.",
+    "body": "To dial in espresso, start with a fixed recipe of 18 g of coffee in and 36 g of espresso out, aim for a shot time of 25 to 30 seconds, and change only the grind size until you hit that time. Then adjust by taste.\n\nWhy start with a ratio? A 1:2 ratio is a reliable middle ground for most medium roasts. It gives you a stable target so you are not changing three things at once.\n\nStep 1: Weigh your dose. Use a scale accurate to 0.1 g and put 18 g of freshly ground coffee in the basket.\n\nStep 2: Pull the shot and time it. Start the timer when you start the pump and stop it when the scale reads 36 g.\n\nStep 3: Adjust the grind. If the shot ran faster than 25 seconds, grind finer. If it ran slower than 30 seconds, grind coarser. Move one step at a time.\n\nStep 4: Taste. Sour and thin means under-extracted, so grind finer or pull a longer ratio. Bitter and dry means over-extracted, so grind coarser.\n\nBeans roasted within the last 7 to 21 days are easiest to dial in. Very fresh beans release a lot of gas and can make shots inconsistent.",
+    "specs": "",
+    "facts": [
+      "18 g",
+      "36 g",
+      "25 to 30 seconds",
+      "1:2",
+      "0.1 g",
+      "7 to 21 days"
+    ],
+    "notes": "Already answer-first and well structured; the improvable parts are a slightly long title and no author or source signals for trust."
+  },
+  {
+    "id": "blog-skincare-routine-order",
+    "type": "blog",
+    "keyword": "skincare routine order",
+    "url": "/blog/the-ultimate-guide-to-building-your-best-ever-skincare-routine-in-2026",
+    "title": "The Ultimate Guide to Building Your Best-Ever Skincare Routine in 2026 (You Won't Believe Step 4!)",
+    "meta": "",
+    "body": "Let's be honest: skincare can be overwhelming! With so many products out there, how do you know where to start? Don't worry, babe, we've got you.\n\nWe asked our founder, a licensed esthetician with 12 years of experience, to share her secrets. Grab a cup of tea and settle in, because this is going to change your life.\n\nThe golden rule is to apply products from thinnest to thickest. In the morning, that means cleanser, then a vitamin C serum, then moisturizer, then sunscreen. At night, swap the vitamin C for a retinoid and skip the sunscreen.\n\nWait at least 60 seconds between serums so each layer can absorb. If you use a retinoid, start with 2 nights a week and build up slowly.\n\nAnd always, always wear sunscreen of SPF 30 or higher, even on cloudy days. Your future self will thank you!\n\nReady to build your routine? Shop our best sellers now.",
+    "specs": "",
+    "facts": [
+      "12 years",
+      "60 seconds",
+      "2 nights a week",
+      "SPF 30"
+    ],
+    "notes": "Clickbait title far over 60 characters, no meta, a bloated URL, and the actual order is buried under chatty intro paragraphs."
+  },
+  {
+    "id": "blog-what-size-bike-do-i-need",
+    "type": "blog",
+    "keyword": "what size bike frame",
+    "url": "/blog/bike-sizing",
+    "title": "Bike Sizing Explained | Corsa Cycles Blog",
+    "meta": "Not sure what size bike you need? Our guide explains frame sizes, inseam measurements and how to get the right fit.",
+    "body": "Getting the right size bike is the single most important thing you can do for comfort. A bike that is too big or too small can cause back pain, sore wrists and knee problems.\n\nBike sizes are measured in different ways depending on the brand. Road bikes are often sized in centimeters, mountain bikes in inches, and many brands now use S, M and L. That is why it helps to know your own measurements rather than relying on a size label.\n\nThe two numbers that matter most are your height and your inseam. To measure your inseam, stand against a wall in socks, put a book between your legs and measure from the top of the book to the floor.\n\nAs a rough guide for our bikes, riders from 160 to 170 cm usually fit a size S, 170 to 180 cm a size M, and 180 to 190 cm a size L. If you are between sizes, choose the smaller frame for a more upright, nimble ride.\n\nWhen you stand over the bike you should have about 2 to 5 cm of clearance above the top tube. Still unsure? Book a free 30-minute fit session at any Corsa Cycles store.",
+    "specs": "",
+    "facts": [
+      "160 to 170 cm",
+      "170 to 180 cm",
+      "180 to 190 cm",
+      "2 to 5 cm",
+      "30-minute"
+    ],
+    "notes": "The size chart that answers the question is in the fourth paragraph, and the title lacks the question phrasing searchers and AI engines use."
+  },
+  {
+    "id": "blog-tallyhour-time-tracking-for-agencies",
+    "type": "blog",
+    "keyword": "time tracking software for agencies",
+    "url": "/resources/blog/post?id=331&ref=nav",
+    "title": "Tallyhour Blog - Why Time Matters",
+    "meta": "At Tallyhour we believe time is your most valuable asset. Read our latest thoughts on productivity, teamwork and growth.",
+    "body": "Time is money. Every agency owner knows this, but few track it well. In this post we want to talk about why time tracking matters and how the right tool can transform your business.\n\nAgencies live and die by billable hours. When time goes untracked, projects quietly go over budget and invoices go out late. Our customers told us they were losing hours every week to spreadsheets and guesswork.\n\nThat is why we built Tallyhour. Our one-click timers work in the browser, on desktop and on mobile, and sync instantly. Timesheets roll up into project budgets automatically, so you can see when a client is about to go over before it happens.\n\nTallyhour integrates with 40+ tools, including the most popular project management and accounting apps, and exports invoices in a single click. Teams on our Studio plan pay $9 per user per month, billed annually, and every plan starts with a 14-day free trial with no credit card required.\n\nAgencies using Tallyhour report recovering an average of 4.5 billable hours per person per week in their first quarter.\n\nWant to see it in action? Start your free trial today.",
+    "specs": "",
+    "facts": [
+      "40+ tools",
+      "$9 per user per month",
+      "14-day free trial",
+      "4.5 billable hours"
+    ],
+    "notes": "Vague title and meta with no keyword, a messy tracking-parameter URL, and a self-promotional post that never directly answers what agencies should look for."
+  },
+  {
+    "id": "blog-how-often-to-feed-a-puppy",
+    "type": "blog",
+    "keyword": "how often feed puppy",
+    "url": "/pet-advice/puppy-feeding-schedule",
+    "title": "Puppy Feeding Schedule: How Often to Feed a Puppy by Age",
+    "meta": "Feed puppies 4 meals a day until 12 weeks, 3 meals until 6 months, then 2 meals a day. See our chart and portion tips.",
+    "body": "Most puppies need 4 meals a day until 12 weeks old, 3 meals a day from 3 to 6 months, and 2 meals a day from 6 months onward. Large and giant breeds may stay on puppy food longer, but the meal schedule is the same.\n\nWhy so many meals? Puppies have small stomachs and high energy needs. Splitting food into several meals keeps blood sugar steady and makes house training more predictable.\n\nHow much to feed depends on the food and your puppy's expected adult weight, so start with the chart on the bag and adjust. You should be able to feel your puppy's ribs without seeing them.\n\nSwitch to adult food at around 12 months for most breeds, or 18 to 24 months for giant breeds. Make the change gradually over 7 days by mixing in more of the new food each day.\n\nIf your puppy skips more than two meals in a row, or has vomiting or diarrhea, call your vet.",
+    "specs": "",
+    "facts": [
+      "4 meals a day",
+      "12 weeks",
+      "3 meals a day",
+      "2 meals a day",
+      "18 to 24 months",
+      "7 days"
+    ],
+    "notes": "Answer-first and clear, but it has no author, vet review or cited source, so trust signals for answer engines are weak."
+  },
+  {
+    "id": "product-tallyhour-studio-plan",
+    "type": "product",
+    "keyword": "agency time tracking app",
+    "url": "/pricing/studio",
+    "title": "Studio Plan",
+    "meta": "Everything your team needs to work smarter. Try Tallyhour free.",
+    "body": "Supercharge your agency with the Studio plan! It is everything you need to take control of your time and grow your business.\n\nUnlimited projects, powerful reports and seamless integrations come standard. Your whole team will be up and running in minutes, and our friendly support team is always just a message away.\n\nStart your free trial today and see why agencies love Tallyhour.",
+    "specs": "Price: $9 per user per month, billed annually\nFree trial: 14-day free trial\nIntegrations: 40+ tools\nProjects: unlimited\nData residency: US or EU\nSecurity: SOC 2 Type II",
+    "facts": [
+      "$9 per user per month",
+      "14-day free trial",
+      "40+ tools",
+      "SOC 2 Type II"
+    ],
+    "notes": "Two-word title with no keyword, a buzzword meta, and a body that hides the price, trial length and SOC 2 report in the specs instead of answering up front."
+  },
+  {
+    "id": "product-example-pc-frostline-240-aio-cooler",
+    "type": "product",
+    "keyword": "240mm AIO liquid cooler",
+    "url": "/cooling/liquid/Frostline-240-ARGB-BLK",
+    "title": "Frostline 240 ARGB Black AIO CPU Liquid Cooler 240mm Radiator Dual 120mm PWM Fans LGA1851 AM5 Compatible | Example PC",
+    "meta": "Keep your CPU cool with the Frostline 240.",
+    "body": "Stay frosty under pressure! The Frostline 240 keeps your processor running cool and quiet, with addressable RGB lighting that syncs with your build.\n\nThe 240 mm radiator and two 120 mm PWM fans move plenty of air, and the pump head rotates so the logo is always the right way up. Fits all current Intel and AMD sockets.\n\nAvailable now at Example PC.",
+    "specs": "Radiator: 240 mm\nFans: 2x 120 mm PWM, 500-2,000 RPM\nNoise: up to 31 dBA\nSockets: LGA1851, LGA1700, AM5, AM4\nTubing: 400 mm sleeved\nWarranty: 5-year warranty\nPrice: $99.99",
+    "facts": [
+      "240 mm",
+      "120 mm",
+      "500-2,000 RPM",
+      "31 dBA",
+      "LGA1851",
+      "AM5",
+      "5-year warranty",
+      "$99.99"
+    ],
+    "notes": "Title is a keyword-crammed spec dump far over 60 characters, the meta is a single vague line, and the body omits noise, socket list and warranty."
+  },
+  {
+    "id": "blog-how-to-season-cast-iron-skillet",
+    "type": "blog",
+    "keyword": "how to season cast iron",
+    "url": "/recipes-and-tips/Cast_Iron_Care_101.html",
+    "title": "Cast Iron Care 101 - Hearthstone Cookware",
+    "meta": "Tips and tricks for your cast iron.",
+    "body": "There is nothing quite like cooking in cast iron. Our grandmothers swore by it, and once you get the hang of it you will too. Here at Hearthstone we have been pouring cast iron in our Ohio foundry since 1952, so we know a thing or two about keeping it in great shape.\n\nA lot of people are scared of cast iron because they have heard it rusts or that you can never use soap. The truth is that cast iron is tough, and a well-seasoned pan will last for generations.\n\nSo how do you season it? Start with a clean, dry pan. Rub a very thin layer of a high smoke point oil, such as flaxseed, canola or vegetable shortening, over every surface, then wipe off as much as you can with a paper towel. Place the pan upside down in the oven at 450°F for 1 hour, then let it cool in the oven. Repeat 3 to 4 times for a durable base layer.\n\nAfter that, everyday cooking keeps the seasoning going. A little mild soap is fine. Just dry the pan on the stove and add a few drops of oil after each wash.\n\nEvery Hearthstone skillet arrives pre-seasoned and is covered by a lifetime warranty.",
+    "specs": "",
+    "facts": [
+      "1952",
+      "450°F",
+      "1 hour",
+      "3 to 4 times",
+      "lifetime warranty"
+    ],
+    "notes": "The actual seasoning steps sit in the third paragraph behind nostalgia, and the title, meta and .html URL never use the question people search."
+  }
+]

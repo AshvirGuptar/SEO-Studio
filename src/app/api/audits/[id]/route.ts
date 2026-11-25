@@ -1,8 +1,8 @@
-import { requireActiveUser } from "@/lib/auth/guard";
+import { requireEditor } from "@/lib/auth/guard";
 import { deleteAudit, getAudit } from "@/lib/db/repo";
 
 export async function DELETE(_req: Request, ctx: RouteContext<"/api/audits/[id]">) {
-  const r = await requireActiveUser();
+  const r = await requireEditor();
   if (r.error) return r.error;
   const { id } = await ctx.params;
   const a = await getAudit(id);

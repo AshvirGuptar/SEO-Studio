@@ -77,3 +77,39 @@ describe("projects and audits", () => {
     await expect(repo.createProject({ name: "Dup" }, null)).rejects.toThrow();
   });
 });
+
+describe("client role (read-only, own projects)", () => {
+  it("clients only see projects they were added to", async () => {
+    await addUser("m", "member@x.com", "active", "member");
+    await getDb().insert(user).values({ id: "c", name: "c", email: "client@x.com", status: "active", role: "client" });
+    const a = await repo.createProject({ name: "Alpha" }, "m");
+    const b = await repo.createProject({ name: "Beta" }, "m");
+    const client = { id: "c", role: "client" as const };
+    expect(await repo.listProjects(client)).toEqual([]);
+    await repo.setMemberProjects("c", [b.id]);
+    expect((await repo.listProjects(client)).map((p) => p.name)).toEqual(["Beta"]);
+    expect(await repo.canViewProject(client, b.id)).toBe(true);
+    expect(await repo.canViewProject(client, a.id)).toBe(false);
+    expect((await repo.listProjects({ id: "m", role: "member" })).length).toBe(2);
+    expect(await repo.canViewProject({ id: "m", role: "member" }, a.id)).toBe(true);
+  });
+
+  it("a client invite grants the project on sign-in", async () => {
+    await addUser("m", "member@x.com", "active", "member");
+    const p = await repo.createProject({ name: "Gamma" }, "m");
+    await repo.createInvite("Pilot@Client.com", "client", "m", p.id);
+    await addUser("pc", "pilot@client.com");
+    expect(await repo.applyAccessOnSignIn("pc")).toMatchObject({ role: "client", status: "active" });
+    expect(await repo.listMemberProjectIds("pc")).toEqual([p.id]);
+    expect(await repo.listInvites()).toEqual([]);
+  });
+
+  it("logs admin actions newest first", async () => {
+    await addUser("adm", "adm@x.com", "active", "admin");
+    await repo.logAdminAction({ id: "adm", email: "adm@x.com" }, "invite.create", "a@b.com", { role: "client" });
+    await repo.logAdminAction({ id: "adm", email: "adm@x.com" }, "invite.revoke", "a@b.com");
+    const log = await repo.listAdminActions();
+    expect(log).toHaveLength(2);
+    expect(log.map((l) => l.action).sort()).toEqual(["invite.create", "invite.revoke"]);
+  });
+});

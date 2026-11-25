@@ -2,6 +2,8 @@
 import "server-only";
 import { getCurrentUser, isAuthEnabled, type CurrentUser } from "./server";
 import { openModeEnabled, publicToolsEnabled } from "./enabled";
+import { canEdit } from "./access";
+import { canViewProject } from "@/lib/db/repo";
 import { openModeUser } from "./open-mode";
 
 type Result = { user: CurrentUser | null; error?: undefined } | { user?: undefined; error: Response };
@@ -38,5 +40,21 @@ export async function requireAdmin(): Promise<{ user: CurrentUser; error?: undef
   const r = await requireActiveUser();
   if (r.error) return r;
   if (r.user.role !== "admin") return deny(403, "Admins only.");
+  return r;
+}
+
+/** Saved-data changes (create, save, run AI, delete): any active user except read-only clients. */
+export async function requireEditor(): Promise<{ user: CurrentUser; error?: undefined } | { user?: undefined; error: Response }> {
+  const r = await requireActiveUser();
+  if (r.error) return r;
+  if (!canEdit(r.user.role)) return deny(403, "Your account has read-only access.");
+  return r;
+}
+
+/** Reading one project's data: clients only for projects they were added to (404 otherwise). */
+export async function requireProjectView(projectId: string): Promise<{ user: CurrentUser; error?: undefined } | { user?: undefined; error: Response }> {
+  const r = await requireActiveUser();
+  if (r.error) return r;
+  if (!(await canViewProject(r.user, projectId))) return deny(404, "Project not found.");
   return r;
 }

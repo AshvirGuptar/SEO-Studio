@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { requireToolAccess } from "@/lib/auth/guard";
+import { rateLimit } from "@/lib/net/rate-limit";
 import { FetchPageError, fetchPage, normalizeInputUrl } from "@/lib/net/fetch-page";
 import { parseRobots, parseSitemap, type RobotsRules } from "@/lib/seo/robots";
 import { normalizeCrawlUrl, sameSite } from "@/lib/seo/site-audit";
@@ -13,6 +14,8 @@ const MAX_SITEMAP_FILES = 6;
 export async function POST(request: Request) {
   const access = await requireToolAccess();
   if (access.error) return access.error;
+  const limited = await rateLimit(request, "discover");
+  if (limited) return limited;
   const parsed = Body.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "Provide a site URL." }, { status: 400 });
 

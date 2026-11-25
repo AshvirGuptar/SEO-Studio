@@ -62,7 +62,10 @@ async function api<T>(url: string, init?: RequestInit): Promise<T> {
   return body as T;
 }
 
-export function VisibilityClient({ projects, initialProjectId, aiEnabled, model, maxSearches }: { projects: ProjectOption[]; initialProjectId: string; aiEnabled: boolean; model: string; maxSearches: number }) {
+/** readOnly: clients see results for their projects but can't edit the setup, run, stop or delete. */
+export function VisibilityClient({ projects, initialProjectId, aiEnabled, model, maxSearches, readOnly = false }: {
+  projects: ProjectOption[]; initialProjectId: string; aiEnabled: boolean; model: string; maxSearches: number; readOnly?: boolean;
+}) {
   const { user } = useSession();
   const [projectId, setProjectId] = useState(initialProjectId);
   const [data, setData] = useState<Payload | null>(null);
@@ -204,7 +207,8 @@ export function VisibilityClient({ projects, initialProjectId, aiEnabled, model,
         <Link href={`/projects/${projectId}`} className="btn-ghost">Open project</Link>
       </div>
 
-      {!aiEnabled && (
+      {readOnly && <div className="card text-sm text-muted">You have read-only access: you can view results, and the team runs the checks.</div>}
+      {!aiEnabled && !readOnly && (
         <div className="card border-info/30 text-sm text-muted">
           <b className="text-foreground">AI isn&apos;t switched on yet.</b> You can set up prompts and brands now; running them needs an admin to add{" "}
           <code className="font-mono text-xs">ANTHROPIC_API_KEY</code> in Vercel and redeploy.
@@ -216,6 +220,7 @@ export function VisibilityClient({ projects, initialProjectId, aiEnabled, model,
         !error && <div className="h-40 animate-pulse rounded-2xl bg-surface/60" />
       ) : (
         <>
+          {!readOnly && (<>
           {/* ---------- run ---------- */}
           <section className="card flex flex-wrap items-center justify-between gap-4">
             <div className="text-sm">
@@ -296,6 +301,7 @@ export function VisibilityClient({ projects, initialProjectId, aiEnabled, model,
             </div>
           </section>
           )}
+          </>)}
 
           {active && <Progress run={active} />}
 
@@ -311,12 +317,12 @@ export function VisibilityClient({ projects, initialProjectId, aiEnabled, model,
               </section>
             </>
           ) : (
-            <div className="card text-sm text-muted">No runs yet. Save your setup, then click <b className="text-foreground">Run now</b>.</div>
+            <div className="card text-sm text-muted">{readOnly ? "No results yet." : <>No runs yet. Save your setup, then click <b className="text-foreground">Run now</b>.</>}</div>
           )}
 
           {runs.length > 0 && (
             <RunHistory runs={runs} shownId={shown?.id ?? null} onShow={setViewRunId} onDelete={remove}
-              canDelete={(r) => user?.role === "admin" || (!!user && r.createdBy === user.id)} busyId={driving} />
+              canDelete={(r) => !readOnly && (user?.role === "admin" || (!!user && r.createdBy === user.id))} busyId={driving} />
           )}
 
           <section className="card">
