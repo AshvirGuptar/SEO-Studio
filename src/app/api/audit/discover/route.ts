@@ -85,6 +85,8 @@ export async function POST(request: Request) {
     origin,
     robotsFound,
     robots,
+    /** Raw robots.txt (GEO Optimization's AI access kit merges new rules into it). */
+    robotsTxt,
     sitemapFiles,
     sitemapUrls: [...urls],
     aiCrawlers: crawlerAccess(robotsTxt),

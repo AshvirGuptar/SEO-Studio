@@ -42,10 +42,10 @@ The work didn't land in the planned order, so this is the honest picture at the 
 | Evaluation set | Week 2 | **Done** (Nov 25): 30 cases + free baseline; the first real run needs a teammate's OK (spends credits) |
 | Client role, abuse controls on tool APIs, tool registry | Week 2 | **Done** (Nov 25) |
 | AI rewrite (Content Optimizer) | Week 3 | **Done** (Nov 25), tested against a fake Claude server; first real use on the live site still to do |
-| GEO Optimization | Week 3 | Not started (in progress next) |
+| GEO Optimization | Week 3 | **Done** (Nov 25): rewrite, FAQ, schema builder, AI access kit; tested against a fake Claude server, first real use on the live site still to do |
 | Client pilot, card-based dashboard, guided demo | Week 4 | Not started; AI Visibility being done early frees Week 4 time for these |
 
-**What this changes:** everything for Weeks 2–3 except GEO Optimization is built, so Weeks 4–5 can
+**What this changes:** everything for Weeks 2–3 is built, so Weeks 4–5 can
 focus on the pilot, dashboard, demo and show. Still to do by people, not code: one real AI Visibility
 run, the first real evaluation run (needs a teammate's OK to spend about $1–3), and recruiting pilot
 users.
@@ -170,15 +170,16 @@ human accepts it.
 - [x] **Client role** (read-only, own projects only), before the Week 4 pilot.
 
 **Deliverables**
-- [ ] **GEO Optimization tool** (the locked tab becomes live):
-  - [ ] **Answer-first rewrite:** adds a summary lead, question headings and short direct answers.
+- [x] **GEO Optimization tool** (the locked tab becomes live, 2026-11-25; AI parts tested against a fake
+      Claude server, first real run on the live site still to do):
+  - [x] **Answer-first rewrite:** adds a summary lead, question headings and short direct answers.
         It shows the GEO score before and after, with a side-by-side diff to accept or reject.
-  - [ ] **FAQ generator:** writes questions and answers from the page's own content and outputs
+  - [x] **FAQ generator:** writes questions and answers from the page's own content and outputs
         FAQPage JSON-LD.
-  - [ ] **Schema builder:** Product, Organization (with `sameAs`) and Article JSON-LD, validated
+  - [x] **Schema builder:** Product, Organization (with `sameAs`) and Article JSON-LD, validated
         before export.
-  - [ ] **AI access kit:** an AI-crawler `robots.txt` rules builder (search bots vs training bots)
-        and an `llms.txt` generator from a site audit.
+  - [x] **AI access kit:** an AI-crawler `robots.txt` rules builder (search bots vs training bots)
+        and an `llms.txt` generator from a site audit (import the Site Audit's CSV export).
 - [x] **AI rewrite** (its own Premium **AI Rewrite** tab, linked from the Content Optimizer): 4 title and meta variants, a description
       rewrite that keeps every number and spec, 4 tones, each suggestion re-scored by our engine and
       fact-checked (`src/lib/seo/facts.ts`) before it's shown as acceptable, with Use this + Undo.

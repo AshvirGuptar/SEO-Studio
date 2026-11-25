@@ -11,6 +11,8 @@ export const RATE_LIMITS = {
   auditPage: { limit: 300, windowSec: 60 },
   /** AI rewrite (also capped by the AI budget). */
   aiRewrite: { limit: 10, windowSec: 60 },
+  /** GEO Optimization AI (answer-first rewrite, FAQ generator), per person; also capped by the AI budget. */
+  aiGeo: { limit: 10, windowSec: 60 },
 } as const;
 
 export type RateBucket = keyof typeof RATE_LIMITS;
