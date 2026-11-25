@@ -60,3 +60,13 @@ describe("email", () => {
     expect(emailEnvConfigured({})).toBe(false);
   });
 });
+
+describe("tool registry stays in sync", () => {
+  it("every free live tool in nav.ts is public; data and premium tools are not", async () => {
+    const { TOOLS } = await import("@/components/nav");
+    for (const t of TOOLS) {
+      const free = t.status === "live" && !t.premium && !t.needsAuth;
+      expect(isPublicToolPath(t.href), `${t.href} public?`).toBe(free);
+    }
+  });
+});

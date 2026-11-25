@@ -77,6 +77,12 @@ src/lib/ai/         Claude API (server-only except pricing.ts/answer.ts): client
                     cost math), budget.ts (aiEnabled, daily/monthly caps), answer.ts (parse web-search
                     responses), visibility.ts (ask with web search), visibility-runner.ts (one prompt per call)
 src/lib/db/visibility-repo.ts  AI Visibility setup/runs/results + ai_usage queries
+src/lib/ai/generate.ts  Shared Claude JSON call for AI writing (stream + finalMessage, cached system
+                    prompt, structured output, budget check, usage via recordAiUsage in usage.ts)
+src/lib/ai/rewrite.ts   AI rewrite prompts/schemas/scoring (pure; shared by /api/ai/rewrite and docs/eval)
+src/lib/seo/facts.ts    Fact-preservation check (no invented numbers/prices/claims; preserve mode)
+src/lib/net/rate-limit.ts  Per-IP limits for public tool APIs (api_rate table; limits in rate-limits.ts)
+docs/eval/          Evaluation set (cases.json), baseline.md, runner (npm run eval:baseline / eval)
 src/app/api/cron/   Vercel Cron routes (vercel.json). Check CRON_SECRET; the proxy lets /api/cron/* through.
 src/app/<tool>/     One folder per tool: page.tsx (server, metadata) + <Tool>Client.tsx (client UI)
 src/components/     Shared UI (CheckList, ScoreRing, SerpPreview, Sidebar). nav.ts lists tools.
@@ -136,6 +142,15 @@ src/components/     Shared UI (CheckList, ScoreRing, SerpPreview, Sidebar). nav.
 
 - GEO checks use categories ai-access / answer-ready / trust / entity and are scored separately
   (report.geo). Saved reports from before GEO lack it, so keep `geo` optional in the UI.
+- Roles: admin / member / client. Clients are read-only and see only projects in `project_member`
+  (assigned on Team & access or via a client invite with `projectId`). Reads of one project's data use
+  `requireProjectView(id)`; every write, save, delete or AI call uses `requireEditor()`; pages check
+  `canViewProject()` and hide edit controls when `!canEdit(role)`. Admin routes call `logAdminAction()`.
+- Public tool APIs call `rateLimit(request, bucket)` after the guard (limits in `src/lib/net/rate-limits.ts`);
+  clients of those APIs must handle 429 + Retry-After (the Site Audit crawler waits and retries).
+- AI writing features call `generateJson()` (never the SDK directly) and re-score + fact-check every
+  suggestion with `src/lib/seo/facts.ts` before showing it as acceptable ("✓ Facts kept" / "Needs review").
+  `recordAiUsage()` logs usage and emails admins once per month at 50/80/100% of the budget.
 - Every tool needs a Start over control (`StartOverButton`); Next keeps hidden routes' state alive
   (cacheComponents + Activity), so results persist across tabs until cleared.
 - PDF text: built-in Helvetica can't render symbols like → ✓; pass strings through `t()` in pdf.tsx.
@@ -166,7 +181,8 @@ src/components/     Shared UI (CheckList, ScoreRing, SerpPreview, Sidebar). nav.
   `claude-opus-5-5`; `AI_MODEL` can switch to `claude-sonnet-5-5` / `claude-haiku-5-5` (e.g. for testing)
   via `src/lib/ai/config.ts`, which also holds per-model request options (Haiku: basic web search, no
   `fallbacks`). Always read the model and search cap from config.ts, never hard-code them. Default
-  budgets are $2/person/day and $10/month to match the starter credits. Log token usage per user/project and enforce the daily cap. Every AI output is
+  budgets are $2/person/day and $10/month to match the starter credits. Log token usage per user/project and enforce the daily cap.
+  `npm run eval` spends real money: it refuses without `EVAL_CONFIRM=1`; get a teammate's OK first. Every AI output is
   re-scored by the deterministic engine and must pass the fact-preservation check (no invented
   specs, prices or claims) before it's shown as acceptable. Prompt changes are measured against the
   evaluation set in `docs/eval/` before merging.
@@ -198,3 +214,4 @@ Add a row at the end of every session (newest at the bottom). Timestamps are loc
 | **2026-11-18 7:30PM** | Claude Code / Claude Opus 5.5 | AI Visibility check + report redesign | Checked AI Visibility end to end: Claude request settings match the current API (Opus 5.5, `web_search_20260209`, effort medium, `fallbacks: "default"` refusal fallback, `pause_turn` resume), cost math matches current prices, and a browser run against a local fake Claude server confirmed setup saving, one-prompt-per-request runs, paused-turn resume, usage logging, results reloading from the database and run history (no real API spend). Redesigned the results: score gauge with a word label and change vs last run, a one-line summary, share of voice, a new "Sites the AI cites" ranking, a question-by-brand coverage grid, a "Biggest openings" list (questions where competitors are named and you aren't), and the trend chart only once there are two runs. The run bar moved to the top and setup collapses to a summary once saved. New pure `src/lib/seo/visibility-insights.ts` (3 tests, 152 total). Checked on desktop and iPhone 14. |
 | **2026-11-23 2:00PM** | Claude Code / Claude Opus 5.5 | Fix silent password-reset email failures | "Forgot password?" looked broken on the live site. Root cause found: Better Auth swallows errors from `sendResetPassword`, so a failed send (e.g. Gmail rejecting the app password) still showed "check your email". Added a "Password-reset emails" card on Team & access (on/off with the sender address) with a **Send test email** button (`/api/admin/email-test`, admins only) that reports the exact cause in plain English (`describeEmailError()` in `src/lib/email/errors.ts`), plus `[email] …` log lines. Also strips spaces from `SMTP_PASSWORD` (Gmail shows app passwords in groups of four), trims `SMTP_USER`, and sets 10 s connect timeouts (nodemailer waits up to 2 minutes by default, longer than a serverless request). Verified against a fake SMTP server that accepts and one that rejects the login like Gmail. 2 new tests (154 total). |
 | **2026-11-23 3:00PM** | Claude Code / Claude Opus 5.5 | Re-baseline PLAN.md | Updated PLAN.md to match what actually shipped: Week 3 marked as now, a new "Progress at a glance" table (ahead: AI Visibility built in Week 2 instead of Week 4, Free vs Premium added; behind: evaluation set, client role, tool registry), Week 2 items re-marked (Claude foundation mostly done via AI Visibility; streaming/caching, evaluation set, client role, Projects real-data check moved to Week 3), a "Carried over from Week 2" list at the top of Week 3 (evaluation set first, since it gates GEO Optimization and AI rewrite, plus the first real AI Visibility run), and Week 4 refocused on running AI Visibility on pilot brands instead of building it. |
+| **2026-11-25 6:00PM** | Claude Code / Claude Opus 5.5 | Week 2 carry-overs + AI rewrite (everything but GEO Optimization) | **Client role:** read-only `client` role that sees only assigned projects (`project_member`), client invites with a project, project checkboxes on Team & access, `requireProjectView` / `requireEditor` guards on every project, audit and AI Visibility route, edit controls hidden on pages. **Abuse controls:** per-IP rate limits on the public tool APIs (`api_rate`, 429 + Retry-After; the crawler retries), `admin_audit` log of admin actions shown on Team & access. **Projects:** paginated history (25 per page). **Claude foundation:** `generateJson()` (streaming, cached system prompt, JSON schema output, refusal fallback, budget check), `recordAiUsage()` with monthly budget alerts at 50/80/100% (`ai_alert`, emailed to admins) and an AI budget card. **AI rewrite** in the Content Optimizer (Premium): 4 title+meta variants or a description rewrite in 4 tones, each re-scored by our engine and fact-checked by the new `facts.ts` (invented numbers/prices/claims, dropped numbers, required facts), Use this + Undo. **Evaluation set v1:** 30 cases in `docs/eval/cases.json` with facts to preserve, `npm run eval:baseline` (committed `baseline.md`: avg title 42, meta 56, description SEO 41) and `npm run eval` (real run, needs `EVAL_CONFIRM=1`). Tool registry sync test. Migration `0004_clients_abuse_alerts`. 174 tests; 25-step browser run (pagination, AI rewrite against a fake streaming Claude server, client isolation incl. API 403/404, admin log and budget, 429 on the 21st analyze call, signed-out Premium prompt) plus an iPhone SE overflow check. No real API money spent. |

@@ -10,7 +10,7 @@ Built as a TCSS 490 Artifact 5 moonshot.
 | Tool | What it does | Status |
 | --- | --- | --- |
 | **Page Analyzer** | Audit a live URL or pasted HTML: SEO score + GEO score, AI crawler access, SERP preview, prioritized fixes, PDF report | Live |
-| **Content Optimizer** | Score titles, meta descriptions, URLs and product/blog copy against a keyword as you type | Live |
+| **Content Optimizer** | Score titles, meta descriptions, URLs and product/blog copy against a keyword as you type; Premium **AI rewrite** suggests titles, metas and descriptions, each re-scored and fact-checked | Live (AI rewrite needs an account + `ANTHROPIC_API_KEY`) |
 | **URL Optimizer** | Bulk-check URLs, generate clean slugs, export a redirect map | Live |
 | **Site Audit** | Crawl up to 500 pages: broken pages/links, redirects, duplicates, thin content, orphans, sitemap gaps, AI visibility, avg GEO score, PDF report | Live |
 | **Keyword Clusters** | Group keywords by topic and intent, map them to pages, find content gaps and cannibalization | Live |
@@ -18,8 +18,7 @@ Built as a TCSS 490 Artifact 5 moonshot.
 | GEO Optimization | Fix GEO issues: answer-first rewrites, FAQ + schema markup, llms.txt and AI-crawler rules, re-scored before publishing | Coming soon (Week 3, needs Claude API key) |
 | **AI Visibility** | Ask Claude (with web search) the questions customers ask; track brand mentions, citations, share of voice vs competitors and the trend, weekly on a schedule | Live (needs a database + `ANTHROPIC_API_KEY`; sign-in optional) |
 | **Projects & History** | Save audits per site or client, chart scores over time, see what changed between runs | Live (needs sign-in) |
-| **Team & access** | Google sign-in, invite-only access, admin/member roles, approve requests | Live (needs sign-in) |
-| AI Rewrite | Generate optimized titles, metas and descriptions | Planned (needs API key) |
+| **Team & access** | UW email accounts, invites, admin/member/client roles, password resets, AI budget, admin activity log | Live (needs sign-in) |
 
 Roadmap: [`PLAN.md`](PLAN.md) · Agent guide and development log: [`CLAUDE.md`](CLAUDE.md)
 
@@ -106,26 +105,36 @@ Optional: `SMTP_HOST` (default `smtp.gmail.com`), `SMTP_PORT` (default `465`), `
 rate limited (3 per 10 minutes per IP). Proton addresses on `@proton.me` can't send via SMTP.
 
 ## AI features (Claude API)
-AI Visibility uses Claude with web search. Set these in Vercel (Production) and redeploy:
+AI Visibility (Claude with web search) and AI rewrite in the Content Optimizer use the Claude API. Set
+these in Vercel (Production) and redeploy:
 
 | Variable | Value |
 | --- | --- |
 | `ANTHROPIC_API_KEY` | from console.anthropic.com. Without it, AI buttons stay visible but disabled. |
-| `AI_DAILY_USER_LIMIT_USD` | optional, default `5`: what one person can spend per day (UTC) |
-| `AI_MONTHLY_BUDGET_USD` | optional, default `50`: app-wide monthly cap; runs stop when it's reached |
+| `AI_DAILY_USER_LIMIT_USD` | optional, default `2`: what one person can spend per day (UTC) |
+| `AI_MONTHLY_BUDGET_USD` | optional, default `10`: app-wide monthly cap; AI pauses when it's reached. Admins are emailed at 50%, 80% and 100% (needs the email settings) |
 | `CRON_SECRET` | any long random string. Vercel sends it to `/api/cron/visibility` (see `vercel.json`) for weekly scheduled runs. |
 
-A run costs roughly $0.05–$0.10 per prompt (the page shows an estimate first). Every request is logged
-in the `ai_usage` table with its tokens and cost.
+An AI Visibility run costs roughly $0.05–$0.10 per question (the page shows an estimate first); an AI
+rewrite about $0.02–$0.05. Every request is logged in the `ai_usage` table with its tokens and cost, and
+Team & access shows this month's spending. AI rewrite never invents facts on purpose, and the app
+checks: every suggestion is re-scored by our engine and fact-checked (no new numbers, prices or claims
+such as "free shipping") before it's shown as acceptable. Prompt changes are measured against the
+evaluation set in [`docs/eval/`](docs/eval/README.md).
+
+The public tool APIs are rate limited per IP (Page Analyzer 20/min, Site Audit start 10/min and pages
+300/min; AI rewrite 10/min per person), and request sizes are capped.
 
 ## Access model
-- Everyone signs in with Google (any email address can be a Google account, not just Gmail).
-- `ADMIN_EMAILS` → admin. `AUTO_APPROVE_DOMAINS` → member. Invited emails → the invited role.
-- Anyone else lands on "Access requested"; admins approve or deny them under **Team & access**.
-- **Admins**: manage people, invites and roles; delete any project or audit.
-  **Members**: use every tool, create projects, save audits, delete their own.
-- Preview deployments have no Google redirect registered, so sign-in only works on production;
-  previews still run the tools.
+- People create accounts with their UW email (see Sign-in setup); `ADMIN_EMAILS` → admin,
+  `APPROVED_EMAILS` → member, invited emails → the invited role.
+- **Admins**: manage people, invites, roles and client projects; delete any project or audit; see the
+  AI budget and the admin activity log on **Team & access**.
+  **Members**: use every tool, create projects, save audits, run AI features, delete their own.
+  **Clients (read-only)**: see only the projects an admin assigned them (audits, history, AI Visibility
+  results); they can't create, save, edit, delete or run AI. Invite them with the **Client** role and a
+  project, or switch an existing person to Client and tick their projects.
+- Every admin change (invites, roles, client projects, password resets, test emails) is logged.
 - Optional extra lock: `SITE_PASSWORD` puts HTTP Basic Auth in front of everything (`src/proxy.ts`).
 
 ### Giving specific people access
@@ -143,6 +152,16 @@ behind premium tools and saved data always check for an approved user. To mark a
 set `premium: true` in `src/components/nav.ts`, add its path to `PREMIUM_TOOL_PATHS` in
 `src/lib/auth/enabled.ts` and use `premiumPageAccess()` + `<PremiumGate>` on its page.
 Set `PUBLIC_TOOLS=false` to put the free tools behind sign-in as well.
+
+### Adding a tool
+1. Create `src/app/(app)/<tool>/` with `page.tsx` (server, metadata) and `<Tool>Client.tsx`.
+2. Add one entry to `TOOLS` in `src/components/nav.ts`: name, blurb, status, tags, use cases, and
+   `premium` (uses the Claude API) or `needsAuth` (saved data) as needed. The sidebar and homepage
+   read from it.
+3. Free tools: add the page and API paths to `PUBLIC_TOOL_PATHS` in `src/lib/auth/enabled.ts`.
+   Premium tools: add the page to `PREMIUM_TOOL_PATHS` and gate it with `premiumPageAccess()` +
+   `<PremiumGate>`. Tests fail if `nav.ts` and these lists disagree.
+4. Optional: a homepage preview and icon in `src/app/(app)/home/ToolPreview.tsx`.
 
 ## Local development with a database
 ```bash

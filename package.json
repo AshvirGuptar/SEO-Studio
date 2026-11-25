@@ -10,7 +10,9 @@
     "test": "vitest run",
     "typecheck": "next typegen && tsc --noEmit",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "node scripts/migrate.mjs"
+    "db:migrate": "node scripts/migrate.mjs",
+    "eval:baseline": "EVAL_MODE=baseline vitest run --config vitest.eval.config.ts",
+    "eval": "EVAL_MODE=rewrite vitest run --config vitest.eval.config.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.8.0",
