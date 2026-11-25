@@ -20,11 +20,11 @@ export default function Home() {
           </div>
           <Link href="/guide" className="inline-flex min-h-10 items-center text-sm text-accent hover:underline">Read the playbook →</Link>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-flow-row-dense xl:grid-cols-3">
           {TOOLS.map((t, i) => {
             const live = toolStatus(t, hasData) === "live";
-            // Four cards span two columns so 8 cards fill a 3-column grid evenly (zig-zag rows).
-            const wide = ["/analyzer", "/audit", "/geo-optimization", "/projects"].includes(t.href);
+            // Three cards span two columns so 9 cards fill a 3-column grid evenly (dense flow fills gaps).
+            const wide = ["/analyzer", "/audit", "/geo-optimization"].includes(t.href);
             const className = `card group relative flex flex-col overflow-hidden p-0 transition duration-300 rise ${wide ? "xl:col-span-2" : ""} ${live ? "hover:-translate-y-1 hover:border-accent/50 hover:shadow-[0_18px_50px_-18px_rgb(241_90_41/0.45)] focus-visible:border-accent" : ""}`;
             const style = { animationDelay: `${i * 60}ms` };
             const body = (
