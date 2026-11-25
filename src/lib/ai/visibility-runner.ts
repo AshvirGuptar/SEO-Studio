@@ -6,11 +6,12 @@
 import "server-only";
 import { analyzeAnswer, estimateRunCost, summarizeRun, type BrandHit } from "../seo/visibility";
 import {
-  claimNextResult, completeResult, createRun, failResult, getRun, logAiUsage, settleRun,
+  claimNextResult, completeResult, createRun, failResult, getRun, settleRun,
   type RunWithResults,
 } from "../db/visibility-repo";
 import type { VisibilityRun, VisibilitySetup } from "../db/schema";
 import { checkBudget } from "./budget";
+import { recordAiUsage } from "./usage";
 import { askWithWebSearch, AskError, describeAiError } from "./visibility";
 import { aiModel, webSearchMaxUses } from "./config";
 
@@ -53,13 +54,13 @@ export async function processNextPrompt(runId: string, userId: string | null): P
     const a = await askWithWebSearch(item.prompt);
     const hits = analyzeAnswer(a, run.brands);
     await completeResult(item.id, { answer: a.answer, citations: a.citations, sources: a.sources, hits, model: a.model, costMicros: a.costMicros });
-    await logAiUsage({ userId, projectId: run.projectId, feature: FEATURE, model: a.model, usage: a.usage, costMicros: a.costMicros });
+    await recordAiUsage({ userId, projectId: run.projectId, feature: FEATURE, model: a.model, usage: a.usage, costMicros: a.costMicros });
   } catch (e) {
     kind = "failed";
     const cost = e instanceof AskError ? e.costMicros : 0;
     await failResult(item.id, describeAiError(e), cost);
     if (e instanceof AskError) {
-      await logAiUsage({ userId, projectId: run.projectId, feature: FEATURE, model: e.model, usage: e.usage, costMicros: cost });
+      await recordAiUsage({ userId, projectId: run.projectId, feature: FEATURE, model: e.model, usage: e.usage, costMicros: cost });
     } else {
       console.error("[ai-visibility]", e);
     }

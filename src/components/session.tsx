@@ -7,7 +7,7 @@ export interface SessionUser {
   name: string;
   email: string;
   image: string | null;
-  role: "admin" | "member";
+  role: "admin" | "member" | "client";
   /** Signed in but not approved yet (only shown in the sidebar). */
   pending?: boolean;
 }

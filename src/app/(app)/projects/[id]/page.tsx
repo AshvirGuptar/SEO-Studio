@@ -2,23 +2,30 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requirePageUser } from "@/lib/auth/page-guard";
-import { getProject, listAudits } from "@/lib/db/repo";
+import { canViewProject, getProject, listAudits } from "@/lib/db/repo";
+import { canEdit } from "@/lib/auth/access";
 import { scoreColor } from "@/components/ScoreRing";
 import { ScoreChart, Sparkline } from "@/components/ScoreChart";
 import { SetupNotice } from "@/components/SetupNotice";
 import { Time } from "@/components/Time";
+import { paginate } from "@/lib/pagination";
 import { ProjectActions } from "./ProjectActions";
 import { DeleteAuditButton } from "./DeleteAuditButton";
 
 export const metadata: Metadata = { title: "Project" };
 
-export default async function ProjectPage({ params }: PageProps<"/projects/[id]">) {
+const PAGE_SIZE = 25;
+
+export default async function ProjectPage({ params, searchParams }: PageProps<"/projects/[id]">) {
   const user = await requirePageUser();
   if (!user) return <SetupNotice feature="Projects & History" />;
   const { id } = await params;
   const project = await getProject(id);
-  if (!project) notFound();
+  if (!project || !(await canViewProject(user, id))) notFound();
+  const editor = canEdit(user.role);
   const audits = await listAudits(id);
+  const pg = paginate(audits.length, (await searchParams).page, PAGE_SIZE);
+  const pageAudits = audits.slice(pg.start, pg.end);
 
   const siteAudits = audits.filter((a) => a.kind === "site");
   // Page audits grouped by URL, newest first within each group.
@@ -27,7 +34,7 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[id]"
   const tracked = [...byUrl.entries()]
     .map(([url, list]) => ({ url, latest: list[0], previous: list[1], scores: list.map((a) => a.score).reverse(), count: list.length }))
     .sort((a, b) => +b.latest.createdAt - +a.latest.createdAt);
-  const canManage = user.role === "admin" || project.createdBy === user.id;
+  const canManage = editor && (user.role === "admin" || project.createdBy === user.id);
 
   return (
     <div className="space-y-6">
@@ -40,7 +47,7 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[id]"
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Link href={`/ai-visibility?project=${project.id}`} className="btn-ghost">AI Visibility</Link>
-            <ProjectActions project={{ id: project.id, name: project.name, domain: project.domain }} canDelete={canManage} />
+            {editor && <ProjectActions project={{ id: project.id, name: project.name, domain: project.domain }} canDelete={canManage} />}
           </div>
         </div>
       </div>
@@ -90,13 +97,16 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[id]"
 
       {audits.length > 0 && (
         <div className="card overflow-x-auto p-0">
-          <h2 className="p-4 font-medium">All saved audits</h2>
+          <div className="flex flex-wrap items-center justify-between gap-2 p-4">
+            <h2 className="font-medium">All saved audits</h2>
+            {pg.pages > 1 && <span className="text-xs text-subtle">{pg.start + 1}–{pg.end} of {audits.length}</span>}
+          </div>
           <table className="w-full min-w-[720px] text-sm">
             <thead className="border-y border-border text-left text-[11px] uppercase tracking-wide text-subtle">
               <tr><th className="p-3">Saved</th><th className="p-3">Type</th><th className="p-3">URL</th><th className="p-3">Score</th><th className="p-3 text-right">Issues</th><th className="p-3">By</th><th className="p-3" /></tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {audits.map((a) => (
+              {pageAudits.map((a) => (
                 <tr key={a.id}>
                   <td className="whitespace-nowrap p-3 text-xs text-muted"><Time iso={a.createdAt} /></td>
                   <td className="p-3 text-xs">{a.kind === "site" ? "Site audit" : "Page"}</td>
@@ -104,11 +114,18 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[id]"
                   <td className="p-3"><span className="score-badge" style={{ background: scoreColor(a.score) }}>{a.score}</span></td>
                   <td className="p-3 text-right tabular-nums text-muted">{a.issueCount}</td>
                   <td className="p-3 text-xs text-muted">{a.createdByName ?? "—"}</td>
-                  <td className="p-3 text-right">{(user.role === "admin" || a.createdBy === user.id) && <DeleteAuditButton id={a.id} />}</td>
+                  <td className="p-3 text-right">{editor && (user.role === "admin" || a.createdBy === user.id) && <DeleteAuditButton id={a.id} />}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+          {pg.pages > 1 && (
+            <nav aria-label="Saved audits pages" className="flex items-center justify-between gap-2 border-t border-border p-3 text-sm">
+              {pg.page > 1 ? <Link href={`/projects/${id}?page=${pg.page - 1}`} className="btn-ghost" scroll={false}>← Newer</Link> : <span />}
+              <span className="text-xs text-subtle">Page {pg.page} of {pg.pages}</span>
+              {pg.page < pg.pages ? <Link href={`/projects/${id}?page=${pg.page + 1}`} className="btn-ghost" scroll={false}>Older →</Link> : <span />}
+            </nav>
+          )}
         </div>
       )}
     </div>

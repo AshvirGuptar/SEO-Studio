@@ -1,21 +1,22 @@
 import { z } from "zod";
-import { requireActiveUser } from "@/lib/auth/guard";
+import { requireEditor, requireProjectView } from "@/lib/auth/guard";
 import { deleteRun, getRun, getRunWithResults, stopRun } from "@/lib/db/visibility-repo";
 import { serializeRun } from "@/lib/ai/visibility-runner";
 
 export async function GET(_req: Request, ctx: RouteContext<"/api/visibility/runs/[runId]">) {
-  const r = await requireActiveUser();
-  if (r.error) return r.error;
   const { runId } = await ctx.params;
   const run = await getRunWithResults(runId);
-  return run ? Response.json(serializeRun(run)) : Response.json({ error: "Run not found." }, { status: 404 });
+  if (!run) return Response.json({ error: "Run not found." }, { status: 404 });
+  const r = await requireProjectView(run.projectId);
+  if (r.error) return r.error;
+  return Response.json(serializeRun(run));
 }
 
 const Patch = z.object({ action: z.literal("stop") });
 
 /** Stop a run: prompts not yet asked are skipped, answers so far are kept. */
 export async function PATCH(request: Request, ctx: RouteContext<"/api/visibility/runs/[runId]">) {
-  const r = await requireActiveUser();
+  const r = await requireEditor();
   if (r.error) return r.error;
   const { runId } = await ctx.params;
   if (!Patch.safeParse(await request.json().catch(() => null)).success) return Response.json({ error: "Unknown action." }, { status: 400 });
@@ -25,7 +26,7 @@ export async function PATCH(request: Request, ctx: RouteContext<"/api/visibility
 }
 
 export async function DELETE(_req: Request, ctx: RouteContext<"/api/visibility/runs/[runId]">) {
-  const r = await requireActiveUser();
+  const r = await requireEditor();
   if (r.error) return r.error;
   const { runId } = await ctx.params;
   const run = await getRun(runId);

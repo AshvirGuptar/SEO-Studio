@@ -15,7 +15,12 @@
  *                       typed "@uw.edu" address still waits for approval; Google accounts are verified.
  * Everyone else needs an invite from an admin, or lands in "pending" until approved.
  */
-export type Role = "admin" | "member";
+export type Role = "admin" | "member" | "client";
+
+/** Clients are read-only and only see the projects they're added to; everyone else can edit. */
+export function canEdit(role: Role): boolean {
+  return role !== "client";
+}
 export type Status = "pending" | "active" | "disabled";
 
 /** Used when SIGNUP_DOMAINS isn't set. */

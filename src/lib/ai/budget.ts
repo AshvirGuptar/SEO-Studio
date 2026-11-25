@@ -57,3 +57,12 @@ export async function checkBudget(userId: string | null, nextMicros = 0, now = n
   }
   return { ...base, ok: true };
 }
+
+/** Monthly budget alert levels (percent of AI_MONTHLY_BUDGET_USD). */
+export const ALERT_THRESHOLDS = [50, 80, 100] as const;
+
+/** Which alert levels `spent` has reached (pure). */
+export function crossedThresholds(spentMicros: number, budgetMicros: number): number[] {
+  if (budgetMicros <= 0) return [];
+  return ALERT_THRESHOLDS.filter((t) => spentMicros >= (budgetMicros * t) / 100);
+}

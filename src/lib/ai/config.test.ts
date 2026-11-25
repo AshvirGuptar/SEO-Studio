@@ -38,3 +38,14 @@ describe("AI settings", () => {
     expect(haiku2).toBeLessThan(opus2 / 3);
   });
 });
+
+describe("budget alerts", () => {
+  it("reports which alert levels are reached", async () => {
+    const { crossedThresholds } = await import("./budget");
+    expect(crossedThresholds(4_000_000, 10_000_000)).toEqual([]);
+    expect(crossedThresholds(5_000_000, 10_000_000)).toEqual([50]);
+    expect(crossedThresholds(8_500_000, 10_000_000)).toEqual([50, 80]);
+    expect(crossedThresholds(12_000_000, 10_000_000)).toEqual([50, 80, 100]);
+    expect(crossedThresholds(1, 0)).toEqual([]);
+  });
+});

@@ -1,7 +1,7 @@
 /** All database reads/writes for SEO & GEO Studio's own tables. Route handlers stay thin. */
-import { and, desc, eq, lt, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, lt, sql } from "drizzle-orm";
 import { getDb } from "./index";
-import { audit, invite, project, user, type Audit, type Invite, type Project, type User } from "./schema";
+import { adminAudit, audit, invite, project, projectMember, user, type AdminAuditEntry, type Audit, type Invite, type Project, type User } from "./schema";
 import { accessConfigFromEnv, decideAccess, type Role, type Status } from "../auth/access";
 
 const newId = () => crypto.randomUUID();
@@ -42,7 +42,10 @@ export async function applyAccessOnSignIn(userId: string): Promise<User | undefi
   if (!u) return undefined;
   const inv = await getInvite(u.email);
   const next = decideAccess(u.email, accessConfigFromEnv(), { current: { role: u.role, status: u.status }, invite: inv, emailVerified: u.emailVerified });
-  if (inv && next.status === "active") await deleteInvite(inv.email);
+  if (inv && next.status === "active") {
+    if (inv.projectId) await addProjectMember(inv.projectId, u.id);
+    await deleteInvite(inv.email);
+  }
   if (next.role === u.role && next.status === u.status) return u;
   return updateUserAccess(u.id, next);
 }
@@ -57,20 +60,65 @@ export async function getInvite(email: string): Promise<Invite | undefined> {
   return i;
 }
 
-export async function createInvite(email: string, role: Role, invitedBy: string | null): Promise<Invite> {
+export async function createInvite(email: string, role: Role, invitedBy: string | null, projectId: string | null = null): Promise<Invite> {
   const e = email.trim().toLowerCase();
+  const pid = role === "client" ? projectId : null;
   const [i] = await getDb()
     .insert(invite)
-    .values({ email: e, role, invitedBy })
-    .onConflictDoUpdate({ target: invite.email, set: { role, invitedBy } })
+    .values({ email: e, role, invitedBy, projectId: pid })
+    .onConflictDoUpdate({ target: invite.email, set: { role, invitedBy, projectId: pid } })
     .returning();
   // If that person already signed up and is waiting, let them in now.
   const [existing] = await getDb().select().from(user).where(eq(user.email, e));
   if (existing && existing.status === "pending") {
     await updateUserAccess(existing.id, { role, status: "active" });
+    if (pid) await addProjectMember(pid, existing.id);
     await deleteInvite(e);
   }
   return i;
+}
+
+// ---------- client access (project members) ----------
+export async function addProjectMember(projectId: string, userId: string): Promise<void> {
+  await getDb().insert(projectMember).values({ projectId, userId }).onConflictDoNothing();
+}
+
+export async function listMemberProjectIds(userId: string): Promise<string[]> {
+  const rows = await getDb().select({ id: projectMember.projectId }).from(projectMember).where(eq(projectMember.userId, userId));
+  return rows.map((r) => r.id);
+}
+
+/** Replaces a client's project list. */
+export async function setMemberProjects(userId: string, projectIds: string[]): Promise<void> {
+  const db = getDb();
+  await db.delete(projectMember).where(eq(projectMember.userId, userId));
+  if (projectIds.length) await db.insert(projectMember).values(projectIds.map((projectId) => ({ projectId, userId }))).onConflictDoNothing();
+}
+
+/** All memberships, for the Team & access page. */
+export async function listAllMemberships(): Promise<{ userId: string; projectId: string }[]> {
+  return getDb().select({ userId: projectMember.userId, projectId: projectMember.projectId }).from(projectMember);
+}
+
+/** Admins and members see every project; clients only the ones they were added to. */
+export async function canViewProject(viewer: { id: string; role: Role }, projectId: string): Promise<boolean> {
+  if (viewer.role !== "client") return true;
+  const [m] = await getDb().select({ id: projectMember.projectId }).from(projectMember)
+    .where(and(eq(projectMember.userId, viewer.id), eq(projectMember.projectId, projectId)));
+  return !!m;
+}
+
+// ---------- admin activity ----------
+export async function logAdminAction(actor: { id: string; email: string }, action: string, target: string | null, details?: Record<string, unknown>): Promise<void> {
+  try {
+    await getDb().insert(adminAudit).values({ id: newId(), actorId: actor.id, actorEmail: actor.email, action, target, details: details ?? null });
+  } catch (e) {
+    console.error("[admin-audit]", e); // never block the admin action itself
+  }
+}
+
+export async function listAdminActions(limit = 25): Promise<AdminAuditEntry[]> {
+  return getDb().select().from(adminAudit).orderBy(desc(adminAudit.createdAt)).limit(limit);
 }
 
 export async function deleteInvite(email: string): Promise<void> {
@@ -84,8 +132,11 @@ export interface ProjectSummary extends Project {
   lastAuditAt: Date | null;
 }
 
-export async function listProjects(): Promise<ProjectSummary[]> {
+/** Projects the viewer may see (clients: only their own). No viewer = all (internal use). */
+export async function listProjects(viewer?: { id: string; role: Role }): Promise<ProjectSummary[]> {
   const db = getDb();
+  const only = viewer?.role === "client" ? await listMemberProjectIds(viewer.id) : null;
+  if (only && only.length === 0) return [];
   const rows = await db
     .select({
       p: project,
@@ -94,6 +145,7 @@ export async function listProjects(): Promise<ProjectSummary[]> {
     })
     .from(project)
     .leftJoin(audit, eq(audit.projectId, project.id))
+    .where(only ? inArray(project.id, only) : undefined)
     .groupBy(project.id)
     .orderBy(desc(project.updatedAt));
 

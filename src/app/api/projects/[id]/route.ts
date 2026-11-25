@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { requireActiveUser } from "@/lib/auth/guard";
+import { requireEditor, requireProjectView } from "@/lib/auth/guard";
 import { deleteProject, getProject, listAudits, updateProject } from "@/lib/db/repo";
 
 export async function GET(_req: Request, ctx: RouteContext<"/api/projects/[id]">) {
-  const r = await requireActiveUser();
-  if (r.error) return r.error;
   const { id } = await ctx.params;
+  const r = await requireProjectView(id);
+  if (r.error) return r.error;
   const project = await getProject(id);
   if (!project) return Response.json({ error: "Project not found." }, { status: 404 });
   return Response.json({ project, audits: await listAudits(id) });
@@ -14,7 +14,7 @@ export async function GET(_req: Request, ctx: RouteContext<"/api/projects/[id]">
 const Patch = z.object({ name: z.string().trim().min(1).max(100).optional(), domain: z.string().max(255).optional().nullable() });
 
 export async function PATCH(request: Request, ctx: RouteContext<"/api/projects/[id]">) {
-  const r = await requireActiveUser();
+  const r = await requireEditor();
   if (r.error) return r.error;
   const { id } = await ctx.params;
   const parsed = Patch.safeParse(await request.json().catch(() => null));
@@ -28,7 +28,7 @@ export async function PATCH(request: Request, ctx: RouteContext<"/api/projects/[
 }
 
 export async function DELETE(_req: Request, ctx: RouteContext<"/api/projects/[id]">) {
-  const r = await requireActiveUser();
+  const r = await requireEditor();
   if (r.error) return r.error;
   const { id } = await ctx.params;
   const p = await getProject(id);

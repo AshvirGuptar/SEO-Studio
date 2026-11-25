@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { requireActiveUser } from "@/lib/auth/guard";
+import { requireEditor } from "@/lib/auth/guard";
 import { createAudit, getProject } from "@/lib/db/repo";
 
 /** Saved audits are capped well under Vercel's 4.5 MB request limit. */
@@ -15,7 +15,7 @@ const Body = z.object({
 });
 
 export async function POST(request: Request, ctx: RouteContext<"/api/projects/[id]/audits">) {
-  const r = await requireActiveUser();
+  const r = await requireEditor();
   if (r.error) return r.error;
   const { id } = await ctx.params;
   if (!(await getProject(id))) return Response.json({ error: "Project not found." }, { status: 404 });

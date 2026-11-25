@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { premiumPageAccess } from "@/lib/auth/page-guard";
 import { listProjects } from "@/lib/db/repo";
+import { canEdit } from "@/lib/auth/access";
+import type { CurrentUser } from "@/lib/auth/server";
 import { aiEnabled } from "@/lib/ai/budget";
 import { aiModel, webSearchMaxUses } from "@/lib/ai/config";
 import { PremiumGate } from "@/components/PremiumGate";
@@ -22,13 +24,17 @@ export default async function AiVisibilityPage({ searchParams }: PageProps<"/ai-
         Ask an AI assistant the questions your customers ask, with live web search, and see whether it mentions your
         brand, cites your site, and how you compare with competitors. Run it weekly to track the trend.
       </p>
-      <div className="mt-6">{access.user ? <Projects initial={(await searchParams).project} /> : <PremiumGate feature="AI Visibility" path="/ai-visibility" gate={access.gate} />}</div>
+      <div className="mt-6">{access.user ? <Projects viewer={access.user} initial={(await searchParams).project} /> : <PremiumGate feature="AI Visibility" path="/ai-visibility" gate={access.gate} />}</div>
     </div>
   );
 }
 
-async function Projects({ initial }: { initial: string | string[] | undefined }) {
-  const projects = await listProjects();
+async function Projects({ viewer, initial }: { viewer: CurrentUser; initial: string | string[] | undefined }) {
+  const projects = await listProjects(viewer);
+  const readOnly = !canEdit(viewer.role);
+  if (projects.length === 0 && readOnly) {
+    return <div className="card text-sm text-muted">No projects have been shared with you yet.</div>;
+  }
   if (projects.length === 0) {
     return (
       <div className="card text-sm text-muted">
@@ -45,6 +51,7 @@ async function Projects({ initial }: { initial: string | string[] | undefined })
       aiEnabled={aiEnabled()}
       model={aiModel()}
       maxSearches={webSearchMaxUses()}
+      readOnly={readOnly}
     />
   );
 }

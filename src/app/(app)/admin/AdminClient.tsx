@@ -4,10 +4,19 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Time } from "@/components/Time";
 
-type Role = "admin" | "member";
+type Role = "admin" | "member" | "client";
+const ROLE_LABEL: Record<Role, string> = { admin: "Admin", member: "Member", client: "Client (read-only)" };
 type Status = "pending" | "active" | "disabled";
 interface Row { id: string; name: string; email: string; image: string | null; role: Role; status: Status; createdAt: string }
-interface InviteRow { email: string; role: Role; createdAt: string }
+interface InviteRow { email: string; role: Role; projectId: string | null; createdAt: string }
+interface ProjectOption { id: string; name: string }
+interface ActivityRow { id: string; actorEmail: string; action: string; target: string | null; createdAt: string }
+
+/** Plain-English labels for the activity log. */
+const ACTION_LABEL: Record<string, string> = {
+  "invite.create": "invited", "invite.revoke": "revoked the invite for", "user.update": "changed access for",
+  "password-reset.approve": "approved a password reset", "password-reset.deny": "denied a password reset", "email.test": "sent a test email to",
+};
 interface ResetRow { id: string; userId: string; name: string; email: string; code: string; createdAt: string }
 
 const STATUS_STYLE: Record<Status, string> = {
@@ -16,10 +25,15 @@ const STATUS_STYLE: Record<Status, string> = {
   disabled: "bg-surface-2 text-subtle",
 };
 
-export function AdminClient({ users, invites, resets, currentUserId, envAdmins }: { users: Row[]; invites: InviteRow[]; resets: ResetRow[]; currentUserId: string; envAdmins: string[] }) {
+export function AdminClient({ users, invites, resets, currentUserId, envAdmins, projects, memberships, activity }: {
+  users: Row[]; invites: InviteRow[]; resets: ResetRow[]; currentUserId: string; envAdmins: string[];
+  projects: ProjectOption[]; memberships: Record<string, string[]>; activity: ActivityRow[];
+}) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<Role>("member");
+  const [inviteProject, setInviteProject] = useState("");
+  const projectName = (id: string | null) => projects.find((p) => p.id === id)?.name ?? "a deleted project";
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
 
@@ -38,11 +52,12 @@ export function AdminClient({ users, invites, resets, currentUserId, envAdmins }
     router.refresh();
     return true;
   }
-  const patch = (u: Row, body: Partial<Pick<Row, "role" | "status">>) => call(u.id, `/api/admin/users/${u.id}`, { method: "PATCH", body: JSON.stringify(body) });
+  const patch = (u: Row, body: Partial<Pick<Row, "role" | "status">> & { projectIds?: string[] }) => call(u.id, `/api/admin/users/${u.id}`, { method: "PATCH", body: JSON.stringify(body) });
 
   async function invite(e: React.FormEvent) {
     e.preventDefault();
-    if (await call("invite", "/api/admin/invites", { method: "POST", body: JSON.stringify({ email, role }) })) setEmail("");
+    const body = { email, role, projectId: role === "client" ? inviteProject || null : null };
+    if (await call("invite", "/api/admin/invites", { method: "POST", body: JSON.stringify(body) })) setEmail("");
   }
 
   return (
@@ -110,10 +125,23 @@ export function AdminClient({ users, invites, resets, currentUserId, envAdmins }
           <select id="inv-role" className="input" value={role} onChange={(e) => setRole(e.target.value as Role)}>
             <option value="member">Member</option>
             <option value="admin">Admin</option>
+            <option value="client">Client (read-only)</option>
           </select>
         </div>
+        {role === "client" && (
+          <div className="min-w-48">
+            <label className="label" htmlFor="inv-project">Project they see</label>
+            <select id="inv-project" className="input" value={inviteProject} onChange={(e) => setInviteProject(e.target.value)} required>
+              <option value="">Choose a project…</option>
+              {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+          </div>
+        )}
         <button className="btn" disabled={busy === "invite"}>Invite</button>
-        <p className="w-full text-xs text-subtle">They create an account with that email address and get in straight away. No email is sent, so let them know.</p>
+        <p className="w-full text-xs text-subtle">
+          They create an account with that email address and get in straight away. No email is sent, so let them know.
+          Clients can only view their project&apos;s audits, history and AI Visibility results; they can&apos;t edit, save or run AI.
+        </p>
       </form>
 
       {invites.length > 0 && (
@@ -123,7 +151,7 @@ export function AdminClient({ users, invites, resets, currentUserId, envAdmins }
             {invites.map((i) => (
               <li key={i.email} className="flex flex-wrap items-center gap-3 py-2.5">
                 <span className="flex-1 break-all">{i.email}</span>
-                <span className="text-xs text-muted">{i.role === "admin" ? "Admin" : "Member"}</span>
+                <span className="text-xs text-muted">{ROLE_LABEL[i.role]}{i.role === "client" && i.projectId && ` · ${projectName(i.projectId)}`}</span>
                 <span className="text-xs text-subtle">invited <Time iso={i.createdAt} relative /></span>
                 <button className="text-xs text-subtle hover:text-fail" onClick={() => call(i.email, `/api/admin/invites?email=${encodeURIComponent(i.email)}`, { method: "DELETE" })}>Revoke</button>
               </li>
@@ -148,13 +176,20 @@ export function AdminClient({ users, invites, resets, currentUserId, envAdmins }
                   <td className="p-3">
                     {locked ? (
                       <span className="text-xs text-muted" title={u.id === currentUserId ? "You can't change your own role" : "Set by ADMIN_EMAILS in Vercel"}>
-                        {u.role === "admin" ? "Admin" : "Member"} {u.id !== currentUserId && "· env"}
+                        {ROLE_LABEL[u.role]} {u.id !== currentUserId && "· env"}
                       </span>
                     ) : (
-                      <select className="input w-32 py-1" value={u.role} disabled={busy === u.id} onChange={(e) => patch(u, { role: e.target.value as Role })} aria-label={`Role for ${u.email}`}>
-                        <option value="member">Member</option>
-                        <option value="admin">Admin</option>
-                      </select>
+                      <div className="space-y-1.5">
+                        <select className="input w-44 py-1" value={u.role} disabled={busy === u.id} onChange={(e) => patch(u, { role: e.target.value as Role })} aria-label={`Role for ${u.email}`}>
+                          <option value="member">Member</option>
+                          <option value="admin">Admin</option>
+                          <option value="client">Client (read-only)</option>
+                        </select>
+                        {u.role === "client" && (
+                          <ClientProjects user={u} projects={projects} selected={memberships[u.id] ?? []} busy={busy === u.id}
+                            onChange={(ids) => patch(u, { projectIds: ids })} />
+                        )}
+                      </div>
                     )}
                   </td>
                   <td className="p-3 text-xs text-muted"><Time iso={u.createdAt} relative /></td>
@@ -175,7 +210,48 @@ export function AdminClient({ users, invites, resets, currentUserId, envAdmins }
           </tbody>
         </table>
       </div>
+      {activity.length > 0 && (
+        <div className="card">
+          <h2 className="font-medium">Recent admin activity</h2>
+          <ul className="mt-3 divide-y divide-border text-sm">
+            {activity.map((a) => (
+              <li key={a.id} className="flex flex-wrap items-baseline gap-x-2 gap-y-1 py-2">
+                <span className="min-w-0 break-all">
+                  <span className="text-foreground">{a.actorEmail}</span>{" "}
+                  <span className="text-muted">{ACTION_LABEL[a.action] ?? a.action}</span>
+                  {a.target && !a.action.startsWith("password-reset") && <> <span className="text-foreground">{a.target}</span></>}
+                </span>
+                <span className="ml-auto text-xs text-subtle"><Time iso={a.createdAt} relative /></span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
+  );
+}
+
+/** Which projects a client can see: a compact checkbox list that saves on change. */
+function ClientProjects({ user, projects, selected, busy, onChange }: {
+  user: Row; projects: ProjectOption[]; selected: string[]; busy: boolean; onChange: (ids: string[]) => void;
+}) {
+  return (
+    <details className="text-xs">
+      <summary className="flex min-h-8 cursor-pointer items-center text-muted hover:text-foreground">
+        {selected.length === 0 ? "No projects yet: choose" : `${selected.length} project${selected.length === 1 ? "" : "s"}`}
+      </summary>
+      <div className="mt-1 max-h-48 space-y-1 overflow-y-auto rounded-lg border border-border p-2">
+        {projects.length === 0 && <p className="text-subtle">No projects exist yet.</p>}
+        {projects.map((p) => (
+          <label key={p.id} className="flex min-h-8 items-center gap-2">
+            <input type="checkbox" className="size-4 accent-[var(--accent)]" disabled={busy} checked={selected.includes(p.id)}
+              aria-label={`${user.email} can see ${p.name}`}
+              onChange={(e) => onChange(e.target.checked ? [...selected, p.id] : selected.filter((x) => x !== p.id))} />
+            {p.name}
+          </label>
+        ))}
+      </div>
+    </details>
   );
 }
 

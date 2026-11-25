@@ -28,7 +28,7 @@ Week 3 includes Thanksgiving (Thu Nov 26), so it's planned at about 60% capacity
 
 ---
 
-## Progress at a glance (updated Nov 23)
+## Progress at a glance (updated Nov 25)
 
 The work didn't land in the planned order, so this is the honest picture at the start of Week 3:
 
@@ -37,16 +37,18 @@ The work didn't land in the planned order, so this is the honest picture at the 
 | Sign-in (UW email accounts), Team & access, password resets | Week 2 | **Done**, live |
 | Free vs Premium tools (AI tools need an account) | not planned | **Done**, live (added to protect the API budget) |
 | AI Visibility tracker | Week 4 | **Built early (Nov 13–18)**, live; first real run on a brand still to do |
-| Claude API foundation (SDK, key, cost caps, usage log, refusal/timeout handling) | Week 2 | **Mostly done**, landed with AI Visibility; streaming + prompt caching move to Week 3 with AI rewrite |
-| Projects & History | Week 2 | Built (save, history chart, "what changed", rename/delete); needs a check on real data |
-| Evaluation set | Week 2 | **Not started**: moved to Week 3, and it blocks GEO Optimization and AI rewrite |
-| Client role, abuse controls on tool APIs, tool registry | Week 2 | Not started / partly done: moved to Week 3–4 |
-| GEO Optimization, AI rewrite | Week 3 | Not started (on schedule to begin now) |
+| Claude API foundation (SDK, key, cost caps, usage log, refusal/timeout handling, streaming, caching, budget alerts) | Week 2 | **Done** (Nov 25) |
+| Projects & History | Week 2 | **Done**: built, paginated, checked in a browser with 30 saved audits |
+| Evaluation set | Week 2 | **Done** (Nov 25): 30 cases + free baseline; the first real run needs a teammate's OK (spends credits) |
+| Client role, abuse controls on tool APIs, tool registry | Week 2 | **Done** (Nov 25) |
+| AI rewrite (Content Optimizer) | Week 3 | **Done** (Nov 25), tested against a fake Claude server; first real use on the live site still to do |
+| GEO Optimization | Week 3 | Not started (in progress next) |
 | Client pilot, card-based dashboard, guided demo | Week 4 | Not started; AI Visibility being done early frees Week 4 time for these |
 
-**What this changes:** Week 3 starts with the evaluation set (it gates both AI writing tools),
-then GEO Optimization and AI rewrite. Week 4 no longer needs to build AI Visibility, only to run it
-on pilot brands, so that time goes to the pilot, dashboard and demo.
+**What this changes:** everything for Weeks 2–3 except GEO Optimization is built, so Weeks 4–5 can
+focus on the pilot, dashboard, demo and show. Still to do by people, not code: one real AI Visibility
+run, the first real evaluation run (needs a teammate's OK to spend about $1–3), and recruiting pilot
+users.
 
 ---
 
@@ -109,31 +111,32 @@ for every AI feature that follows.
 - [x] **Free vs Premium tools:** the free analysis tools work without an account; tools that use
       the Claude API (AI Visibility, and GEO Optimization when it ships) are marked Premium with a
       gold crown and need a signed-in UW account, so visitors can't spend our API credits.
-- [~] **Projects & History in real use:** saving page and site audits, the history chart, "what
-      changed", and rename/delete projects are built. Still to do (moved to Week 3): check them on
-      real data on the live site, and add pagination for long histories.
-- [ ] **Per-project access:** a read-only **client** role so outside users only see their own
-      project. Required before the client pilot in Week 4. (Moved to Week 3. Outside clients can
-      already be let in by invite or `APPROVED_EMAILS`, but they currently see every project.)
-- [~] **Abuse controls:** per-user and per-IP rate limits on the tool APIs; request size caps;
-      an audit log of admin actions. (Done: rate limits on sign-in, sign-up, password changes and
-      password-reset requests; premium APIs require a signed-in account.)
-- [~] **Claude API foundation** (`src/lib/ai/`, server-only; landed with AI Visibility):
+- [x] **Projects & History in real use:** saving page and site audits, the history chart, "what
+      changed", rename/delete projects, and pagination for long histories (25 per page), checked in a
+      browser with 30 saved audits.
+- [x] **Per-project access:** a read-only **client** role that only sees the projects an admin assigns
+      (invite as Client with a project, or tick projects on Team & access). Clients can't create, save,
+      edit, delete or run AI; every project, audit and AI Visibility route checks it.
+- [x] **Abuse controls:** per-IP rate limits on the tool APIs (Page Analyzer 20/min, Site Audit
+      10/min to start and 300/min for pages, AI rewrite 10/min per person) on top of the sign-in limits;
+      request size caps; an admin activity log on Team & access.
+- [x] **Claude API foundation** (`src/lib/ai/`, server-only):
   - [x] Anthropic TypeScript SDK; `ANTHROPIC_API_KEY` stored only in Vercel. The default model is
         Claude Opus 5.5 (`claude-opus-5-5`, $4 / $20 per million input/output tokens); `AI_MODEL`
         switches to Sonnet 5.5 or Haiku 5.5 for cheaper testing.
   - [x] Handling for refusals (server-side fallback), rate limits and timeouts.
-  - [ ] Streaming responses for long outputs and prompt caching for the shared instructions
-        (moved to Week 3: needed by AI rewrite, not by AI Visibility).
-  - [~] **Cost guardrails:** an `ai_usage` table logging tokens per user and project, a daily
-        per-user cap, and a monthly budget alert. (Table, daily cap and monthly budget block landed
-        with AI Visibility; an alert/notification is still to do.)
+  - [x] Streaming responses for long outputs and prompt caching for the shared instructions
+        (`generateJson()` in `src/lib/ai/generate.ts`, used by AI rewrite).
+  - [x] **Cost guardrails:** an `ai_usage` table logging tokens per user and project, a daily
+        per-user cap, a monthly cap, and budget alerts emailed to admins at 50%, 80% and 100%, plus
+        an AI budget card on Team & access.
   - [x] Graceful degradation: with no key set, AI buttons stay visible but disabled (CLAUDE.md rule).
-- [ ] **Evaluation set v1** (moved to Week 3, first priority): 30 realistic pages and products (product, category, blog, plus the
+- [x] **Evaluation set v1** (`docs/eval/cases.json`): 30 realistic pages and products (product, category, blog, plus the
       "Example PC" store). For each one we record the SEO/GEO score before and after a rewrite,
       whether all facts and specs were preserved, and a human quality rating.
-- [~] **Tool platform for future tools:** turn the tool list into a registry. (Partly done:
-      `nav.ts` already declares each tool's status, tags, sign-in and Premium flags and use cases.) Each tool declares
+- [x] **Tool platform for future tools:** `nav.ts` is the registry (name, status, tags, sign-in and
+      Premium flags, use cases); tests keep it in sync with the access lists; "Adding a tool" steps
+      in the README. Each tool declares
       its name, status, tags, sign-in/AI requirements, preview and use cases, so a new tool is one
       folder plus one registry entry. This is the "space for more tools".
 
@@ -160,12 +163,11 @@ human accepts it.
   schema.org shapes and re-run our own analyzer on the result.
 
 **Carried over from Week 2 (do these first)**
-- [ ] **Evaluation set v1** (see Week 2): GEO Optimization and AI rewrite can't be measured, or
-      released, without it.
+- [x] **Evaluation set v1** (see Week 2).
 - [ ] **AI Visibility first real run:** one run on a real brand on the live site (about $0.30–$0.50
       for 5 questions, within the $2/day cap) to confirm the real API matches our local tests.
-- [ ] **Projects & History check on real data** and pagination for long histories.
-- [ ] **Client role** (read-only, own project only), before the Week 4 pilot.
+- [x] **Projects & History check** and pagination for long histories.
+- [x] **Client role** (read-only, own projects only), before the Week 4 pilot.
 
 **Deliverables**
 - [ ] **GEO Optimization tool** (the locked tab becomes live):
@@ -177,9 +179,11 @@ human accepts it.
         before export.
   - [ ] **AI access kit:** an AI-crawler `robots.txt` rules builder (search bots vs training bots)
         and an `llms.txt` generator from a site audit.
-- [ ] **AI rewrite in the Content Optimizer:** 3–5 title and meta variants, a product description
-      rewrite that keeps every spec, a tone setting, and each variant scored live.
-- [ ] **Evaluation run:** publish the results in `docs/eval/`: average score gain, fact-preservation
+- [x] **AI rewrite in the Content Optimizer** (Premium): 4 title and meta variants, a description
+      rewrite that keeps every number and spec, 4 tones, each suggestion re-scored by our engine and
+      fact-checked (`src/lib/seo/facts.ts`) before it's shown as acceptable, with Use this + Undo.
+- [~] **Evaluation run:** runner and free baseline done (`npm run eval:baseline`, `docs/eval/baseline.md`);
+      the real run (`EVAL_CONFIRM=1 npm run eval`, about $1–3 on Opus) needs a teammate's OK. Publish the results in `docs/eval/`: average score gain, fact-preservation
       rate, human ratings, and cost per rewrite. Our estimate is about $0.03–$0.06 per rewrite
       (about 3k input and 1.5k output tokens) before caching.
 - [ ] **Pilot preparation:** recruit 2–3 pilot users (internal team members and/or friendly client

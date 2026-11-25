@@ -10,6 +10,7 @@ import { ScoreRing, scoreColor } from "@/components/ScoreRing";
 import { SerpPreview } from "@/components/SerpPreview";
 import { StartOverButton } from "@/components/ResultActions";
 import { analyzeCopyGeo, analyzeSpecs, parseSpecs } from "@/lib/seo/specs";
+import { AiRewrite } from "./AiRewrite";
 
 const PRESETS = {
   product: { label: "Product page", minWords: 150 },
@@ -18,7 +19,7 @@ const PRESETS = {
 } as const;
 type Preset = keyof typeof PRESETS;
 
-export function ContentClient() {
+export function ContentClient({ aiEnabled = false }: { aiEnabled?: boolean }) {
   const [preset, setPreset] = useState<Preset>("product");
   const [keyword, setKeyword] = useState("");
   const [title, setTitle] = useState("");
@@ -116,13 +117,13 @@ export function ContentClient() {
           )}
         </Field>
 
-        <div className="card flex flex-wrap items-center justify-between gap-3 border-dashed">
-          <div className="text-sm">
-            <div className="font-medium">AI rewrite</div>
-            <div className="text-muted">Generate optimized titles, metas and descriptions. Enabled once an AI API key is configured.</div>
-          </div>
-          <button className="btn" disabled title="Coming soon — needs an AI API key">Rewrite with AI</button>
-        </div>
+        <AiRewrite
+          aiEnabled={aiEnabled}
+          fields={{ keyword, title, meta, body, specs, preset }}
+          current={{ titleScore: summarize(sections.title).score, metaScore: summarize(sections.meta).score }}
+          onUseTitleMeta={(t, m) => { setTitle(t); setMeta(m); }}
+          onUseBody={setBody}
+        />
       </div>
 
       <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">

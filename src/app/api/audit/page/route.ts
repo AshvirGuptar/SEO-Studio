@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { requireToolAccess } from "@/lib/auth/guard";
+import { rateLimit } from "@/lib/net/rate-limit";
 import { FetchPageError, fetchPage } from "@/lib/net/fetch-page";
 import { analyzePage } from "@/lib/seo/analyze-page";
 import { summarizeReport, type CrawledPage } from "@/lib/seo/site-audit";
@@ -10,6 +11,8 @@ const Body = z.object({ url: z.string().url().max(2048), depth: z.number().int()
 export async function POST(request: Request) {
   const access = await requireToolAccess();
   if (access.error) return access.error;
+  const limited = await rateLimit(request, "auditPage");
+  if (limited) return limited;
   const parsed = Body.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "Provide url and depth." }, { status: 400 });
   const { url, depth } = parsed.data;

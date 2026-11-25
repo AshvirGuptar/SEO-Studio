@@ -41,7 +41,7 @@ export function SaveToProject({ payload, suggestedName }: { payload: SavePayload
       .catch(() => setError("Couldn't load projects."));
   }, [open, projects, host, suggestedName]);
 
-  if (!user) return null; // no saved data (no database), or signed out
+  if (!user || user.role === "client") return null; // no saved data, signed out, or read-only client
 
   async function save() {
     setBusy(true);

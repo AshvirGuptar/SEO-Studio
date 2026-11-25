@@ -75,3 +75,12 @@ describe("UW-only sign-up (SIGNUP_DOMAINS)", () => {
     expect(decideAccess("x@gmail.com", any).status).toBe("pending");
   });
 });
+
+describe("canEdit", () => {
+  it("is false only for clients", async () => {
+    const { canEdit } = await import("./access");
+    expect(canEdit("admin")).toBe(true);
+    expect(canEdit("member")).toBe(true);
+    expect(canEdit("client")).toBe(false);
+  });
+});

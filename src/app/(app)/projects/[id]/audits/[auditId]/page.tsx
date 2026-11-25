@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requirePageUser } from "@/lib/auth/page-guard";
-import { getAudit, getPreviousAudit, getProject } from "@/lib/db/repo";
+import { canViewProject, getAudit, getPreviousAudit, getProject } from "@/lib/db/repo";
 import { comparePageChecks, compareSiteIssues } from "@/lib/seo/compare";
 import { ReportView, type Report } from "../../../../analyzer/AnalyzerClient";
 import { Results, type SiteResultsData } from "../../../../audit/AuditClient";
@@ -18,7 +18,7 @@ export default async function SavedAuditPage({ params }: PageProps<"/projects/[i
   if (!user) return <SetupNotice feature="Projects & History" />;
   const { id, auditId } = await params;
   const [project, audit] = await Promise.all([getProject(id), getAudit(auditId)]);
-  if (!project || !audit || audit.projectId !== id) notFound();
+  if (!project || !audit || audit.projectId !== id || !(await canViewProject(user, id))) notFound();
   const previous = await getPreviousAudit(audit);
 
   return (
