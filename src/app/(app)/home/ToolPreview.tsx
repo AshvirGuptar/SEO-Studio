@@ -3,6 +3,7 @@ export function ToolIcon({ href }: { href: string }) {
   const paths: Record<string, React.ReactNode> = {
     "/analyzer": <><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /><path d="M8 11h6M11 8v6" /></>,
     "/content": <><path d="M4 6h16M4 12h10M4 18h7" /><path d="m15 18 2 2 4-4" /></>,
+    "/ai-rewrite": <><path d="M4 20h4L19 9l-4-4L4 16z" /><path d="m13.5 6.5 4 4" /><path d="M19 15v4M17 17h4" /></>,
     "/urls": <><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></>,
     "/audit": <><rect x="9" y="3" width="6" height="5" rx="1" /><rect x="3" y="16" width="6" height="5" rx="1" /><rect x="15" y="16" width="6" height="5" rx="1" /><path d="M12 8v4M6 16v-2h12v2" /></>,
     "/keywords": <><circle cx="8" cy="9" r="4" /><circle cx="16.5" cy="7.5" r="2.5" /><circle cx="15" cy="16" r="4.5" /></>,
@@ -52,6 +53,17 @@ export function ToolPreview({ href }: { href: string }) {
           <div className="h-1.5 w-8/12 rounded bg-surface-2" />
           <div className="flex gap-1.5 pt-1">
             {["58/60 chars", "keyword ✓", "CTA ✓"].map((t) => <span key={t} className="rounded bg-pass/15 px-1.5 text-[9px] text-pass">{t}</span>)}
+          </div>
+        </div>
+      );
+    case "/ai-rewrite":
+      return (
+        <div className="flex h-full flex-col justify-center gap-1.5 px-4 text-[11px]">
+          <span className="truncate text-subtle line-through">Example PC | Shop | GPUs | Aurora 12GB - Buy Now</span>
+          <span className="truncate text-foreground">Aurora 12GB Graphics Card for 1440p | Example PC</span>
+          <div className="flex gap-1.5 pt-0.5">
+            <span className="rounded bg-pass/15 px-1.5 text-[9px] text-pass">score 32 → 100</span>
+            <span className="rounded bg-pass/15 px-1.5 text-[9px] text-pass">✓ facts kept</span>
           </div>
         </div>
       );

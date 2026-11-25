@@ -179,7 +179,7 @@ human accepts it.
         before export.
   - [ ] **AI access kit:** an AI-crawler `robots.txt` rules builder (search bots vs training bots)
         and an `llms.txt` generator from a site audit.
-- [x] **AI rewrite in the Content Optimizer** (Premium): 4 title and meta variants, a description
+- [x] **AI rewrite** (its own Premium **AI Rewrite** tab, linked from the Content Optimizer): 4 title and meta variants, a description
       rewrite that keeps every number and spec, 4 tones, each suggestion re-scored by our engine and
       fact-checked (`src/lib/seo/facts.ts`) before it's shown as acceptable, with Use this + Undo.
 - [~] **Evaluation run:** runner and free baseline done (`npm run eval:baseline`, `docs/eval/baseline.md`);

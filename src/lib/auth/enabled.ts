@@ -52,7 +52,7 @@ export const PUBLIC_TOOL_PATHS = ["/", "/analyzer", "/content", "/urls", "/audit
  * Signed-out visitors may open these pages so they see a "sign in / request access" prompt; the
  * pages' APIs still require an approved account.
  */
-export const PREMIUM_TOOL_PATHS = ["/ai-visibility", "/geo-optimization"];
+export const PREMIUM_TOOL_PATHS = ["/ai-rewrite", "/ai-visibility", "/geo-optimization"];
 
 export function isPremiumToolPath(pathname: string): boolean {
   return PREMIUM_TOOL_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));

@@ -10,7 +10,8 @@ Built as a TCSS 490 Artifact 5 moonshot.
 | Tool | What it does | Status |
 | --- | --- | --- |
 | **Page Analyzer** | Audit a live URL or pasted HTML: SEO score + GEO score, AI crawler access, SERP preview, prioritized fixes, PDF report | Live |
-| **Content Optimizer** | Score titles, meta descriptions, URLs and product/blog copy against a keyword as you type; Premium **AI rewrite** suggests titles, metas and descriptions, each re-scored and fact-checked | Live (AI rewrite needs an account + `ANTHROPIC_API_KEY`) |
+| **Content Optimizer** | Score titles, meta descriptions, URLs and product/blog copy against a keyword as you type | Live |
+| **AI Rewrite** (Premium) | Claude suggests 4 title + meta pairs or a rewritten description in your chosen tone; each is re-scored and fact-checked before you use it | Live (needs an account + `ANTHROPIC_API_KEY`) |
 | **URL Optimizer** | Bulk-check URLs, generate clean slugs, export a redirect map | Live |
 | **Site Audit** | Crawl up to 500 pages: broken pages/links, redirects, duplicates, thin content, orphans, sitemap gaps, AI visibility, avg GEO score, PDF report | Live |
 | **Keyword Clusters** | Group keywords by topic and intent, map them to pages, find content gaps and cannibalization | Live |

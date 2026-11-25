@@ -10,7 +10,10 @@ import { ScoreRing, scoreColor } from "@/components/ScoreRing";
 import { SerpPreview } from "@/components/SerpPreview";
 import { StartOverButton } from "@/components/ResultActions";
 import { analyzeCopyGeo, analyzeSpecs, parseSpecs } from "@/lib/seo/specs";
+import Link from "next/link";
 import { AiRewrite } from "./AiRewrite";
+import { Crown } from "@/components/Crown";
+import { useSession } from "@/components/session";
 
 const PRESETS = {
   product: { label: "Product page", minWords: 150 },
@@ -19,7 +22,12 @@ const PRESETS = {
 } as const;
 type Preset = keyof typeof PRESETS;
 
-export function ContentClient({ aiEnabled = false }: { aiEnabled?: boolean }) {
+/**
+ * The copy editor with live SEO + GEO scoring. `variant="ai"` is the AI Rewrite tab: the same editor with
+ * the AI panel first. The plain Content Optimizer links to that tab instead of embedding the panel.
+ */
+export function ContentClient({ aiEnabled = false, variant = "optimizer" }: { aiEnabled?: boolean; variant?: "optimizer" | "ai" }) {
+  const { user } = useSession();
   const [preset, setPreset] = useState<Preset>("product");
   const [keyword, setKeyword] = useState("");
   const [title, setTitle] = useState("");
@@ -56,6 +64,15 @@ export function ContentClient({ aiEnabled = false }: { aiEnabled?: boolean }) {
       <div className="space-y-4">
         {hasInput && (
           <div className="flex justify-end"><StartOverButton onClick={startOver} /></div>
+        )}
+        {variant === "ai" && (
+          <AiRewrite
+            aiEnabled={aiEnabled}
+            fields={{ keyword, title, meta, body, specs, preset }}
+            current={{ titleScore: summarize(sections.title).score, metaScore: summarize(sections.meta).score }}
+            onUseTitleMeta={(t, m) => { setTitle(t); setMeta(m); }}
+            onUseBody={setBody}
+          />
         )}
         <div className="card grid gap-4 sm:grid-cols-2">
           <div>
@@ -117,13 +134,15 @@ export function ContentClient({ aiEnabled = false }: { aiEnabled?: boolean }) {
           )}
         </Field>
 
-        <AiRewrite
-          aiEnabled={aiEnabled}
-          fields={{ keyword, title, meta, body, specs, preset }}
-          current={{ titleScore: summarize(sections.title).score, metaScore: summarize(sections.meta).score }}
-          onUseTitleMeta={(t, m) => { setTitle(t); setMeta(m); }}
-          onUseBody={setBody}
-        />
+        {variant === "optimizer" && user?.role !== "client" && (
+          <div className="card flex flex-wrap items-center justify-between gap-3 border-premium/30">
+            <div className="min-w-0 text-sm">
+              <div className="flex items-center gap-1.5 font-medium text-premium"><Crown size={14} /> AI Rewrite</div>
+              <div className="text-muted">Let Claude suggest titles, metas and descriptions from your facts, each scored and fact-checked.</div>
+            </div>
+            <Link href="/ai-rewrite" className="btn-ghost">Open AI Rewrite →</Link>
+          </div>
+        )}
       </div>
 
       <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
